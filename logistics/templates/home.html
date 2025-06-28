@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreightFlow - Welcome</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .auth-links {
+            display: flex;
+            gap: 15px;
+        }
+        .auth-links a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 16px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .auth-links a:hover {
+            background-color: #3498db;
+            color: white;
+        }
+        .auth-links .logout {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+        .auth-links .logout:hover {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .welcome-message {
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #555;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .cta-button:hover {
+            background-color: #2980b9;
+        }
+        .features {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        .feature {
+            flex: 1;
+            min-width: 250px;
+            margin: 10px;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+        .feature h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>FreightFlow</h1>
+        <div class="auth-links">
+            {% if user.is_authenticated %}
+                <span class="welcome-message">Welcome, {{ user.username }}!</span>
+                <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
+                <a href="{% url 'logistics:logout' %}" class="logout">Logout</a>
+            {% else %}
+                <a href="{% url 'logistics:login' %}">Login</a>
+                <a href="{% url 'logistics:register' %}">Register</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Welcome to FreightFlow</h1>
+        <p>Your comprehensive logistics and freight management platform. Connect with reliable carriers and find the perfect shipping solutions for your cargo.</p>
+        
+        <a href="{% url 'logistics:job_list' %}" class="cta-button">Browse Available Jobs</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'logistics:post_job' %}" class="cta-button" style="background-color:#27ae60; margin-left: 10px;">+ Post a Job</a>
+        {% endif %}
+        
+        <div class="features">
+            <div class="feature">
+                <h3>Find Jobs</h3>
+                <p>Browse through available freight jobs from various locations and cargo types.</p>
+            </div>
+            <div class="feature">
+                <h3>Post Jobs</h3>
+                <p>Create job postings to find the right carrier for your shipping needs.</p>
+            </div>
+            <div class="feature">
+                <h3>Save Favorites</h3>
+                <p>Save interesting jobs for later review and easy access.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreightFlow - Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-links a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 16px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .nav-links a:hover {
+            background-color: #3498db;
+            color: white;
+        }
+        .nav-links .logout {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+        .nav-links .logout:hover {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .welcome-message {
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        .dashboard-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .stats-section {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 150px;
+            margin: 10px;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .stat-label {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        .saved-jobs-section {
+            margin-top: 30px;
+        }
+        .section-title {
+            color: #2c3e50;
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .job-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .job-card {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 4px solid #3498db;
+        }
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        .job-title {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-decoration: none;
+        }
+        .job-title:hover {
+            color: #3498db;
+        }
+        .route-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .route-arrow {
+            margin: 0 10px;
+            color: #3498db;
+            font-weight: bold;
+        }
+        .cargo-type {
+            background-color: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .weight-info {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .no-saved-jobs {
+            text-align: center;
+            padding: 40px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #bdc3c7;
+        }
+        .no-saved-jobs h3 {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+        .browse-link {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .browse-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>FreightFlow Dashboard</h1>
+        <div class="nav-links">
+            <span class="welcome-message">Welcome, {{ user.username }}!</span>
+            <a href="{% url 'logistics:home' %}">Home</a>
+            <a href="{% url 'logistics:job_list' %}">Browse Jobs</a>
+            <a href="{% url 'logistics:logout' %}" class="logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <h2 style="text-align:center; color:#3498db; margin-bottom:10px;">Your Saved Jobs</h2>
+        <p style="text-align:center; color:#555; margin-bottom:30px;">This page shows all the jobs you have saved. You can save jobs from the job detail page using the "Save Job" button.</p>
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number">{{ saved_jobs.count }}</div>
+                <div class="stat-label">Saved Jobs</div>
+            </div>
+        </div>
+
+        <div class="saved-jobs-section">
+            <h2 class="section-title" style="display:none;">Your Saved Jobs</h2>
+            
+            {% if saved_jobs %}
+                <div class="job-grid">
+                    {% for saved_job in saved_jobs %}
+                        <div class="job-card">
+                            <a href="{% url 'logistics:job_detail' saved_job.job.id %}" class="job-title">
+                                {{ saved_job.job.title }}
+                            </a>
+                            
+                            <div class="route-info">
+                                <span>{{ saved_job.job.origin }}</span>
+                                <span class="route-arrow">→</span>
+                                <span>{{ saved_job.job.destination }}</span>
+                            </div>
+                            
+                            <div class="cargo-type">
+                                {{ saved_job.job.cargo_type.name }}
+                            </div>
+                            
+                            <div class="weight-info">
+                                Weight: {{ saved_job.job.weight_kg }} kg
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-saved-jobs">
+                    <h3>No saved jobs yet</h3>
+                    <p>Start browsing available jobs and save the ones you're interested in!</p>
+                    <a href="{% url 'logistics:job_list' %}" class="browse-link">Browse Available Jobs</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html> 

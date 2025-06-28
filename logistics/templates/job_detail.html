@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreightFlow - Job Details</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .back-link {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .job-detail-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .job-title {
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .route-section {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .route-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .route-arrow {
+            margin: 0 20px;
+            color: #3498db;
+            font-size: 24px;
+        }
+        .detail-section {
+            margin-bottom: 25px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+        .detail-value {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .cargo-badge {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        .description-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .meta-info {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .action-buttons {
+            margin-top: 30px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .save-btn {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+        .save-btn:hover {
+            background-color: #229954;
+        }
+        .save-btn.saved {
+            background-color: #7f8c8d;
+        }
+        .save-btn.saved:hover {
+            background-color: #6c7b7d;
+        }
+        .like-btn {
+            background-color: #e74c3c;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+        .like-btn:hover {
+            background-color: #c0392b;
+        }
+        .like-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .like-btn.liked {
+            background-color: #e74c3c;
+        }
+        .like-btn.liked:hover {
+            background-color: #c0392b;
+        }
+        .like-count {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .login-prompt {
+            background-color: #f39c12;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+        .login-prompt:hover {
+            background-color: #e67e22;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Job Details</h1>
+        <a href="{% url 'logistics:job_list' %}" class="back-link">← Back to Job List</a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags == 'success' %}success{% elif message.tags == 'info' %}info{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if job %}
+        <div class="job-detail-card">
+            <div class="job-title">{{ job.title }}</div>
+            
+            <div class="route-section">
+                <div class="route-info">
+                    <span>{{ job.origin }}</span>
+                    <span class="route-arrow">→</span>
+                    <span>{{ job.destination }}</span>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <div class="detail-label">Cargo Type:</div>
+                <div class="cargo-badge">{{ job.cargo_type.name }}</div>
+            </div>
+            
+            <div class="detail-section">
+                <div class="detail-label">Weight:</div>
+                <div class="detail-value">{{ job.weight_kg }} kg</div>
+            </div>
+            
+            <div class="detail-section">
+                <div class="detail-label">Pickup Date:</div>
+                <div class="detail-value">{{ job.pickup_date }}</div>
+            </div>
+            
+            <div class="detail-section">
+                <div class="detail-label">Description:</div>
+                <div class="description-box">
+                    {{ job.description|linebreaks }}
+                </div>
+            </div>
+            
+            <div class="meta-info">
+                <strong>Posted by:</strong> {{ job.created_by.username }}<br>
+                <strong>Posted on:</strong> {{ job.created_at|date:"F j, Y" }}
+            </div>
+
+            <div class="action-buttons">
+                {% if user.is_authenticated %}
+                    {% if job in user.savedjob_set.all %}
+                        <span class="save-btn saved">✓ Already Saved</span>
+                    {% else %}
+                        <a href="{% url 'logistics:save_job' job.id %}" class="save-btn">💾 Save Job</a>
+                    {% endif %}
+                    {% if is_liked %}
+                        <button class="like-btn liked" onclick="likeJob({{ job.id }})">❤️ Liked</button>
+                    {% else %}
+                        <button class="like-btn" onclick="likeJob({{ job.id }})">🤍 Like</button>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'logistics:login' %}" class="login-prompt">🔐 Login to Save Job</a>
+                    <a href="{% url 'logistics:login' %}" class="login-prompt">🔐 Login to Like</a>
+                {% endif %}
+                <div class="like-count">❤️ <span id="like-count">{{ like_count }}</span> likes</div>
+            </div>
+        </div>
+    {% else %}
+        <div class="job-detail-card">
+            <h2>Job not found</h2>
+            <p>The requested job could not be found.</p>
+        </div>
+    {% endif %}
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function likeJob(jobId) {
+            const likeBtn = $('.like-btn');
+            const likeCount = $('#like-count');
+            
+            // Disable button to prevent multiple clicks
+            likeBtn.prop('disabled', true);
+            
+            $.ajax({
+                url: '/jobs/' + jobId + '/like/',
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                success: function(data) {
+                    if (data.success) {
+                        // Update like count
+                        likeCount.text(data.likes);
+                        
+                        // Update button appearance based on action
+                        if (data.action === 'liked') {
+                            likeBtn.text('❤️ Liked');
+                            likeBtn.addClass('liked');
+                        } else {
+                            likeBtn.text('🤍 Like');
+                            likeBtn.removeClass('liked');
+                        }
+                        
+                        // Re-enable button after a short delay
+                        setTimeout(function() {
+                            likeBtn.prop('disabled', false);
+                        }, 500);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error liking job:', error);
+                    likeBtn.prop('disabled', false);
+                    alert('Error liking job. Please try again.');
+                }
+            });
+        }
+    </script>
+</body>
+</html> 
