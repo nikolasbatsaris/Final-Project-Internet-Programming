@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load form_extras %}
 <head>
     <meta charset="UTF-8">
-    <title>Post a New Job</title>
+    <title>Request a Job</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f5f5f5; }
         .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 40px; }
@@ -28,53 +27,18 @@
 <body>
     <div class="container">
         <button onclick="window.history.back()" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer;">← Back</button>
-        <a href="{% url 'logistics:dashboard' %}" class="back-link">← Back to Dashboard</a>
-        <h1>Post a New Job</h1>
-        {% if messages %}
-            {% for message in messages %}
-                <div class="success-message">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+        <h1>Request a Job</h1>
         <form method="post">
             {% csrf_token %}
             {{ form.non_field_errors }}
+            {% for field in form.visible_fields %}
             <div class="form-group">
-                {{ form.title.label_tag }}
-                {{ form.title|add_class:'required' }}
-                {{ form.title.errors }}
+                {{ field.label_tag }}
+                {{ field }}
+                {{ field.errors }}
             </div>
-            <div class="form-group">
-                {{ form.description.label_tag }}
-                {{ form.description|add_class:'required' }}
-                {{ form.description.errors }}
-            </div>
-            <div class="form-group">
-                {{ form.origin.label_tag }}
-                {{ form.origin|add_class:'required' }}
-                {{ form.origin.errors }}
-            </div>
-            <div class="form-group">
-                {{ form.destination.label_tag }}
-                {{ form.destination|add_class:'required' }}
-                {{ form.destination.errors }}
-            </div>
-            <div class="form-group">
-                {{ form.cargo_type.label_tag }}
-                {{ form.cargo_type|add_class:'required' }}
-                {{ form.cargo_type.errors }}
-            </div>
-            <div class="form-group">
-                {{ form.weight_kg.label_tag }}
-                {{ form.weight_kg|add_class:'required' }}
-                {{ form.weight_kg.errors }}
-            </div>
-            <div class="form-group">
-                {{ form.pickup_date.label_tag }}
-                {{ form.pickup_date|add_class:'required' }}
-                <small style="color:#888;">Only today or future dates are allowed.</small>
-                {{ form.pickup_date.errors }}
-            </div>
-            <button type="submit" class="submit-btn">Post Job</button>
+            {% endfor %}
+            <button type="submit" class="submit-btn">Submit Request</button>
         </form>
     </div>
 </body>

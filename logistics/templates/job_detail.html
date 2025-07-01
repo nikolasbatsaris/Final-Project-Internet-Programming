@@ -201,83 +201,121 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Job Details</h1>
-        <a href="{% url 'logistics:job_list' %}" class="back-link">← Back to Job List</a>
+    <div class="container">
+        {% if user.is_authenticated and user.is_staff %}
+        <a href="{% url 'logistics:admin_dashboard' %}" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; text-decoration:none; display:inline-block;">← Back to Staff Dashboard</a>
+        {% elif user.is_authenticated %}
+        <a href="{% url 'logistics:dashboard' %}" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; text-decoration:none; display:inline-block;">← Back to Dashboard</a>
+        {% else %}
+        <a href="{% url 'logistics:home' %}" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; text-decoration:none; display:inline-block;">← Back to Home</a>
+        {% endif %}
+        <div class="header">
+            <h1>Job Details</h1>
+            <a href="{% url 'logistics:job_list' %}" class="back-link">← Back to Job List</a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {% if message.tags == 'success' %}success{% elif message.tags == 'info' %}info{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if job %}
+            <div class="job-detail-card">
+                <div class="job-title">{{ job.title }}</div>
+                
+                <div class="route-section">
+                    <div class="route-info">
+                        <span>{{ job.origin }}</span>
+                        <span class="route-arrow">→</span>
+                        <span>{{ job.destination }}</span>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <div class="detail-label">Cargo Type:</div>
+                    <div class="cargo-badge">{{ job.cargo_type.name }}</div>
+                </div>
+                
+                <div class="detail-section">
+                    <div class="detail-label">Weight:</div>
+                    <div class="detail-value">{{ job.weight_kg }} kg</div>
+                </div>
+                
+                <div class="detail-section">
+                    <div class="detail-label">Pickup Date:</div>
+                    <div class="detail-value">{{ job.pickup_date }}</div>
+                </div>
+                
+                <div class="detail-section">
+                    <div class="detail-label">Description:</div>
+                    <div class="description-box">
+                        {{ job.description|linebreaks }}
+                    </div>
+                </div>
+                
+                <div class="meta-info">
+                    <strong>Posted by:</strong> {{ job.created_by.username }}<br>
+                    <strong>Posted on:</strong> {{ job.created_at|date:"F j, Y" }}
+                </div>
+
+                <div class="action-buttons">
+                    {% if user.is_authenticated %}
+                        {% if user.is_staff %}
+                            {% if not job.hidden %}
+                            <form method="post" action="{% url 'logistics:hide_job' job.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="save-btn" style="background-color:#7f8c8d;">🙈 Hide Job</button>
+                            </form>
+                            {% else %}
+                            <form method="post" action="{% url 'logistics:unhide_job' job.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="save-btn" style="background-color:#27ae60;">👁️ Unhide Job</button>
+                            </form>
+                            {% endif %}
+                            <form method="post" action="{% url 'logistics:flag_job' job.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="text" name="reason" placeholder="Flag reason..." required style="padding:6px; border-radius:4px; border:1px solid #ccc; margin-right:6px;">
+                                <button type="submit" class="like-btn" style="background-color:#f39c12;">🚩 Flag Job</button>
+                            </form>
+                            {% if job.flags.all %}
+                            <div style="margin-top:20px; text-align:left;">
+                                <strong>Flag History:</strong>
+                                <ul>
+                                    {% for flag in job.flags.all %}
+                                    <li>{{ flag.created_at|date:"M j, Y H:i" }} by {{ flag.flagged_by.username }}: {{ flag.reason }} ({{ flag.get_status_display }})</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            {% if job in user.savedjob_set.all %}
+                                <span class="save-btn saved">✓ Already Saved</span>
+                            {% else %}
+                                <a href="{% url 'logistics:save_job' job.id %}" class="save-btn">💾 Save Job</a>
+                            {% endif %}
+                            {% if is_liked %}
+                                <button class="like-btn liked" onclick="likeJob({{ job.id }})">❤️ Liked</button>
+                            {% else %}
+                                <button class="like-btn" onclick="likeJob({{ job.id }})">🤍 Like</button>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'logistics:login' %}" class="login-prompt">🔐 Login to Save Job</a>
+                        <a href="{% url 'logistics:login' %}" class="login-prompt">🔐 Login to Like</a>
+                    {% endif %}
+                    <div class="like-count">❤️ <span id="like-count">{{ like_count }}</span> likes</div>
+                </div>
+            </div>
+        {% else %}
+            <div class="job-detail-card">
+                <h2>Job not found</h2>
+                <p>The requested job could not be found.</p>
+            </div>
+        {% endif %}
     </div>
-
-    {% if messages %}
-        {% for message in messages %}
-            <div class="message {% if message.tags == 'success' %}success{% elif message.tags == 'info' %}info{% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    {% if job %}
-        <div class="job-detail-card">
-            <div class="job-title">{{ job.title }}</div>
-            
-            <div class="route-section">
-                <div class="route-info">
-                    <span>{{ job.origin }}</span>
-                    <span class="route-arrow">→</span>
-                    <span>{{ job.destination }}</span>
-                </div>
-            </div>
-            
-            <div class="detail-section">
-                <div class="detail-label">Cargo Type:</div>
-                <div class="cargo-badge">{{ job.cargo_type.name }}</div>
-            </div>
-            
-            <div class="detail-section">
-                <div class="detail-label">Weight:</div>
-                <div class="detail-value">{{ job.weight_kg }} kg</div>
-            </div>
-            
-            <div class="detail-section">
-                <div class="detail-label">Pickup Date:</div>
-                <div class="detail-value">{{ job.pickup_date }}</div>
-            </div>
-            
-            <div class="detail-section">
-                <div class="detail-label">Description:</div>
-                <div class="description-box">
-                    {{ job.description|linebreaks }}
-                </div>
-            </div>
-            
-            <div class="meta-info">
-                <strong>Posted by:</strong> {{ job.created_by.username }}<br>
-                <strong>Posted on:</strong> {{ job.created_at|date:"F j, Y" }}
-            </div>
-
-            <div class="action-buttons">
-                {% if user.is_authenticated %}
-                    {% if job in user.savedjob_set.all %}
-                        <span class="save-btn saved">✓ Already Saved</span>
-                    {% else %}
-                        <a href="{% url 'logistics:save_job' job.id %}" class="save-btn">💾 Save Job</a>
-                    {% endif %}
-                    {% if is_liked %}
-                        <button class="like-btn liked" onclick="likeJob({{ job.id }})">❤️ Liked</button>
-                    {% else %}
-                        <button class="like-btn" onclick="likeJob({{ job.id }})">🤍 Like</button>
-                    {% endif %}
-                {% else %}
-                    <a href="{% url 'logistics:login' %}" class="login-prompt">🔐 Login to Save Job</a>
-                    <a href="{% url 'logistics:login' %}" class="login-prompt">🔐 Login to Like</a>
-                {% endif %}
-                <div class="like-count">❤️ <span id="like-count">{{ like_count }}</span> likes</div>
-            </div>
-        </div>
-    {% else %}
-        <div class="job-detail-card">
-            <h2>Job not found</h2>
-            <p>The requested job could not be found.</p>
-        </div>
-    {% endif %}
 
     <script>
         function getCookie(name) {

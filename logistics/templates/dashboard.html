@@ -164,10 +164,24 @@
         .browse-link:hover {
             text-decoration: underline;
         }
+        .cta-button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .cta-button:hover {
+            background-color: #2980b9;
+        }
     </style>
 </head>
 <body>
     <div class="header">
+        <button onclick="window.history.back()" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer;">← Back</button>
         <h1>FreightFlow Dashboard</h1>
         <div class="nav-links">
             <span class="welcome-message">Welcome, {{ user.username }}!</span>
@@ -178,18 +192,58 @@
     </div>
 
     <div class="dashboard-container">
+        <!-- Profile Summary -->
+        <div style="margin-bottom: 30px; background: #ecf0f1; padding: 20px; border-radius: 8px;">
+            <h2 style="color:#2c3e50;">Profile Summary</h2>
+            <p><strong>Email:</strong> {{ profile.email }}</p>
+            <p><strong>Joined:</strong> {{ profile.date_joined|date:'F j, Y' }}</p>
+            <p><strong>Saved Jobs:</strong> {{ profile.saved_count }}</p>
+            <a href="{% url 'logistics:edit_profile' %}" class="cta-button" style="background-color:#3498db;">Edit Profile</a>
+        </div>
+        {% if not user.is_staff %}
+        <div style="margin-bottom: 30px; background: #d6eaf8; padding: 20px; border-radius: 8px; border: 2px solid #2980b9;">
+            <h2 style="color:#21618c;">User Features</h2>
+            <a href="{% url 'logistics:request_job' %}" class="cta-button" style="background-color:#27ae60;">+ Request a Job</a>
+            <a href="{% url 'logistics:my_job_requests' %}" class="cta-button" style="background-color:#8e44ad;">My Job Requests</a>
+        </div>
+        {% endif %}
+        {% if user.is_staff %}
+        <div style="margin-bottom: 30px; background: #d6eaf8; padding: 20px; border-radius: 8px; border: 2px solid #2980b9;">
+            <h2 style="color:#21618c;">Staff Features</h2>
+            <a href="{% url 'logistics:admin_dashboard' %}" class="cta-button" style="background-color:#e67e22;">Staff Dashboard</a>
+        </div>
+        {% endif %}
+        <!-- Django Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="success-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <!-- Recent Activity -->
+        <div style="margin-bottom: 30px;">
+            <h2 style="color:#3498db;">Recent Activity</h2>
+            {% if recent_saved %}
+                <ul>
+                {% for saved in recent_saved %}
+                    <li>
+                        <a href="{% url 'logistics:job_detail' saved.job.id %}">{{ saved.job.title }}</a>
+                        ({{ saved.job.origin }} → {{ saved.job.destination }}, {{ saved.job.cargo_type.name }})
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No recent activity.</p>
+            {% endif %}
+        </div>
+        <!-- Saved Jobs Section -->
         <h2 style="text-align:center; color:#3498db; margin-bottom:10px;">Your Saved Jobs</h2>
-        <p style="text-align:center; color:#555; margin-bottom:30px;">This page shows all the jobs you have saved. You can save jobs from the job detail page using the "Save Job" button.</p>
         <div class="stats-section">
             <div class="stat-card">
                 <div class="stat-number">{{ saved_jobs.count }}</div>
                 <div class="stat-label">Saved Jobs</div>
             </div>
         </div>
-
         <div class="saved-jobs-section">
-            <h2 class="section-title" style="display:none;">Your Saved Jobs</h2>
-            
             {% if saved_jobs %}
                 <div class="job-grid">
                     {% for saved_job in saved_jobs %}
@@ -197,19 +251,25 @@
                             <a href="{% url 'logistics:job_detail' saved_job.job.id %}" class="job-title">
                                 {{ saved_job.job.title }}
                             </a>
-                            
                             <div class="route-info">
                                 <span>{{ saved_job.job.origin }}</span>
                                 <span class="route-arrow">→</span>
                                 <span>{{ saved_job.job.destination }}</span>
                             </div>
-                            
                             <div class="cargo-type">
                                 {{ saved_job.job.cargo_type.name }}
                             </div>
-                            
                             <div class="weight-info">
                                 Weight: {{ saved_job.job.weight_kg }} kg
+                            </div>
+                            <div style="margin-top:10px;">
+                                <span style="color: {% if saved_job.job.id in job_statuses %}#27ae60{% else %}#e74c3c{% endif %}; font-weight:bold;">
+                                    {% if saved_job.job.id in job_statuses %}Active{% else %}Closed{% endif %}
+                                </span>
+                                <form method="post" action="{% url 'logistics:remove_saved_job' saved_job.job.id %}" style="display:inline; margin-left:10px;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="cta-button" style="background-color:#e74c3c; padding:5px 12px; font-size:14px;">Remove</button>
+                                </form>
                             </div>
                         </div>
                     {% endfor %}
@@ -221,6 +281,11 @@
                     <a href="{% url 'logistics:job_list' %}" class="browse-link">Browse Available Jobs</a>
                 </div>
             {% endif %}
+        </div>
+        <!-- Job Recommendations (placeholder) -->
+        <div style="margin-top:40px;">
+            <h2 style="color:#16a085;">Recommended Jobs For You</h2>
+            <p>Job recommendations coming soon!</p>
         </div>
     </div>
 </body>

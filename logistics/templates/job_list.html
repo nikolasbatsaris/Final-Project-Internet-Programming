@@ -123,41 +123,44 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Available Freight Jobs</h1>
-        <a href="{% url 'logistics:home' %}" class="back-link">← Back to Home</a>
-    </div>
+    <div class="container">
+        <button onclick="window.history.back()" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer;">← Back</button>
+        <div class="header">
+            <h1>Available Freight Jobs</h1>
+            <a href="{% url 'logistics:home' %}" class="back-link">← Back to Home</a>
+        </div>
 
-    {% if jobs %}
-        <div class="job-grid">
-            {% for job in jobs %}
-                <a href="{% url 'logistics:job_detail' job.id %}" class="job-card" style="text-decoration: none; color: inherit;">
-                    <div class="job-title">
-                        {{ job.title }}
-                    </div>
-                    <div class="route-info">
-                        <span>{{ job.origin }}</span>
-                        <span class="route-arrow">→</span>
-                        <span>{{ job.destination }}</span>
-                    </div>
-                    <div class="cargo-type">
-                        {{ job.cargo_type.name }}
-                    </div>
-                    <div class="weight-info">
-                        Weight: {{ job.weight_kg }} kg
-                    </div>
-                    <div class="job-meta">
-                        <span class="job-date">{{ job.created_at|date:"M j, Y" }}</span>
-                        <span class="job-likes">❤️ {{ job.like_count }} likes</span>
-                    </div>
-                </a>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="no-jobs">
-            <h2>No jobs available at the moment</h2>
-            <p>Check back later for new freight opportunities.</p>
-        </div>
-    {% endif %}
+        {% if jobs %}
+            <div class="job-grid">
+                {% for job in jobs %}
+                    <a href="{% url 'logistics:job_detail' job.id %}" class="job-card" style="text-decoration: none; color: inherit;">
+                        <div class="job-title">
+                            {{ job.title }}
+                        </div>
+                        <div class="route-info">
+                            <span>{{ job.origin }}</span>
+                            <span class="route-arrow">→</span>
+                            <span>{{ job.destination }}</span>
+                        </div>
+                        <div class="cargo-type">
+                            {{ job.cargo_type.name }}
+                        </div>
+                        <div class="weight-info">
+                            Weight: {{ job.weight_kg }} kg
+                        </div>
+                        <div class="job-meta">
+                            <span class="job-date">{{ job.created_at|date:"M j, Y" }}</span>
+                            <span class="job-likes">❤️ {{ job.like_count }} likes</span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-jobs">
+                <h2>No jobs available at the moment</h2>
+                <p>Check back later for new freight opportunities.</p>
+            </div>
+        {% endif %}
+    </div>
 </body>
 </html> 

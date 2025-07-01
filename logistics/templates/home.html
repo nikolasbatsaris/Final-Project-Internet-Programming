@@ -98,6 +98,7 @@
     </style>
 </head>
 <body>
+    <button onclick="window.history.back()" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin:20px 0 0 20px; cursor:pointer;">← Back</button>
     <div class="header">
         <h1>FreightFlow</h1>
         <div class="auth-links">
@@ -117,8 +118,8 @@
         <p>Your comprehensive logistics and freight management platform. Connect with reliable carriers and find the perfect shipping solutions for your cargo.</p>
         
         <a href="{% url 'logistics:job_list' %}" class="cta-button">Browse Available Jobs</a>
-        {% if user.is_authenticated %}
-        <a href="{% url 'logistics:post_job' %}" class="cta-button" style="background-color:#27ae60; margin-left: 10px;">+ Post a Job</a>
+        {% if user.is_authenticated and not user.is_staff %}
+        <a href="{% url 'logistics:request_job' %}" class="cta-button" style="background-color:#27ae60; margin-left: 10px;">Request a Job</a>
         {% endif %}
         
         <div class="features">

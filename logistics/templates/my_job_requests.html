@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Job Requests</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 40px; }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background-color: #3498db; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        .status-pending { color: #e67e22; font-weight: bold; }
+        .status-approved { color: #27ae60; font-weight: bold; }
+        .status-rejected { color: #e74c3c; font-weight: bold; }
+        .back-btn { background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button onclick="window.history.back()" class="back-btn">← Back</button>
+        <h1>My Job Requests</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Route</th>
+                    <th>Cargo Type</th>
+                    <th>Pickup Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in job_requests %}
+                <tr>
+                    <td>{{ req.title }}</td>
+                    <td>{{ req.origin }} → {{ req.destination }}</td>
+                    <td>{{ req.cargo_type.name }}</td>
+                    <td>{{ req.pickup_date }}</td>
+                    <td class="status-{{ req.status }}">{{ req.get_status_display }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align:center; color:#888;">No job requests yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html> 
