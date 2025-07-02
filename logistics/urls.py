@@ -27,4 +27,12 @@ urlpatterns = [
     path('jobs/<int:job_id>/unhide/', views.unhide_job, name='unhide_job'),
     path('jobs/<int:job_id>/remove/', views.remove_job, name='remove_job'),
     path('flags/<int:flag_id>/close/', views.close_flag, name='close_flag'),
+    path('admin-dashboard/bulk-job-requests/', views.bulk_job_request_action, name='bulk_job_request_action'),
+    path('admin-dashboard/bulk-live-jobs/', views.bulk_live_job_action, name='bulk_live_job_action'),
+    path('admin-dashboard/export-jobs-csv/', views.export_jobs_csv, name='export_jobs_csv'),
+    path('manager-home/', views.manager_home, name='manager_home'),
+    path('manager-dashboard/', views.manager_dashboard, name='manager_dashboard'),
+    path('manager-logs/staff/', views.manager_logs_staff, name='manager_logs_staff'),
+    path('manager-logs/users/', views.manager_logs_users, name='manager_logs_users'),
+    path('manager-edit-user/<int:user_id>/', views.manager_edit_user, name='manager_edit_user'),
 ] 

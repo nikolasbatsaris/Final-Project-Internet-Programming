@@ -95,3 +95,27 @@ class JobFlag(models.Model):
 
     def __str__(self):
         return f"Flag on {self.job.title} by {self.flagged_by.username} ({self.status})"
+
+class RecentActivity(models.Model):
+    ACTION_CHOICES = [
+        ('bulk_approve', 'Bulk Approve'),
+        ('bulk_remove', 'Bulk Remove'),
+        ('single_remove', 'Single Remove'),
+        ('hide', 'Hide'),
+        ('unhide', 'Unhide'),
+        ('export_csv', 'Export CSV'),
+    ]
+    TARGET_CHOICES = [
+        ('job_request', 'Job Request'),
+        ('job', 'Job'),
+        ('export', 'Export'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    target_type = models.CharField(max_length=20, choices=TARGET_CHOICES)
+    target_ids = models.CharField(max_length=255)  # Comma-separated IDs
+    timestamp = models.DateTimeField(auto_now_add=True)
+    details = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} {self.get_action_display()} {self.target_type} [{self.target_ids}] at {self.timestamp}"

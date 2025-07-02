@@ -95,10 +95,116 @@
             color: #2c3e50;
             margin-bottom: 10px;
         }
+        .dark-mode body { background: #181a20 !important; }
+        .dark-mode .container, .dark-mode main, .dark-mode .main-content {
+            background: #23272f !important; color: #e3e6ed !important;
+        }
+        .dark-mode .header h1, .dark-mode h1, .dark-mode h2, .dark-mode h3 {
+            color: #8ab4f8 !important;
+        }
+        .dark-mode .card {
+            background: #23272f !important; color: #e3e6ed !important; border: 1px solid #23272f !important;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+        }
+        .dark-mode .btn, .dark-mode button, .dark-mode input[type="submit"] {
+            background: #2d3748 !important; color: #f5f6fa !important; border: none !important;
+        }
+        .dark-mode .btn-primary, .dark-mode .btn-primary:visited {
+            background: #2563eb !important; color: #fff !important;
+        }
+        .dark-mode .btn-primary:hover {
+            background: #1e40af !important;
+        }
+        .dark-mode .links a, .dark-mode .links .btn {
+            color: #8ab4f8 !important;
+        }
+        .dark-mode .welcome, .dark-mode .links {
+            color: #bfc7d5 !important;
+        }
+        .dark-mode input, .dark-mode select, .dark-mode textarea {
+            background: #23272f !important; color: #e3e6ed !important; border: 1px solid #2d3748 !important;
+        }
+        .dark-mode .card {
+            border-radius: 12px;
+        }
+        .dark-mode .container {
+            border-radius: 16px;
+        }
+        .dark-mode .btn:focus, .dark-mode button:focus {
+            outline: 2px solid #8ab4f8 !important;
+        }
+        .dark-mode .btn, .dark-mode button {
+            transition: background 0.2s, color 0.2s;
+        }
+        .dark-mode .btn:hover, .dark-mode button:hover {
+            background: #353b48 !important;
+        }
+        .dark-mode .btn-primary {
+            box-shadow: 0 2px 8px rgba(36, 99, 235, 0.12);
+        }
+        .dark-mode .btn-primary:active {
+            background: #1e40af !important;
+        }
+        .dark-mode .header {
+            background: transparent !important;
+        }
+        .dark-mode .main-content {
+            box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+        }
+        .dark-mode .card {
+            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+        }
+        .dark-mode .main-content .card {
+            background: #23272f !important;
+        }
+        .dark-mode .main-content .card h3 {
+            color: #8ab4f8 !important;
+        }
+        .dark-mode .main-content .card p {
+            color: #bfc7d5 !important;
+        }
+        .dark-mode .main-content .btn-primary {
+            background: #2563eb !important;
+        }
+        .dark-mode .main-content .btn-primary:hover {
+            background: #1e40af !important;
+        }
+        .dark-mode .main-content .btn-primary:active {
+            background: #1e40af !important;
+        }
+        .dark-mode .main-content .btn {
+            background: #2d3748 !important;
+        }
+        .dark-mode .main-content .btn:hover {
+            background: #353b48 !important;
+        }
+        .dark-mode .main-content .btn:focus {
+            outline: 2px solid #8ab4f8 !important;
+        }
+        .dark-mode .main-content .links a {
+            color: #8ab4f8 !important;
+        }
+        .dark-mode .main-content .links a:hover {
+            color: #fff !important;
+        }
+        .dark-mode .main-content .welcome {
+            color: #bfc7d5 !important;
+        }
+        .dark-mode .main-content .card {
+            border: 1px solid #23272f !important;
+        }
+        .dark-mode .main-content .card h3 {
+            color: #8ab4f8 !important;
+        }
+        .dark-mode .main-content .card p {
+            color: #bfc7d5 !important;
+        }
     </style>
 </head>
 <body>
-    <button onclick="window.history.back()" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin:20px 0 0 20px; cursor:pointer;">← Back</button>
+    <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
+        <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+    </div>
     <div class="header">
         <h1>FreightFlow</h1>
         <div class="auth-links">
@@ -137,5 +243,46 @@
             </div>
         </div>
     </div>
+    <script>
+    // Persistent dark mode toggle for all pages, fallback to system preference on logout
+    function setDarkMode(on) {
+        if(on) {
+            document.body.classList.add('dark-mode');
+            document.body.style.background = '#222';
+            document.querySelectorAll('.container, main, .main-content, .welcome, .links, .card').forEach(function(el){
+                el.style.background = '#181818';
+                el.style.color = '#eee';
+            });
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.body.style.background = '#f5f5f5';
+            document.querySelectorAll('.container, main, .main-content, .welcome, .links, .card').forEach(function(el){
+                el.style.background = '';
+                el.style.color = '';
+            });
+        }
+    }
+    function getDarkMode() {
+        const pref = localStorage.getItem('darkMode');
+        if (pref === null) {
+            // No preference, use system
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        return pref === 'on';
+    }
+    document.getElementById('darkModeToggle').onclick = function() {
+        const on = !getDarkMode();
+        localStorage.setItem('darkMode', on ? 'on' : 'off');
+        setDarkMode(on);
+    };
+    // On page load
+    setDarkMode(getDarkMode());
+    // On logout, clear darkMode preference
+    document.querySelectorAll('.logout').forEach(function(logoutLink) {
+        logoutLink.addEventListener('click', function() {
+            localStorage.removeItem('darkMode');
+        });
+    });
+    </script>
 </body>
 </html> 

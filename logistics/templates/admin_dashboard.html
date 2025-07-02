@@ -5,202 +5,436 @@
     <title>Admin Dashboard</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
-        .container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 40px; }
-        h1 { color: #2c3e50; text-align: center; }
-        .stats { text-align: center; margin-bottom: 30px; }
-        .stat { display: inline-block; background: #3498db; color: #fff; border-radius: 8px; padding: 20px 40px; margin: 0 10px; font-size: 20px; }
+        .dashboard-flex { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            padding-top: 40px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+        }
+        .sidebar h2 {
+            color: #ecf0f1;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.3em;
+        }
+        .sidebar a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 16px 32px;
+            display: block;
+            font-size: 1.1em;
+            transition: background 0.2s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: #34495e;
+        }
+        .main-content {
+            flex: 1;
+            padding: 40px 60px;
+            background: #fff;
+            min-width: 0;
+        }
+        h1 { color: #2c3e50; text-align: left; }
+        .stats { text-align: left; margin-bottom: 30px; }
+        .stat { display: inline-block; background: #3498db; color: #fff; border-radius: 8px; padding: 20px 40px; margin: 0 10px 10px 0; font-size: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 30px; }
         th, td { padding: 12px 10px; border-bottom: 1px solid #eee; text-align: left; }
         th { background: #3498db; color: #fff; }
         tr:hover { background: #f1f1f1; }
-        a { color: #3498db; text-decoration: underline; }
+        .dark-mode tr:hover { background-color: #333 !important; }
+        a:not(.sidebar a) { color: #3498db; text-decoration: underline; }
+        .section-title { margin-top: 0; padding-top: 40px; border-top: 1px solid #eee; }
+        @media (max-width: 900px) {
+            .dashboard-flex { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; padding: 0; }
+            .sidebar a { flex: 1; text-align: center; padding: 16px 0; }
+            .main-content { padding: 20px 5vw; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <a href="{% url 'logistics:dashboard' %}" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; text-decoration:none; display:inline-block;">← Back to Dashboard</a>
-        <h1>{% if is_superuser %}Admin Dashboard{% else %}Staff Dashboard{% endif %}</h1>
-        {% if is_superuser %}
-        <div class="stats">
-            <span class="stat">Total Users with Saved Jobs: {{ user_count }}</span>
-            <span class="stat">Total Jobs: {{ all_jobs.count }}</span>
+    <div class="dashboard-flex">
+        <nav class="sidebar">
+            <h2>Menu</h2>
+            <a href="#pending-requests">Pending Job Requests</a>
+            <a href="#live-jobs">Live Jobs</a>
+            <a href="#hidden-jobs">Hidden Jobs</a>
+            <a href="#flagged-jobs">Flagged Jobs</a>
+            {% if user.is_superuser %}
+            <a href="{% url 'logistics:manager_dashboard' %}" style="background:#e67e22; color:#fff; border-radius:5px; margin: 30px 16px 0 16px; text-align:center;">Manager Dashboard</a>
+            {% endif %}
+            <a href="{% url 'logistics:logout' %}" style="background:#e74c3c; color:#fff; border-radius:5px; margin: 30px 16px 0 16px; text-align:center;">Logout</a>
+        </nav>
+        <div style="position:fixed; top:24px; right:32px; z-index:1000;">
+            <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
         </div>
-        <h2>All Job Posts</h2>
-        <table>
-            <tr>
-                <th>Title</th>
-                <th>Origin</th>
-                <th>Destination</th>
-                <th>Created By</th>
-                <th>Likes</th>
-            </tr>
-            {% for job in all_jobs %}
-            <tr>
-                <td><a href="{% url 'logistics:job_detail' job.id %}">{{ job.title }}</a></td>
-                <td>{{ job.origin }}</td>
-                <td>{{ job.destination }}</td>
-                <td>{{ job.created_by.username }}</td>
-                <td>{{ job.like_count }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        {% else %}
-        <h2>Pending Job Requests</h2>
-        <table>
-            <tr>
-                <th>Title</th>
-                <th>Route</th>
-                <th>Cargo Type</th>
-                <th>Requested By</th>
-                <th>Pickup Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            {% for req in job_requests %}
-            <tr>
-                <td>{{ req.title }}</td>
-                <td>{{ req.origin }} → {{ req.destination }}</td>
-                <td>{{ req.cargo_type.name }}</td>
-                <td>{{ req.requested_by.username }}</td>
-                <td>{{ req.pickup_date }}</td>
-                <td>{{ req.get_status_display }}</td>
-                <td>
-                    {% if req.status == 'pending' %}
-                    <form method="post" action="{% url 'logistics:approve_job_request' req.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">Approve</button>
-                    </form>
-                    <form method="post" action="{% url 'logistics:reject_job_request' req.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">Reject</button>
-                    </form>
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7" style="text-align:center; color:#888;">No pending job requests.</td></tr>
-            {% endfor %}
-        </table>
-        <h2 style="margin-top:40px;">Live Jobs</h2>
-        <table>
-            <tr>
-                <th>Title</th>
-                <th>Route</th>
-                <th>Cargo Type</th>
-                <th>Created By</th>
-                <th>Pickup Date</th>
-                <th>Actions</th>
-            </tr>
-            {% for job in live_jobs %}
-            <tr>
-                <td><a href="{% url 'logistics:job_detail' job.id %}">{{ job.title }}</a></td>
-                <td>{{ job.origin }} → {{ job.destination }}</td>
-                <td>{{ job.cargo_type.name }}</td>
-                <td>{{ job.created_by.username }}</td>
-                <td>{{ job.pickup_date }}</td>
-                <td>
-                    <form method="post" action="{% url 'logistics:hide_job' job.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" style="background:#7f8c8d; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🙈 Hide</button>
-                    </form>
-                    <form method="post" action="{% url 'logistics:flag_job' job.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="text" name="reason" placeholder="Flag reason..." required style="padding:6px; border-radius:4px; border:1px solid #ccc; margin-right:6px;">
-                        <button type="submit" style="background:#f39c12; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🚩 Flag</button>
-                    </form>
-                    <form method="post" action="{% url 'logistics:remove_job' job.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🗑️ Remove</button>
-                    </form>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="6" style="text-align:center; color:#888;">No live jobs.</td></tr>
-            {% endfor %}
-        </table>
-        <h2 style="margin-top:40px;">Hidden Jobs</h2>
-        <table>
-            <tr>
-                <th>Title</th>
-                <th>Route</th>
-                <th>Cargo Type</th>
-                <th>Created By</th>
-                <th>Pickup Date</th>
-                <th>Actions</th>
-            </tr>
-            {% for job in hidden_jobs %}
-            <tr style="background:#f8d7da;">
-                <td><a href="{% url 'logistics:job_detail' job.id %}">{{ job.title }}</a></td>
-                <td>{{ job.origin }} → {{ job.destination }}</td>
-                <td>{{ job.cargo_type.name }}</td>
-                <td>{{ job.created_by.username }}</td>
-                <td>{{ job.pickup_date }}</td>
-                <td>
-                    <form method="post" action="{% url 'logistics:unhide_job' job.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">👁️ Unhide</button>
-                    </form>
-                    <form method="post" action="{% url 'logistics:remove_job' job.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🗑️ Remove</button>
-                    </form>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="6" style="text-align:center; color:#888;">No hidden jobs.</td></tr>
-            {% endfor %}
-        </table>
-        <h2 style="margin-top:40px;">Flagged Jobs</h2>
-        <table>
-            <tr>
-                <th>Title</th>
-                <th>Route</th>
-                <th>Cargo Type</th>
-                <th>Created By</th>
-                <th>Pickup Date</th>
-                <th>Flags</th>
-                <th>Actions</th>
-            </tr>
-            {% for job in flagged_jobs %}
-            <tr style="background:#fff3cd;">
-                <td><a href="{% url 'logistics:job_detail' job.id %}">{{ job.title }}</a></td>
-                <td>{{ job.origin }} → {{ job.destination }}</td>
-                <td>{{ job.cargo_type.name }}</td>
-                <td>{{ job.created_by.username }}</td>
-                <td>{{ job.pickup_date }}</td>
-                <td>
-                    <ul>
+        <div class="main-content">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h1>{% if is_superuser %}Admin Dashboard{% else %}Staff Dashboard{% endif %}</h1>
+            </div>
+            <!-- Quick Stats Panel -->
+            <div class="stats" style="display:flex; flex-wrap:wrap; gap:16px; margin-bottom:30px;">
+                <span class="stat">Pending Requests: <b>{{ stats.pending_requests }}</b></span>
+                <span class="stat">Live Jobs: <b>{{ stats.live_jobs }}</b></span>
+                <span class="stat">Flagged Jobs: <b>{{ stats.flagged_jobs }}</b></span>
+                <span class="stat">Hidden Jobs: <b>{{ stats.hidden_jobs }}</b></span>
+                <span class="stat">Users w/ Saved Jobs: <b>{{ stats.user_count }}</b></span>
+                <span class="stat">Total Jobs: <b>{{ stats.total_jobs }}</b></span>
+            </div>
+            <!-- Notification Badge -->
+            <div style="margin-bottom:20px;">
+                <span style="background:#e74c3c; color:#fff; border-radius:12px; padding:4px 12px; font-weight:bold;">{{ stats.pending_requests }} Pending Requests</span>
+                <span style="background:#f39c12; color:#fff; border-radius:12px; padding:4px 12px; font-weight:bold; margin-left:10px;">{{ stats.flagged_jobs }} Open Flags</span>
+            </div>
+            <!-- Recent Activity Feed -->
+            <div style="margin-bottom:30px;">
+                <h3>Recent Activity</h3>
+                <ul id="recentActivityList" style="list-style:none; padding:0;">
+                    {% for req in recent_requests %}
+                        <li>📝 Job Request: <b>{{ req.title }}</b> by {{ req.requested_by.username }} ({{ req.get_status_display }})</li>
+                    {% endfor %}
+                    {% for flag in recent_flags %}
+                        <li>🚩 Flag: <b>{{ flag.job.title }}</b> by {{ flag.flagged_by.username }} ({{ flag.get_status_display }})</li>
+                    {% endfor %}
+                    {% for job in recent_jobs %}
+                        <li>📦 New Job: <b>{{ job.title }}</b> by {{ job.created_by.username }}</li>
+                    {% endfor %}
+                    {% for bulk in recent_bulk %}
+                        {% if bulk.action == 'bulk_remove' and bulk.target_type == 'job' %}
+                            <li>⚡ <b>Removed jobs:</b> {{ bulk.target_ids }} <span style="color:#888;">{{ bulk.timestamp|date:"M j, H:i" }}</span></li>
+                        {% elif bulk.action == 'single_remove' and bulk.target_type == 'job' %}
+                            <li>⚡ <b>Removed job:</b> {{ bulk.target_ids }} <span style="color:#888;">{{ bulk.timestamp|date:"M j, H:i" }}</span></li>
+                        {% elif bulk.action == 'hide' and bulk.target_type == 'job' %}
+                            <li>⚡ <b>Hid job:</b> {{ bulk.target_ids }} <span style="color:#888;">{{ bulk.timestamp|date:"M j, H:i" }}</span></li>
+                        {% elif bulk.action == 'unhide' and bulk.target_type == 'job' %}
+                            <li>⚡ <b>Unhid job:</b> {{ bulk.target_ids }} <span style="color:#888;">{{ bulk.timestamp|date:"M j, H:i" }}</span></li>
+                        {% elif bulk.action == 'export_csv' and bulk.target_type == 'export' %}
+                            <li>⬇️ <b>Exported CSV:</b> {{ bulk.details }} <span style="color:#888;">{{ bulk.timestamp|date:"M j, H:i" }}</span></li>
+                        {% else %}
+                            <li>⚡ <b>{{ bulk.get_action_display }}</b> {{ bulk.get_target_type_display }}s by {{ bulk.user.username }} ({{ bulk.details }}) <span style="color:#888;">{{ bulk.timestamp|date:"M j, H:i" }}</span></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                <button id="expandActivityBtn" style="margin-top:10px; background:#3498db; color:#fff; border:none; border-radius:5px; padding:6px 16px; font-weight:bold; cursor:pointer;">Show All Activity</button>
+            </div>
+            <!-- Search/Filter, Bulk Actions, Export, User Management Shortcuts (UI only) -->
+            <form method="get" action="" style="margin-bottom:30px; display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
+                <input type="text" name="q" value="{{ q }}" placeholder="Search jobs/requests/users..." style="padding:8px; border-radius:5px; border:1px solid #ccc; min-width:200px;">
+                <button type="submit" style="background:#3498db; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;">🔍 Filter</button>
+                <button type="button" style="background:#27ae60; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;" onclick="bulkApprove()">✔️ Bulk Approve</button>
+                <button type="button" style="background:#e74c3c; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;" onclick="bulkRemove()">🗑️ Bulk Remove</button>
+                <div style="display:flex; align-items:center; gap:8px; background:#f8f9fa; border:1px solid #ccc; border-radius:8px; padding:8px 12px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                    <select id="exportType" style="padding:8px; border-radius:5px; border:1px solid #ccc;">
+                        <option value="all">All</option>
+                        <option value="pending">Pending Requests</option>
+                        <option value="live">Live Jobs</option>
+                        <option value="hidden">Hidden Jobs</option>
+                        <option value="flagged">Flagged Jobs</option>
+                    </select>
+                    <button type="button" style="background:#f39c12; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;" onclick="exportCSV()">⬇️ Export CSV</button>
+                </div>
+            </form>
+            {% if is_superuser %}
+            <h2>All Job Posts</h2>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Origin</th>
+                    <th>Destination</th>
+                    <th>Created By</th>
+                    <th>Likes</th>
+                </tr>
+                {% for job in all_jobs %}
+                <tr>
+                    <td>{{ job.id }}</td>
+                    <td><a href="{% url 'logistics:job_detail' job.id %}">{{ job.title }}</a></td>
+                    <td>{{ job.origin }}</td>
+                    <td>{{ job.destination }}</td>
+                    <td>{{ job.created_by.username }}</td>
+                    <td>{{ job.like_count }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <h2 id="pending-requests" class="section-title">Pending Job Requests</h2>
+            <form id="bulkJobRequestForm" method="post" action="{% url 'logistics:bulk_job_request_action' %}">
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <th><input type="checkbox" id="selectAllJobRequests" onclick="toggleAll('jobrequest')"></th>
+                        <th>Title</th>
+                        <th>Route</th>
+                        <th>Cargo Type</th>
+                        <th>Requested By</th>
+                        <th>Pickup Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    {% for req in job_requests %}
+                    <tr>
+                        <td><input type="checkbox" name="selected_requests" value="{{ req.id }}" class="jobrequest-checkbox"></td>
+                        <td>{{ req.title }}</td>
+                        <td>{{ req.origin }} → {{ req.destination }}</td>
+                        <td>{{ req.cargo_type.name }}</td>
+                        <td>{{ req.requested_by.username }}</td>
+                        <td>{{ req.pickup_date }}</td>
+                        <td>{{ req.get_status_display }}</td>
+                        <td>
+                            {% if req.status == 'pending' %}
+                            <form method="post" action="{% url 'logistics:approve_job_request' req.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">Approve</button>
+                            </form>
+                            <form method="post" action="{% url 'logistics:reject_job_request' req.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">Reject</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="8" style="text-align:center; color:#888;">No pending job requests.</td></tr>
+                    {% endfor %}
+                </table>
+                <input type="hidden" name="bulk_action" id="jobRequestBulkAction" value="">
+            </form>
+            <h2 id="live-jobs" class="section-title">Live Jobs</h2>
+            <form id="bulkLiveJobsForm" method="post" action="{% url 'logistics:bulk_live_job_action' %}">
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <th><input type="checkbox" id="selectAllLiveJobs" onclick="toggleAll('livejob')"></th>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Route</th>
+                        <th>Cargo Type</th>
+                        <th>Created By</th>
+                        <th>Pickup Date</th>
+                        <th>Actions</th>
+                    </tr>
+                    {% for job in live_jobs %}
+                    <tr>
+                        <td><input type="checkbox" name="selected_jobs" value="{{ job.id }}" class="livejob-checkbox"></td>
+                        <td>{{ job.id }}</td>
+                        <td><a href="{% url 'logistics:job_detail' job.id %}">{{ job.title }}</a></td>
+                        <td>{{ job.origin }} → {{ job.destination }}</td>
+                        <td>{{ job.cargo_type.name }}</td>
+                        <td>{{ job.created_by.username }}</td>
+                        <td>{{ job.pickup_date }}</td>
+                        <td>
+                            <form method="post" action="{% url 'logistics:hide_job' job.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background:#7f8c8d; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🙈 Hide</button>
+                            </form>
+                            <form method="post" action="{% url 'logistics:flag_job' job.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="text" name="reason" placeholder="Flag reason..." required style="padding:6px; border-radius:4px; border:1px solid #ccc; margin-right:6px;">
+                                <button type="submit" style="background:#f39c12; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🚩 Flag</button>
+                            </form>
+                            <form method="post" action="{% url 'logistics:remove_job' job.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🗑️ Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" style="text-align:center; color:#888;">No live jobs.</td></tr>
+                    {% endfor %}
+                </table>
+                <input type="hidden" name="bulk_action" id="liveJobBulkAction" value="">
+            </form>
+            <h2 id="hidden-jobs" class="section-title">Hidden Jobs</h2>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Route</th>
+                    <th>Cargo Type</th>
+                    <th>Created By</th>
+                    <th>Pickup Date</th>
+                    <th>Actions</th>
+                </tr>
+                {% for job in hidden_jobs %}
+                <tr style="background:#f8d7da;">
+                    <td>{{ job.id }}</td>
+                    <td><a href="{% url 'logistics:job_detail' job.id %}">{{ job.title }}</a></td>
+                    <td>{{ job.origin }} → {{ job.destination }}</td>
+                    <td>{{ job.cargo_type.name }}</td>
+                    <td>{{ job.created_by.username }}</td>
+                    <td>{{ job.pickup_date }}</td>
+                    <td>
+                        <form method="post" action="{% url 'logistics:unhide_job' job.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">👁️ Unhide</button>
+                        </form>
+                        <form method="post" action="{% url 'logistics:remove_job' job.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🗑️ Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" style="text-align:center; color:#888;">No hidden jobs.</td></tr>
+                {% endfor %}
+            </table>
+            <h2 id="flagged-jobs" class="section-title">Flagged Jobs</h2>
+            <table>
+                <tr>
+                    <th>Title</th>
+                    <th>Route</th>
+                    <th>Cargo Type</th>
+                    <th>Created By</th>
+                    <th>Pickup Date</th>
+                    <th>Flags</th>
+                    <th>Actions</th>
+                </tr>
+                {% for job in flagged_jobs %}
+                <tr style="background:#fff3cd;">
+                    <td><a href="{% url 'logistics:job_detail' job.id %}">{{ job.title }}</a></td>
+                    <td>{{ job.origin }} → {{ job.destination }}</td>
+                    <td>{{ job.cargo_type.name }}</td>
+                    <td>{{ job.created_by.username }}</td>
+                    <td>{{ job.pickup_date }}</td>
+                    <td>
+                        <ul>
+                            {% for flag in job.flags.all %}
+                            {% if flag.status == 'open' %}
+                            <li>{{ flag.created_at|date:"M j, Y H:i" }} by {{ flag.flagged_by.username }}: {{ flag.reason }}</li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'logistics:hide_job' job.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="background:#7f8c8d; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🙈 Hide</button>
+                        </form>
+                        <form method="post" action="{% url 'logistics:remove_job' job.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🗑️ Remove</button>
+                        </form>
                         {% for flag in job.flags.all %}
                         {% if flag.status == 'open' %}
-                        <li>{{ flag.created_at|date:"M j, Y H:i" }} by {{ flag.flagged_by.username }}: {{ flag.reason }}</li>
+                        <form method="post" action="{% url 'logistics:close_flag' flag.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="background:#3498db; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">✔️ Close Flag</button>
+                        </form>
                         {% endif %}
                         {% endfor %}
-                    </ul>
-                </td>
-                <td>
-                    <form method="post" action="{% url 'logistics:hide_job' job.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" style="background:#7f8c8d; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🙈 Hide</button>
-                    </form>
-                    <form method="post" action="{% url 'logistics:remove_job' job.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🗑️ Remove</button>
-                    </form>
-                    {% for flag in job.flags.all %}
-                    {% if flag.status == 'open' %}
-                    <form method="post" action="{% url 'logistics:close_flag' flag.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" style="background:#3498db; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">✔️ Close Flag</button>
-                    </form>
-                    {% endif %}
-                    {% endfor %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7" style="text-align:center; color:#888;">No flagged jobs.</td></tr>
-            {% endfor %}
-        </table>
-        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" style="text-align:center; color:#888;">No flagged jobs.</td></tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+            {% if users and q %}
+            <h2 id="user-results" class="section-title">User Results</h2>
+            <table>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                </tr>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.first_name }}</td>
+                    <td>{{ user.last_name }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center; color:#888;">No users found.</td></tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+        </div>
     </div>
+    <script>
+    // Persistent dark mode toggle for all pages, fallback to system preference on logout
+    function setDarkMode(on) {
+        if(on) {
+            document.body.classList.add('dark-mode');
+            document.body.style.background = '#222';
+            document.querySelectorAll('.container, main, .main-content, .welcome, .links, .card').forEach(function(el){
+                el.style.background = '#181818';
+                el.style.color = '#eee';
+            });
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.body.style.background = '#f5f5f5';
+            document.querySelectorAll('.container, main, .main-content, .welcome, .links, .card').forEach(function(el){
+                el.style.background = '';
+                el.style.color = '';
+            });
+        }
+    }
+    function getDarkMode() {
+        const pref = localStorage.getItem('darkMode');
+        if (pref === null) {
+            // No preference, use system
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        return pref === 'on';
+    }
+    document.getElementById('darkModeToggle').onclick = function() {
+        const on = !getDarkMode();
+        localStorage.setItem('darkMode', on ? 'on' : 'off');
+        setDarkMode(on);
+    };
+    // On page load
+    setDarkMode(getDarkMode());
+    // On logout, clear darkMode preference
+    document.querySelectorAll('.logout').forEach(function(logoutLink) {
+        logoutLink.addEventListener('click', function() {
+            localStorage.removeItem('darkMode');
+        });
+    });
+    function toggleAll(type) {
+        let checkboxes = document.querySelectorAll('.' + type + '-checkbox');
+        let selectAll = document.getElementById('selectAll' + (type === 'jobrequest' ? 'JobRequests' : 'LiveJobs'));
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    }
+    function bulkApprove() {
+        document.getElementById('jobRequestBulkAction').value = 'approve';
+        document.getElementById('bulkJobRequestForm').submit();
+    }
+    function bulkRemove() {
+        document.getElementById('liveJobBulkAction').value = 'remove';
+        document.getElementById('bulkLiveJobsForm').submit();
+    }
+    function exportCSV() {
+        var type = document.getElementById('exportType').value;
+        window.location.href = "{% url 'logistics:export_jobs_csv' %}?q={{ q|urlencode }}&type=" + encodeURIComponent(type);
+    }
+    // Expand/collapse recent activity
+    (function() {
+        const btn = document.getElementById('expandActivityBtn');
+        const list = document.getElementById('recentActivityList');
+        if (!btn || !list) return;
+        const allItems = Array.from(list.children);
+        function showLimited() {
+            allItems.forEach((li, i) => li.style.display = i < 5 ? '' : 'none');
+            btn.textContent = 'Show All Activity';
+        }
+        function showAll() {
+            allItems.forEach(li => li.style.display = '');
+            btn.textContent = 'Show Less';
+        }
+        let expanded = false;
+        showLimited();
+        btn.onclick = function() {
+            expanded = !expanded;
+            if (expanded) showAll();
+            else showLimited();
+        };
+    })();
+    </script>
 </body>
 </html> 

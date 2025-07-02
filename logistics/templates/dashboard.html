@@ -181,7 +181,6 @@
 </head>
 <body>
     <div class="header">
-        <button onclick="window.history.back()" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer;">← Back</button>
         <h1>FreightFlow Dashboard</h1>
         <div class="nav-links">
             <span class="welcome-message">Welcome, {{ user.username }}!</span>
@@ -201,6 +200,23 @@
             <a href="{% url 'logistics:edit_profile' %}" class="cta-button" style="background-color:#3498db;">Edit Profile</a>
         </div>
         {% if not user.is_staff %}
+        <div style="margin-bottom: 30px;">
+            <h2 style="color:#3498db;">Recent Activity</h2>
+            {% if recent_saved %}
+                <ul>
+                {% for saved in recent_saved %}
+                    <li>
+                        <a href="{% url 'logistics:job_detail' saved.job.id %}">{{ saved.job.title }}</a>
+                        ({{ saved.job.origin }} → {{ saved.job.destination }}, {{ saved.job.cargo_type.name }})
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No recent activity.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% if not user.is_staff %}
         <div style="margin-bottom: 30px; background: #d6eaf8; padding: 20px; border-radius: 8px; border: 2px solid #2980b9;">
             <h2 style="color:#21618c;">User Features</h2>
             <a href="{% url 'logistics:request_job' %}" class="cta-button" style="background-color:#27ae60;">+ Request a Job</a>
@@ -219,22 +235,6 @@
                 <div class="success-message">{{ message }}</div>
             {% endfor %}
         {% endif %}
-        <!-- Recent Activity -->
-        <div style="margin-bottom: 30px;">
-            <h2 style="color:#3498db;">Recent Activity</h2>
-            {% if recent_saved %}
-                <ul>
-                {% for saved in recent_saved %}
-                    <li>
-                        <a href="{% url 'logistics:job_detail' saved.job.id %}">{{ saved.job.title }}</a>
-                        ({{ saved.job.origin }} → {{ saved.job.destination }}, {{ saved.job.cargo_type.name }})
-                    </li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <p>No recent activity.</p>
-            {% endif %}
-        </div>
         <!-- Saved Jobs Section -->
         <h2 style="text-align:center; color:#3498db; margin-bottom:10px;">Your Saved Jobs</h2>
         <div class="stats-section">
