@@ -225,7 +225,7 @@
         {% if job %}
             <div class="job-detail-card">
                 <div class="job-title">{{ job.title }}</div>
-                
+
                 <div class="route-section">
                     <div class="route-info">
                         <span>{{ job.origin }}</span>
@@ -291,10 +291,10 @@
                             </div>
                             {% endif %}
                         {% else %}
-                            {% if job in user.savedjob_set.all %}
-                                <span class="save-btn saved">✓ Already Saved</span>
+                            {% if booked %}
+                                <span class="save-btn saved" style="background:#7f8c8d;">✓ You've booked this job</span>
                             {% else %}
-                                <a href="{% url 'logistics:save_job' job.id %}" class="save-btn">💾 Save Job</a>
+                                <a href="{% url 'logistics:book_job' job.id %}" class="save-btn" style="background:#2980b9;">📦 Book this Job</a>
                             {% endif %}
                             {% if is_liked %}
                                 <button class="like-btn liked" onclick="likeJob({{ job.id }})">❤️ Liked</button>
@@ -309,6 +309,29 @@
                     <div class="like-count">❤️ <span id="like-count">{{ like_count }}</span> likes</div>
                 </div>
             </div>
+
+            <!-- Recommended Jobs Section -->
+            <div style="margin-top:40px;">
+                <h3 style="color:#2980b9;">You might also like</h3>
+                {% if recommended_jobs and recommended_jobs|length > 0 %}
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:18px; margin-top:18px;">
+                        {% for rec in recommended_jobs %}
+                            <a href="{% url 'logistics:job_detail' rec.id %}" style="text-decoration:none; color:inherit; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.07); padding:18px; display:block; transition:box-shadow 0.2s; border-left:4px solid #3498db;">
+                                <div style="font-weight:bold; font-size:18px; margin-bottom:8px; color:#2c3e50;">{{ rec.title }}</div>
+                                <div style="color:#555; font-size:15px; margin-bottom:4px;">
+                                    <span>{{ rec.origin }}</span>
+                                    <span style="color:#3498db; font-weight:bold; margin:0 8px;">→</span>
+                                    <span>{{ rec.destination }}</span>
+                                </div>
+                                <div style="font-size:13px; color:#888;">{{ rec.created_at|date:"M j, Y" }}</div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="margin-top:16px; color:#888; font-size:16px;">No related jobs found.</div>
+                {% endif %}
+            </div>
+            <!-- End Recommended Jobs Section -->
         {% else %}
             <div class="job-detail-card">
                 <h2>Job not found</h2>

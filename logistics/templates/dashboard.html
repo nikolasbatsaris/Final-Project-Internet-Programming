@@ -282,6 +282,44 @@
                 </div>
             {% endif %}
         </div>
+        <!-- Booked Jobs Section -->
+        <h2 style="text-align:center; color:#27ae60; margin:40px 0 10px 0;">My Booked Jobs</h2>
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number">{{ booked_jobs.count }}</div>
+                <div class="stat-label">Booked Jobs</div>
+            </div>
+        </div>
+        <div class="saved-jobs-section">
+            {% if booked_jobs %}
+                <div class="job-grid">
+                    {% for booked in booked_jobs %}
+                        <div class="job-card">
+                            <a href="{% url 'logistics:job_detail' booked.job.id %}" class="job-title">
+                                {{ booked.job.title }}
+                            </a>
+                            <div class="route-info">
+                                <span>{{ booked.job.origin }}</span>
+                                <span class="route-arrow">→</span>
+                                <span>{{ booked.job.destination }}</span>
+                            </div>
+                            <div class="cargo-type">
+                                {{ booked.job.cargo_type.name }}
+                            </div>
+                            <div class="weight-info">
+                                Weight: {{ booked.job.weight_kg }} kg
+                            </div>
+                            <div style="color:#888; font-size:13px; margin-top:8px;">Booked at: {{ booked.booked_at|date:'M j, Y H:i' }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-saved-jobs">
+                    <h3>No booked jobs yet</h3>
+                    <p>Book a job from the job list or job detail page.</p>
+                </div>
+            {% endif %}
+        </div>
         <!-- Job Recommendations (placeholder) -->
         <div style="margin-top:40px;">
             <h2 style="color:#16a085;">Recommended Jobs For You</h2>

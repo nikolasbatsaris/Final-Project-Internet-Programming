@@ -154,8 +154,7 @@ def add_sample_data():
                 'cargo_type': created_categories[job_data['cargo_type']],
                 'weight_kg': job_data['weight_kg'],
                 'pickup_date': job_data['pickup_date'],
-                'created_by': user,
-                'likes': 0
+                'created_by': user
             }
         )
         if created:

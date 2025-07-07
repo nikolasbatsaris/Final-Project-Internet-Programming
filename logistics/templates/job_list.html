@@ -130,10 +130,43 @@
             <a href="{% url 'logistics:home' %}" class="back-link">← Back to Home</a>
         </div>
 
+        <!-- Filter/Search Form -->
+        <form method="get" style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; margin-bottom:30px; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.07);">
+            <div style="flex:1; min-width:180px;">
+                <label for="q" style="font-weight:bold; color:#2c3e50;">Search Title</label>
+                <input type="text" id="q" name="q" value="{{ q|default:'' }}" placeholder="Search jobs..." style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc;">
+            </div>
+            <div style="flex:1; min-width:180px;">
+                <label for="cargo_type" style="font-weight:bold; color:#2c3e50;">Cargo Type</label>
+                <select id="cargo_type" name="cargo_type" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc;">
+                    <option value="">All Types</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if cat.id|stringformat:'s' == cargo_type %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="flex:1; min-width:180px;">
+                <label for="origin" style="font-weight:bold; color:#2c3e50;">Origin</label>
+                <input type="text" id="origin" name="origin" value="{{ origin|default:'' }}" placeholder="Origin city..." style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc;">
+            </div>
+            <div style="flex:1; min-width:180px;">
+                <label for="destination" style="font-weight:bold; color:#2c3e50;">Destination</label>
+                <input type="text" id="destination" name="destination" value="{{ destination|default:'' }}" placeholder="Destination city..." style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc;">
+            </div>
+            <div style="flex:1; min-width:180px;">
+                <label for="pickup_date" style="font-weight:bold; color:#2c3e50;">Pickup Date</label>
+                <input type="date" id="pickup_date" name="pickup_date" value="{{ pickup_date|default:'' }}" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc;">
+            </div>
+            <div style="min-width:120px;">
+                <button type="submit" style="background:#3498db; color:#fff; border:none; border-radius:4px; padding:10px 20px; font-weight:bold; cursor:pointer;">Filter</button>
+            </div>
+        </form>
+        <!-- End Filter/Search Form -->
+
         {% if jobs %}
             <div class="job-grid">
                 {% for job in jobs %}
-                    <a href="{% url 'logistics:job_detail' job.id %}" class="job-card" style="text-decoration: none; color: inherit;">
+                    <a href="{% url 'logistics:job_detail' job.id %}" class="job-card" style="text-decoration: none; color: inherit; position:relative;">
                         <div class="job-title">
                             {{ job.title }}
                         </div>
@@ -149,6 +182,9 @@
                             Weight: {{ job.weight_kg }} kg
                         </div>
                         <div class="job-meta">
+                            {% if job.id in booked_job_ids %}
+                                <span style="background:#27ae60; color:#fff; padding:4px 16px; border-radius:16px; font-size:14px; font-weight:bold; box-shadow:0 2px 8px rgba(39,174,96,0.12); border:2px solid #fff; letter-spacing:0.5px; margin-right:8px;">Booked</span>
+                            {% endif %}
                             <span class="job-date">{{ job.created_at|date:"M j, Y" }}</span>
                             <span class="job-likes">❤️ {{ job.like_count }} likes</span>
                         </div>

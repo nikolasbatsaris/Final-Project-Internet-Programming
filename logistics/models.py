@@ -119,3 +119,15 @@ class RecentActivity(models.Model):
 
     def __str__(self):
         return f"{self.user.username} {self.get_action_display()} {self.target_type} [{self.target_ids}] at {self.timestamp}"
+
+class BookedJob(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    job = models.ForeignKey(JobPost, on_delete=models.CASCADE)
+    booked_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'job']
+        verbose_name_plural = 'Booked Jobs'
+
+    def __str__(self):
+        return f"{self.user.username} booked {self.job.title} at {self.booked_at}"

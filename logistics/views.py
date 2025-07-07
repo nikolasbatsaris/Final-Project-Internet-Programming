@@ -5,11 +5,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.views.decorators.http import require_POST
-from .models import JobPost, SavedJob, JobLike, JobRequest, JobFlag, RecentActivity
+from .models import JobPost, SavedJob, JobLike, JobRequest, JobFlag, RecentActivity, JobCategory, BookedJob
 from django import forms
 from django.utils import timezone
 from django.contrib.auth.models import User
-from django.db.models import Q
 import csv
 
 # Create your views here.
@@ -24,18 +23,58 @@ def home(request):
     return render(request, 'home.html')
 
 def job_list(request):
-    """Display list of all job posts"""
+    """Display list of all job posts with filtering"""
     jobs = JobPost.objects.select_related('cargo_type', 'created_by').filter(hidden=False)
-    return render(request, 'job_list.html', {'jobs': jobs})
+    q = request.GET.get('q', '').strip()
+    cargo_type = request.GET.get('cargo_type', '').strip()
+    origin = request.GET.get('origin', '').strip()
+    destination = request.GET.get('destination', '').strip()
+    pickup_date = request.GET.get('pickup_date', '').strip()
+
+    if q:
+        jobs = jobs.filter(
+            Q(title__icontains=q) | Q(description__icontains=q) |
+            Q(origin__icontains=q) | Q(destination__icontains=q)
+        )
+    if cargo_type:
+        jobs = jobs.filter(cargo_type__id=cargo_type)
+    if origin:
+        jobs = jobs.filter(origin__icontains=origin)
+    if destination:
+        jobs = jobs.filter(destination__icontains=destination)
+    if pickup_date:
+        jobs = jobs.filter(pickup_date=pickup_date)
+
+    categories = JobCategory.objects.all()
+    booked_job_ids = set()
+    if request.user.is_authenticated:
+        booked_job_ids = set(BookedJob.objects.filter(user=request.user, job__in=jobs).values_list('job_id', flat=True))
+    return render(request, 'job_list.html', {
+        'jobs': jobs,
+        'categories': categories,
+        'q': q,
+        'cargo_type': cargo_type,
+        'origin': origin,
+        'destination': destination,
+        'pickup_date': pickup_date,
+        'booked_job_ids': booked_job_ids,
+    })
 
 def job_detail(request, job_id):
     """Display detailed view of a specific job post"""
     job = get_object_or_404(JobPost, id=job_id)
     is_liked = job.is_liked_by(request.user) if request.user.is_authenticated else False
+    # Recommended jobs: same cargo_type, exclude current job, order by created_at desc
+    recommended_jobs = JobPost.objects.filter(cargo_type=job.cargo_type, hidden=False).exclude(id=job.id).order_by('-created_at')[:5]
+    booked = False
+    if request.user.is_authenticated:
+        booked = BookedJob.objects.filter(user=request.user, job=job).exists()
     return render(request, 'job_detail.html', {
         'job': job, 
         'is_liked': is_liked,
-        'like_count': job.like_count()
+        'like_count': job.like_count(),
+        'recommended_jobs': recommended_jobs,
+        'booked': booked
     })
 
 def register(request):
@@ -94,12 +133,15 @@ def dashboard(request):
     job_statuses = {sj.job.id: sj.job for sj in saved_jobs}
     # Show change password link (always True for now)
     show_change_password = True
+    # Booked jobs
+    booked_jobs = BookedJob.objects.filter(user=user).select_related('job', 'job__cargo_type', 'job__created_by')
     return render(request, 'dashboard.html', {
         'saved_jobs': saved_jobs,
         'profile': profile,
         'recent_saved': recent_saved,
         'job_statuses': job_statuses,
         'show_change_password': show_change_password,
+        'booked_jobs': booked_jobs,
     })
 
 @login_required
@@ -728,3 +770,14 @@ def manager_edit_user(request, user_id):
     else:
         form = ManagerUserEditForm(instance=user)
     return render(request, 'manager_edit_user.html', {'form': form, 'edit_user': user})
+
+@login_required
+def book_job(request, job_id):
+    job = get_object_or_404(JobPost, id=job_id)
+    already_booked = BookedJob.objects.filter(user=request.user, job=job).exists()
+    if not already_booked:
+        BookedJob.objects.create(user=request.user, job=job)
+        messages.success(request, 'Job booked successfully!')
+    else:
+        messages.info(request, 'You have already booked this job.')
+    return redirect('logistics:job_detail', job_id=job.id)
