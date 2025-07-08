@@ -16,8 +16,38 @@
         .status-rejected { color: #e74c3c; font-weight: bold; }
         .back-btn { background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; }
     </style>
+    <style>
+.dark-mode body { background: #181a20 !important; }
+.dark-mode .container {
+    background: #23272f !important; color: #e3e6ed !important;
+}
+.dark-mode h1 {
+    color: #8ab4f8 !important;
+}
+.dark-mode th {
+    background-color: #22304a !important; color: #e3e6ed !important;
+}
+.dark-mode tr:hover {
+    background-color: #232b36 !important;
+}
+.dark-mode .status-pending {
+    color: #e7b922 !important;
+}
+.dark-mode .status-approved {
+    color: #7ed6a7 !important;
+}
+.dark-mode .status-rejected {
+    color: #e57373 !important;
+}
+.dark-mode .back-btn {
+    background: #23272f !important; color: #8ab4f8 !important;
+}
+</style>
 </head>
 <body>
+    <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
+        <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+    </div>
     <div class="container">
         <button onclick="window.history.back()" class="back-btn">← Back</button>
         <h1>My Job Requests</h1>
@@ -25,9 +55,9 @@
             <thead>
                 <tr>
                     <th>Title</th>
-                    <th>Route</th>
-                    <th>Cargo Type</th>
-                    <th>Pickup Date</th>
+                    <th>Pickup</th>
+                    <th>Dropoff</th>
+                    <th>Cargo</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -35,9 +65,26 @@
                 {% for req in job_requests %}
                 <tr>
                     <td>{{ req.title }}</td>
-                    <td>{{ req.origin }} → {{ req.destination }}</td>
-                    <td>{{ req.cargo_type.name }}</td>
-                    <td>{{ req.pickup_date }}</td>
+                    <td>
+                        <b>City:</b> {{ req.origin }}<br>
+                        <b>Address:</b> {{ req.origin_address }}<br>
+                        <b>ZIP:</b> {{ req.origin_zip }}<br>
+                        <b>Date:</b> {{ req.pickup_date }}<br>
+                        <b>Time:</b> {{ req.pickup_time_from }}
+                    </td>
+                    <td>
+                        <b>City:</b> {{ req.destination }}<br>
+                        <b>Address:</b> {{ req.destination_address }}<br>
+                        <b>ZIP:</b> {{ req.destination_zip }}<br>
+                        <b>Time:</b> {{ req.pickup_time_to }}<br>
+                        <b>Deadline:</b> {{ req.delivery_deadline }}
+                    </td>
+                    <td>
+                        <b>Type:</b> {{ req.cargo_type.name }}<br>
+                        <b>Weight:</b> {{ req.weight_kg }} kg<br>
+                        <b>Dimensions:</b> {{ req.length_cm }}×{{ req.width_cm }}×{{ req.height_cm }} cm<br>
+                        <b>Special:</b> {{ req.special_requirements|default:'—' }}
+                    </td>
                     <td class="status-{{ req.status }}">{{ req.get_status_display }}</td>
                 </tr>
                 {% empty %}
@@ -46,5 +93,48 @@
             </tbody>
         </table>
     </div>
+<script>
+// Persistent dark mode toggle for all pages, fallback to system preference on logout
+function setDarkMode(on) {
+    if(on) {
+        document.body.classList.add('dark-mode');
+        document.body.style.background = '#222';
+        document.querySelectorAll('.container').forEach(function(el){
+            el.style.background = '';
+            el.style.color = '';
+        });
+    } else {
+        document.body.classList.remove('dark-mode');
+        document.body.style.background = '#f5f5f5';
+        document.querySelectorAll('.container').forEach(function(el){
+            el.style.background = '';
+            el.style.color = '';
+        });
+    }
+}
+function getDarkMode() {
+    const pref = localStorage.getItem('darkMode');
+    if (pref === null) {
+        // No preference, use system
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return pref === 'on';
+}
+document.getElementById('darkModeToggle').onclick = function() {
+    const on = !getDarkMode();
+    localStorage.setItem('darkMode', on ? 'on' : 'off');
+    setDarkMode(on);
+};
+// On page load
+setDarkMode(getDarkMode());
+// On logout, clear darkMode preference
+if (document.querySelectorAll('.logout').length) {
+    document.querySelectorAll('.logout').forEach(function(logoutLink) {
+        logoutLink.addEventListener('click', function() {
+            localStorage.removeItem('darkMode');
+        });
+    });
+}
+</script>
 </body>
 </html> 

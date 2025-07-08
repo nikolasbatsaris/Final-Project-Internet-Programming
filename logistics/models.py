@@ -23,6 +23,21 @@ class JobPost(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     hidden = models.BooleanField(default=False)
+    # Extra fields for full job info
+    origin_zip = models.CharField(max_length=20, blank=True)
+    destination_zip = models.CharField(max_length=20, blank=True)
+    origin_address = models.CharField(max_length=255, blank=True)
+    destination_address = models.CharField(max_length=255, blank=True)
+    length_cm = models.FloatField(null=True, blank=True)
+    width_cm = models.FloatField(null=True, blank=True)
+    height_cm = models.FloatField(null=True, blank=True)
+    volume_m3 = models.FloatField(null=True, blank=True)
+    special_requirements = models.TextField(blank=True)
+    pickup_time_from = models.TimeField(null=True, blank=True)
+    pickup_time_to = models.TimeField(null=True, blank=True)
+    delivery_deadline = models.DateField(null=True, blank=True)
+    declared_value = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    reference_code = models.CharField(max_length=100, blank=True)
     
     def __str__(self):
         return self.title
@@ -78,6 +93,20 @@ class JobRequest(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     staff_note = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    origin_zip = models.CharField(max_length=20, blank=True)
+    destination_zip = models.CharField(max_length=20, blank=True)
+    length_cm = models.FloatField(null=True, blank=True)
+    width_cm = models.FloatField(null=True, blank=True)
+    height_cm = models.FloatField(null=True, blank=True)
+    volume_m3 = models.FloatField(null=True, blank=True)
+    special_requirements = models.TextField(blank=True)
+    pickup_time_from = models.TimeField(null=True, blank=True)
+    pickup_time_to = models.TimeField(null=True, blank=True)
+    delivery_deadline = models.DateField(null=True, blank=True)
+    declared_value = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    reference_code = models.CharField(max_length=100, blank=True)
+    origin_address = models.CharField(max_length=255, blank=True)
+    destination_address = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return f"{self.title} (requested by {self.requested_by.username})"

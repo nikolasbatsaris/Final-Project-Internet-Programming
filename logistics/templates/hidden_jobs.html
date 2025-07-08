@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booked/Hidden Jobs</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .container { max-width: 1100px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 40px; }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+        .job-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .job-card { background: #f8f9fa; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 4px solid #e67e22; }
+        .job-title { color: #2c3e50; font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+        .job-section { margin-bottom: 10px; }
+        .job-section b { color: #2980b9; }
+        .booked-by { color: #e67e22; font-weight: bold; margin-top: 10px; }
+        .meta { color: #888; font-size: 13px; margin-top: 8px; }
+    </style>
+    <style>
+.dark-mode body { background: #181a20 !important; }
+.dark-mode .container { background: #23272f !important; color: #e3e6ed !important; }
+.dark-mode .job-card { background: #232b36 !important; color: #e3e6ed !important; border-left: 4px solid #8ab4f8 !important; box-shadow: 0 4px 16px rgba(20,30,40,0.18) !important; }
+.dark-mode .job-title { color: #8ab4f8 !important; }
+.dark-mode .job-section b { color: #8ab4f8 !important; }
+.dark-mode .booked-by { color: #f39c12 !important; }
+.dark-mode .meta { color: #bfc7d5 !important; }
+</style>
+</head>
+<body>
+    <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
+        <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+    </div>
+    <div class="container">
+        <a href="/" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; text-decoration:none; display:inline-block;">← Back to Home</a>
+        <h1>Booked/Hidden Jobs</h1>
+        <div class="job-grid">
+            {% for job in jobs %}
+            <div class="job-card">
+                <div class="job-title">{{ job.title }}</div>
+                <div class="job-section"><b>Route:</b> {{ job.origin }} → {{ job.destination }}</div>
+                <div class="job-section"><b>Pickup:</b> {{ job.origin_address|default:'—' }}, {{ job.origin_zip|default:'—' }} | Date: {{ job.pickup_date|default:'—' }} | Time: {{ job.pickup_time_from|default:'—' }}</div>
+                <div class="job-section"><b>Dropoff:</b> {{ job.destination_address|default:'—' }}, {{ job.destination_zip|default:'—' }} | Time: {{ job.pickup_time_to|default:'—' }} | Deadline: {{ job.delivery_deadline|default:'—' }}</div>
+                <div class="job-section"><b>Cargo:</b> {{ job.cargo_type.name }} | Weight: {{ job.weight_kg|default:'—' }} kg | Dimensions: {{ job.length_cm|default:'—' }} × {{ job.width_cm|default:'—' }} × {{ job.height_cm|default:'—' }} cm | Special: {{ job.special_requirements|default:'—' }}</div>
+                <div class="job-section"><b>Declared Value:</b> {{ job.declared_value|default:'—' }} | <b>Reference Code:</b> {{ job.reference_code|default:'—' }}</div>
+                <div class="job-section"><b>Description:</b> {{ job.description|truncatechars:120|default:'—' }}</div>
+                <div class="booked-by">Booked by: {{ booked_map[job.id].username }}</div>
+                <div class="meta">Posted: {{ job.created_at|date:"Y-m-d H:i" }}</div>
+            </div>
+            {% empty %}
+            <div style="grid-column:1/-1; text-align:center; color:#888;">No booked/hidden jobs.</div>
+            {% endfor %}
+        </div>
+    </div>
+<script>
+function setDarkMode(on) {
+    if(on) {
+        document.body.classList.add('dark-mode');
+        document.body.style.background = '#222';
+        document.querySelectorAll('.container, .job-card').forEach(function(el){
+            el.style.background = '';
+            el.style.color = '';
+        });
+    } else {
+        document.body.classList.remove('dark-mode');
+        document.body.style.background = '#f5f5f5';
+        document.querySelectorAll('.container, .job-card').forEach(function(el){
+            el.style.background = '';
+            el.style.color = '';
+        });
+    }
+}
+function getDarkMode() {
+    const pref = localStorage.getItem('darkMode');
+    if (pref === null) {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return pref === 'on';
+}
+document.getElementById('darkModeToggle').onclick = function() {
+    const on = !getDarkMode();
+    localStorage.setItem('darkMode', on ? 'on' : 'off');
+    setDarkMode(on);
+};
+setDarkMode(getDarkMode());
+</script>
+</body>
+</html> 

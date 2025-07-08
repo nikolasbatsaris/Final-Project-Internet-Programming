@@ -25,11 +25,46 @@
             background-color: #e67e22; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.3s;
         }
         .cta-button:hover { background-color: #d35400; }
+        /* Dark mode styles */
+        .dark-mode body { background: #181a20 !important; }
+        .dark-mode .container {
+            background: #23272f !important; color: #e3e6ed !important;
+        }
+        .dark-mode h1 {
+            color: #8ab4f8 !important;
+        }
+        .dark-mode label {
+            color: #8ab4f8 !important;
+        }
+        .dark-mode input[type="text"], .dark-mode input[type="email"], .dark-mode input[type="password"] {
+            background: #232b36 !important; color: #e3e6ed !important; border: 1px solid #2d3748 !important;
+        }
+        .dark-mode .submit-btn {
+            background: #2563a6 !important; color: #e3e6ed !important;
+        }
+        .dark-mode .submit-btn:hover {
+            background: #1c4a6e !important; color: #8ab4f8 !important;
+        }
+        .dark-mode .success-message {
+            background: #2d6a4f !important; color: #e3e6ed !important;
+        }
+        .dark-mode .errorlist {
+            color: #e57373 !important;
+        }
+        .dark-mode .cta-button {
+            background: #6d5c2c !important; color: #e3e6ed !important;
+        }
+        .dark-mode .cta-button:hover {
+            background: #a65c17 !important; color: #fff !important;
+        }
     </style>
 </head>
 <body>
+    <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
+        <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+    </div>
     <div class="container">
-        <button onclick="window.history.back()" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer;">← Back</button>
+        <a href="{% url 'logistics:dashboard' %}" class="back-link" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; text-decoration:none; display:inline-block;">← Back to Dashboard</a>
         <h1>Edit Profile</h1>
         <p><strong>Date Joined:</strong> {{ date_joined|date:'F j, Y' }}</p>
         <form method="post">
@@ -47,4 +82,47 @@
         <a href="{% url 'logistics:change_password' %}" class="cta-button" style="background-color:#e67e22; margin-top: 10px; display: inline-block;">Change Password</a>
     </div>
 </body>
+<script>
+// Persistent dark mode toggle for all pages, fallback to system preference on logout
+function setDarkMode(on) {
+    if(on) {
+        document.body.classList.add('dark-mode');
+        document.body.style.background = '#222';
+        document.querySelectorAll('.container').forEach(function(el){
+            el.style.background = '';
+            el.style.color = '';
+        });
+    } else {
+        document.body.classList.remove('dark-mode');
+        document.body.style.background = '#f5f5f5';
+        document.querySelectorAll('.container').forEach(function(el){
+            el.style.background = '';
+            el.style.color = '';
+        });
+    }
+}
+function getDarkMode() {
+    const pref = localStorage.getItem('darkMode');
+    if (pref === null) {
+        // No preference, use system
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return pref === 'on';
+}
+document.getElementById('darkModeToggle').onclick = function() {
+    const on = !getDarkMode();
+    localStorage.setItem('darkMode', on ? 'on' : 'off');
+    setDarkMode(on);
+};
+// On page load
+setDarkMode(getDarkMode());
+// On logout, clear darkMode preference
+if (document.querySelectorAll('.logout').length) {
+    document.querySelectorAll('.logout').forEach(function(logoutLink) {
+        logoutLink.addEventListener('click', function() {
+            localStorage.removeItem('darkMode');
+        });
+    });
+}
+</script>
 </html> 

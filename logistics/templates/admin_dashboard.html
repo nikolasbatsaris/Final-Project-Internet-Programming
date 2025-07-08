@@ -168,10 +168,10 @@
                     <tr>
                         <th><input type="checkbox" id="selectAllJobRequests" onclick="toggleAll('jobrequest')"></th>
                         <th>Title</th>
-                        <th>Route</th>
-                        <th>Cargo Type</th>
+                        <th>Pickup</th>
+                        <th>Dropoff</th>
+                        <th>Cargo</th>
                         <th>Requested By</th>
-                        <th>Pickup Date</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -179,10 +179,27 @@
                     <tr>
                         <td><input type="checkbox" name="selected_requests" value="{{ req.id }}" class="jobrequest-checkbox"></td>
                         <td>{{ req.title }}</td>
-                        <td>{{ req.origin }} → {{ req.destination }}</td>
-                        <td>{{ req.cargo_type.name }}</td>
-                        <td>{{ req.requested_by.username }}</td>
-                        <td>{{ req.pickup_date }}</td>
+                        <td>
+                            <b>City:</b> {{ req.origin }}<br>
+                            <b>Address:</b> {{ req.origin_address }}<br>
+                            <b>ZIP:</b> {{ req.origin_zip }}<br>
+                            <b>Date:</b> {{ req.pickup_date }}<br>
+                            <b>Time:</b> {{ req.pickup_time_from }}
+                        </td>
+                        <td>
+                            <b>City:</b> {{ req.destination }}<br>
+                            <b>Address:</b> {{ req.destination_address }}<br>
+                            <b>ZIP:</b> {{ req.destination_zip }}<br>
+                            <b>Time:</b> {{ req.pickup_time_to }}<br>
+                            <b>Deadline:</b> {{ req.delivery_deadline }}
+                        </td>
+                        <td>
+                            <b>Type:</b> {{ req.cargo_type.name }}<br>
+                            <b>Weight:</b> {{ req.weight_kg }} kg<br>
+                            <b>Dimensions:</b> {{ req.length_cm }}×{{ req.width_cm }}×{{ req.height_cm }} cm<br>
+                            <b>Special:</b> {{ req.special_requirements|default:'—' }}
+                        </td>
+                        <td>{{ req.requested_by.username }} (ID: {{ req.requested_by.id }})</td>
                         <td>{{ req.get_status_display }}</td>
                         <td>
                             {% if req.status == 'pending' %}
@@ -330,6 +347,31 @@
                 </tr>
                 {% empty %}
                 <tr><td colspan="7" style="text-align:center; color:#888;">No flagged jobs.</td></tr>
+                {% endfor %}
+            </table>
+            <h2 id="booked-jobs" class="section-title">Booked Jobs</h2>
+            <table>
+                <tr>
+                    <th>Title</th>
+                    <th>Route</th>
+                    <th>Pickup</th>
+                    <th>Dropoff</th>
+                    <th>Cargo</th>
+                    <th>Booked By</th>
+                    <th>Booked At</th>
+                </tr>
+                {% for b in booked_jobs %}
+                <tr>
+                    <td>{{ b.job.title }}</td>
+                    <td>{{ b.job.origin }} → {{ b.job.destination }}</td>
+                    <td>{{ b.job.origin_address|default:'—' }}, {{ b.job.origin_zip|default:'—' }}<br>Date: {{ b.job.pickup_date|default:'—' }}<br>Time: {{ b.job.pickup_time_from|default:'—' }}</td>
+                    <td>{{ b.job.destination_address|default:'—' }}, {{ b.job.destination_zip|default:'—' }}<br>Time: {{ b.job.pickup_time_to|default:'—' }}<br>Deadline: {{ b.job.delivery_deadline|default:'—' }}</td>
+                    <td>{{ b.job.cargo_type.name }}<br>Weight: {{ b.job.weight_kg|default:'—' }} kg<br>Special: {{ b.job.special_requirements|default:'—' }}</td>
+                    <td>{{ b.user.username }} (ID: {{ b.user.id }})</td>
+                    <td>{{ b.booked_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" style="text-align:center; color:#888;">No jobs have been booked yet.</td></tr>
                 {% endfor %}
             </table>
             {% endif %}

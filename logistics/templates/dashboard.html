@@ -177,13 +177,204 @@
         .cta-button:hover {
             background-color: #2980b9;
         }
+        .active-job {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .closed-job {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+    <style>
+    /* Dark mode overrides for less bright colors and better section distinction */
+    .dark-mode .dashboard-container {
+        background: #23272f !important;
+        color: #e3e6ed !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    }
+    .dark-mode h1, .dark-mode h2, .dark-mode h3, .dark-mode .section-title {
+        color: #8ab4f8 !important;
+    }
+    .dark-mode .stat-card {
+        background: #2d3748 !important;
+        color: #bfc7d5 !important;
+        border: 1px solid #3a4256 !important;
+    }
+    .dark-mode .stat-number {
+        color: #7ed6a7 !important;
+    }
+    .dark-mode .job-card {
+        background: #232b36 !important;
+        color: #e3e6ed !important;
+        border-left: 4px solid #7ed6a7 !important;
+        border: 1px solid #2d3748 !important;
+        box-shadow: 0 4px 16px rgba(20,30,40,0.18);
+    }
+    .dark-mode .no-saved-jobs {
+        background: #20232a !important;
+        color: #bfc7d5 !important;
+        border: 2px dashed #3a4256 !important;
+    }
+    .dark-mode .job-title, .dark-mode .route-info, .dark-mode .weight-info {
+        color: #bfc7d5 !important;
+    }
+    .dark-mode .route-arrow {
+        color: #8ab4f8 !important;
+    }
+    .dark-mode .cargo-type {
+        background: #3a4256 !important;
+        color: #bfc7d5 !important;
+    }
+    .dark-mode .cta-button, .dark-mode .btn, .dark-mode button, .dark-mode input[type="submit"] {
+        background: #23272f !important;
+        color: #e3e6ed !important;
+        border: none !important;
+    }
+    /* Specific button color overrides for dark mode */
+    .dark-mode .cta-button[style*="background-color:#3498db"],
+    .dark-mode .btn[style*="background:#3498db"],
+    .dark-mode .btn[style*="background-color:#3498db"] {
+        background: #2563a6 !important;
+    }
+    .dark-mode .cta-button[style*="background-color:#27ae60"],
+    .dark-mode .btn[style*="background:#27ae60"],
+    .dark-mode .btn[style*="background-color:#27ae60"] {
+        background: #218c53 !important;
+    }
+    .dark-mode .cta-button[style*="background-color:#8e44ad"],
+    .dark-mode .btn[style*="background:#8e44ad"],
+    .dark-mode .btn[style*="background-color:#8e44ad"] {
+        background: #6c3483 !important;
+    }
+    .dark-mode .cta-button[style*="background-color:#e74c3c"],
+    .dark-mode .btn[style*="background:#e74c3c"],
+    .dark-mode .btn[style*="background-color:#e74c3c"] {
+        background: #b03a2e !important;
+    }
+    .dark-mode .cta-button[style*="background-color:#e67e22"],
+    .dark-mode .btn[style*="background:#e67e22"],
+    .dark-mode .btn[style*="background-color:#e67e22"] {
+        background: #a65c17 !important;
+    }
+    .dark-mode .cta-button[style*="background-color:#2980b9"],
+    .dark-mode .btn[style*="background:#2980b9"],
+    .dark-mode .btn[style*="background-color:#2980b9"] {
+        background: #1c4a6e !important;
+    }
+    .dark-mode .cta-button[style*="background-color:#16a085"],
+    .dark-mode .btn[style*="background:#16a085"],
+    .dark-mode .btn[style*="background-color:#16a085"] {
+        background: #11706a !important;
+    }
+    .dark-mode .cta-button[style*="background-color:#21618c"],
+    .dark-mode .btn[style*="background:#21618c"],
+    .dark-mode .btn[style*="background-color:#21618c"] {
+        background: #183c5a !important;
+    }
+    .dark-mode .cta-button:hover, .dark-mode .btn:hover, .dark-mode button:hover {
+        filter: brightness(1.15);
+        color: #8ab4f8 !important;
+    }
+    .dark-mode .active-job {
+        color: #7ed6a7 !important;
+    }
+    .dark-mode .closed-job {
+        color: #e57373 !important;
+    }
+    .dark-mode .browse-link {
+        color: #8ab4f8 !important;
+    }
+    .dark-mode .browse-link:hover {
+        color: #fff !important;
+    }
+    .dark-mode .success-message {
+        background: #2d3748 !important;
+        color: #bfc7d5 !important;
+    }
+    /* Feature/user/staff boxes distinction */
+    .dark-mode [style*="background: #ecf0f1"],
+    .dark-mode [style*="background-color: #ecf0f1"] {
+        background: #23272f !important;
+        color: #e3e6ed !important;
+        border-color: #23272f !important;
+    }
+    .dark-mode [style*="background: #d6eaf8"],
+    .dark-mode [style*="background-color: #d6eaf8"] {
+        background: #22304a !important;
+        color: #bfc7d5 !important;
+        border-color: #3a4256 !important;
+    }
+    .dark-mode [style*="background: #f8f9fa"],
+    .dark-mode [style*="background-color: #f8f9fa"] {
+        background: #20232a !important;
+        color: #e3e6ed !important;
+        border-color: #23272f !important;
+    }
+    .dark-mode [style*="background: #e67e22"],
+    .dark-mode [style*="background-color: #e67e22"] {
+        background: #6d5c2c !important;
+        color: #e3e6ed !important;
+    }
+    .dark-mode [style*="background: #27ae60"],
+    .dark-mode [style*="background-color: #27ae60"] {
+        background: #2d6a4f !important;
+        color: #e3e6ed !important;
+    }
+    .dark-mode [style*="background: #8e44ad"],
+    .dark-mode [style*="background-color: #8e44ad"] {
+        background: #5e548e !important;
+        color: #e3e6ed !important;
+    }
+    .dark-mode [style*="background: #e74c3c"],
+    .dark-mode [style*="background-color: #e74c3c"] {
+        background: #a93226 !important;
+        color: #e3e6ed !important;
+    }
+    .dark-mode [style*="background: #3498db"],
+    .dark-mode [style*="background-color: #3498db"] {
+        background: #3a4256 !important;
+        color: #e3e6ed !important;
+    }
+    .dark-mode [style*="background: #2980b9"],
+    .dark-mode [style*="background-color: #2980b9"] {
+        background: #22304a !important;
+        color: #e3e6ed !important;
+    }
+    .dark-mode [style*="background: #16a085"],
+    .dark-mode [style*="background-color: #16a085"] {
+        background: #145c5c !important;
+        color: #e3e6ed !important;
+    }
+    .dark-mode [style*="background: #21618c"],
+    .dark-mode [style*="background-color: #21618c"] {
+        background: #22304a !important;
+        color: #e3e6ed !important;
+    }
+    .dark-mode [style*="border: 2px solid #2980b9"],
+    .dark-mode [style*="border: 2px solid #3498db"] {
+        border-color: #3a4256 !important;
+    }
+    .dark-mode [style*="color: #3498db"],
+    .dark-mode [style*="color: #2980b9"],
+    .dark-mode [style*="color: #2c3e50"],
+    .dark-mode [style*="color: #e67e22"],
+    .dark-mode [style*="color: #27ae60"],
+    .dark-mode [style*="color: #8e44ad"],
+    .dark-mode [style*="color: #e74c3c"],
+    .dark-mode [style*="color: #16a085"],
+    .dark-mode [style*="color: #21618c"] {
+        color: #8ab4f8 !important;
+    }
     </style>
 </head>
 <body>
+    <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
+        <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+    </div>
     <div class="header">
         <h1>FreightFlow Dashboard</h1>
         <div class="nav-links">
-            <span class="welcome-message">Welcome, {{ user.username }}!</span>
             <a href="{% url 'logistics:home' %}">Home</a>
             <a href="{% url 'logistics:job_list' %}">Browse Jobs</a>
             <a href="{% url 'logistics:logout' %}" class="logout">Logout</a>
@@ -263,7 +454,7 @@
                                 Weight: {{ saved_job.job.weight_kg }} kg
                             </div>
                             <div style="margin-top:10px;">
-                                <span style="color: {% if saved_job.job.id in job_statuses %}#27ae60{% else %}#e74c3c{% endif %}; font-weight:bold;">
+                                <span class="{% if saved_job.job.id in job_statuses %}active-job{% else %}closed-job{% endif %}">
                                     {% if saved_job.job.id in job_statuses %}Active{% else %}Closed{% endif %}
                                 </span>
                                 <form method="post" action="{% url 'logistics:remove_saved_job' saved_job.job.id %}" style="display:inline; margin-left:10px;">
@@ -326,5 +517,48 @@
             <p>Job recommendations coming soon!</p>
         </div>
     </div>
+<script>
+// Persistent dark mode toggle for all pages, fallback to system preference on logout
+function setDarkMode(on) {
+    if(on) {
+        document.body.classList.add('dark-mode');
+        document.body.style.background = '#222';
+        document.querySelectorAll('.dashboard-container, .container, main, .main-content, .welcome, .links, .card').forEach(function(el){
+            el.style.background = '#181818';
+            el.style.color = '#eee';
+        });
+    } else {
+        document.body.classList.remove('dark-mode');
+        document.body.style.background = '#f5f5f5';
+        document.querySelectorAll('.dashboard-container, .container, main, .main-content, .welcome, .links, .card').forEach(function(el){
+            el.style.background = '';
+            el.style.color = '';
+        });
+    }
+}
+function getDarkMode() {
+    const pref = localStorage.getItem('darkMode');
+    if (pref === null) {
+        // No preference, use system
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return pref === 'on';
+}
+document.getElementById('darkModeToggle').onclick = function() {
+    const on = !getDarkMode();
+    localStorage.setItem('darkMode', on ? 'on' : 'off');
+    setDarkMode(on);
+};
+// On page load
+setDarkMode(getDarkMode());
+// On logout, clear darkMode preference
+if (document.querySelectorAll('.logout').length) {
+    document.querySelectorAll('.logout').forEach(function(logoutLink) {
+        logoutLink.addEventListener('click', function() {
+            localStorage.removeItem('darkMode');
+        });
+    });
+}
+</script>
 </body>
 </html> 

@@ -10,6 +10,7 @@ from django import forms
 from django.utils import timezone
 from django.contrib.auth.models import User
 import csv
+from django.db.models import Q
 
 # Create your views here.
 
@@ -197,6 +198,8 @@ def admin_dashboard(request):
     flagged_jobs = JobPost.objects.filter(flags__status='open').distinct().order_by('-created_at')
     # Requests
     job_requests = JobRequest.objects.filter(status='pending').order_by('-created_at')
+    # Booked jobs
+    booked_jobs = BookedJob.objects.select_related('job', 'user').order_by('-booked_at')
     # Users (for user management)
     users = User.objects.all()
     if q:
@@ -243,6 +246,7 @@ def admin_dashboard(request):
         'recent_bulk': recent_bulk,
         'users': users,
         'q': q,
+        'booked_jobs': booked_jobs,
     })
 
 class JobPostForm(forms.ModelForm):
@@ -290,6 +294,39 @@ def remove_saved_job(request, job_id):
     return redirect('logistics:dashboard')
 
 class UserProfileForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = True
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if len(username) < 2:
+            raise forms.ValidationError('Username must be at least 2 characters long.')
+        qs = User.objects.exclude(pk=self.instance.pk).filter(username__iexact=username)
+        if qs.exists():
+            raise forms.ValidationError('This username is already taken.')
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        qs = User.objects.exclude(pk=self.instance.pk).filter(email__iexact=email)
+        if qs.exists():
+            raise forms.ValidationError('This email is already in use.')
+        return email
+
+    def clean_first_name(self):
+        first_name = self.cleaned_data['first_name']
+        if len(first_name.strip()) < 2:
+            raise forms.ValidationError('First name must be at least 2 characters long.')
+        return first_name
+
+    def clean_last_name(self):
+        last_name = self.cleaned_data['last_name']
+        if len(last_name.strip()) < 2:
+            raise forms.ValidationError('Last name must be at least 2 characters long.')
+        return last_name
+
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email']
@@ -321,6 +358,14 @@ def change_password(request):
     return render(request, 'change_password.html', {'form': form})
 
 class JobRequestForm(forms.ModelForm):
+    TIME_WINDOWS = [
+        ("06:00-12:00", "06:00 - 12:00"),
+        ("12:00-18:00", "12:00 - 18:00"),
+        ("18:00-00:00", "18:00 - 00:00"),
+        ("00:00-06:00", "00:00 - 06:00"),
+    ]
+    pickup_time_from = forms.ChoiceField(choices=TIME_WINDOWS, label="Pickup Time Window")
+    pickup_time_to = forms.ChoiceField(choices=TIME_WINDOWS, label="Dropoff Time Window")
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         tomorrow = (timezone.now() + timezone.timedelta(days=1)).date()
@@ -328,17 +373,38 @@ class JobRequestForm(forms.ModelForm):
             'type': 'date',
             'min': tomorrow.isoformat(),
         })
-
     def clean_pickup_date(self):
         date = self.cleaned_data['pickup_date']
         tomorrow = (timezone.now() + timezone.timedelta(days=1)).date()
         if date < tomorrow:
             raise forms.ValidationError('Pickup date must be from tomorrow onwards.')
         return date
+    def clean(self):
+        cleaned_data = super().clean()
+        # No need for 3-hour window validation, as windows are fixed
+        return cleaned_data
 
     class Meta:
         model = JobRequest
-        fields = ['title', 'description', 'origin', 'destination', 'cargo_type', 'weight_kg', 'pickup_date']
+        fields = [
+            'title', 'description', 'origin', 'origin_address', 'origin_zip', 'destination', 'destination_address', 'destination_zip',
+            'cargo_type', 'weight_kg',
+            'length_cm', 'width_cm', 'height_cm', 'volume_m3',
+            'special_requirements',
+            'pickup_date', 'pickup_time_from', 'pickup_time_to',
+            'delivery_deadline',
+            'declared_value', 'reference_code',
+        ]
+        widgets = {
+            'pickup_date': forms.DateInput(attrs={'type': 'date'}),
+            'delivery_deadline': forms.DateInput(attrs={'type': 'date'}),
+            'pickup_time_from': forms.TimeInput(attrs={'type': 'time', 'min': '06:00', 'max': '22:00'}),
+            'pickup_time_to': forms.TimeInput(attrs={'type': 'time', 'min': '06:00', 'max': '22:00'}),
+            'special_requirements': forms.Textarea(attrs={'rows': 2}),
+            'declared_value': forms.NumberInput(attrs={'step': '0.01'}),
+            'origin_address': forms.TextInput(),
+            'destination_address': forms.TextInput(),
+        }
 
 @login_required
 def request_job(request):
@@ -777,7 +843,16 @@ def book_job(request, job_id):
     already_booked = BookedJob.objects.filter(user=request.user, job=job).exists()
     if not already_booked:
         BookedJob.objects.create(user=request.user, job=job)
+        job.hidden = True
+        job.save()
         messages.success(request, 'Job booked successfully!')
     else:
         messages.info(request, 'You have already booked this job.')
     return redirect('logistics:job_detail', job_id=job.id)
+
+@login_required
+def hidden_jobs(request):
+    jobs = JobPost.objects.filter(hidden=True).select_related('cargo_type', 'created_by')
+    booked = BookedJob.objects.filter(job__in=jobs).select_related('user', 'job')
+    booked_map = {b.job_id: b.user for b in booked}
+    return render(request, 'hidden_jobs.html', {'jobs': jobs, 'booked_map': booked_map})

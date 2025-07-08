@@ -133,7 +133,7 @@
                 </tr>
                 {% for staff in staff_users %}
                 <tr>
-                    <td>{{ staff.username }}</td>
+                    <td>{{ staff.username }} (ID: {{ staff.id }})</td>
                     <td>{{ staff.email }}</td>
                     <td>
                         <a href="{% url 'logistics:manager_edit_user' staff.id %}" class="btn edit">Edit</a>
@@ -156,7 +156,7 @@
                 </tr>
                 {% for manager in manager_users %}
                 <tr>
-                    <td>{{ manager.username }}</td>
+                    <td>{{ manager.username }} (ID: {{ manager.id }})</td>
                     <td>{{ manager.email }}</td>
                 </tr>
                 {% empty %}
@@ -172,7 +172,7 @@
                 </tr>
                 {% for user in normal_users %}
                 <tr>
-                    <td>{{ user.username }}</td>
+                    <td>{{ user.username }} (ID: {{ user.id }})</td>
                     <td>{{ user.email }}</td>
                     <td><a href="{% url 'logistics:manager_edit_user' user.id %}" class="btn edit">Edit</a></td>
                 </tr>
@@ -189,7 +189,7 @@
                     </tr>
                     {% for user in found_users %}
                     <tr>
-                        <td>{{ user.username }}</td>
+                        <td>{{ user.username }} (ID: {{ user.id }})</td>
                         <td>{{ user.email }}</td>
                         <td><a href="{% url 'logistics:manager_edit_user' user.id %}" class="btn edit">Edit</a></td>
                     </tr>

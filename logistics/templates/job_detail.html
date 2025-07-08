@@ -199,8 +199,35 @@
             border: 1px solid #bee5eb;
         }
     </style>
+    <style>
+.dark-mode body { background: #181a20 !important; }
+.dark-mode .container { background: #23272f !important; color: #e3e6ed !important; }
+.dark-mode .header { background: #232b36 !important; color: #e3e6ed !important; }
+.dark-mode .job-detail-card { background: #232b36 !important; color: #e3e6ed !important; }
+.dark-mode .job-title { color: #8ab4f8 !important; border-bottom: 2px solid #7ed6a7 !important; }
+.dark-mode .route-section { background: #20232a !important; color: #bfc7d5 !important; }
+.dark-mode .route-section div[style*='color:#2980b9'] { color: #8ab4f8 !important; }
+.dark-mode .route-info { color: #bfc7d5 !important; }
+.dark-mode .route-arrow { color: #8ab4f8 !important; }
+.dark-mode .detail-section { background: #232b36 !important; color: #e3e6ed !important; }
+.dark-mode .detail-label { color: #8ab4f8 !important; }
+.dark-mode .detail-value { color: #bfc7d5 !important; }
+.dark-mode .description-box { background: #20232a !important; color: #e3e6ed !important; border-left: 4px solid #7ed6a7 !important; }
+.dark-mode .meta-info { background: #232b36 !important; color: #bfc7d5 !important; }
+.dark-mode .save-btn, .dark-mode .like-btn { background: #23272f !important; color: #e3e6ed !important; border: none !important; }
+.dark-mode .save-btn:hover, .dark-mode .like-btn:hover { filter: brightness(1.15); color: #8ab4f8 !important; }
+.dark-mode .login-prompt { background: #3a4256 !important; color: #8ab4f8 !important; }
+.dark-mode .message.success { background: #2e7d32 !important; color: #bfc7d5 !important; border: 1px solid #388e3c !important; }
+.dark-mode .message.info { background: #1976d2 !important; color: #bfc7d5 !important; border: 1px solid #1565c0 !important; }
+.dark-mode .recommended-section h3 { color: #8ab4f8 !important; }
+.dark-mode .recommended-jobs-card { background: #232b36 !important; color: #e3e6ed !important; border-left: 4px solid #7ed6a7 !important; box-shadow: 0 2px 8px rgba(20,30,40,0.18); }
+.dark-mode .recommended-jobs-card:hover { box-shadow: 0 4px 16px rgba(20,30,40,0.22); }
+</style>
 </head>
 <body>
+    <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
+        <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+    </div>
     <div class="container">
         {% if user.is_authenticated and user.is_staff %}
         <a href="{% url 'logistics:admin_dashboard' %}" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; text-decoration:none; display:inline-block;">← Back to Staff Dashboard</a>
@@ -226,32 +253,49 @@
             <div class="job-detail-card">
                 <div class="job-title">{{ job.title }}</div>
 
-                <div class="route-section">
+                <div class="route-section" style="background:#f0f4fa; border-radius:8px; padding:16px 20px; margin-bottom:18px;">
+                    <div style="font-weight:bold; font-size:18px; color:#2980b9; margin-bottom:6px;">Route</div>
                     <div class="route-info">
                         <span>{{ job.origin }}</span>
                         <span class="route-arrow">→</span>
                         <span>{{ job.destination }}</span>
                     </div>
                 </div>
-                
-                <div class="detail-section">
-                    <div class="detail-label">Cargo Type:</div>
-                    <div class="cargo-badge">{{ job.cargo_type.name }}</div>
+                <div class="detail-section" style="background:#f8f9fa; border-radius:8px; padding:14px 18px; margin-bottom:14px;">
+                    <div class="detail-label" style="color:#2c3e50; font-size:16px; margin-bottom:4px;">Pickup</div>
+                    <div class="detail-value">
+                        <b>City:</b> {{ job.origin }}<br>
+                        <b>Address:</b> {{ job.origin_address|default:'—' }}<br>
+                        <b>ZIP:</b> {{ job.origin_zip|default:'—' }}<br>
+                        <b>Date:</b> {{ job.pickup_date|default:'—' }}<br>
+                        <b>Time Window:</b> {{ job.pickup_time_from|default:'—' }}
+                    </div>
                 </div>
-                
-                <div class="detail-section">
-                    <div class="detail-label">Weight:</div>
-                    <div class="detail-value">{{ job.weight_kg }} kg</div>
+                <div class="detail-section" style="background:#f8f9fa; border-radius:8px; padding:14px 18px; margin-bottom:14px;">
+                    <div class="detail-label" style="color:#2c3e50; font-size:16px; margin-bottom:4px;">Dropoff</div>
+                    <div class="detail-value">
+                        <b>City:</b> {{ job.destination }}<br>
+                        <b>Address:</b> {{ job.destination_address|default:'—' }}<br>
+                        <b>ZIP:</b> {{ job.destination_zip|default:'—' }}<br>
+                        <b>Time Window:</b> {{ job.pickup_time_to|default:'—' }}<br>
+                        <b>Deadline:</b> {{ job.delivery_deadline|default:'—' }}
+                    </div>
                 </div>
-                
-                <div class="detail-section">
-                    <div class="detail-label">Pickup Date:</div>
-                    <div class="detail-value">{{ job.pickup_date }}</div>
+                <div class="detail-section" style="background:#f8f9fa; border-radius:8px; padding:14px 18px; margin-bottom:14px;">
+                    <div class="detail-label" style="color:#2c3e50; font-size:16px; margin-bottom:4px;">Cargo</div>
+                    <div class="detail-value">
+                        <b>Type:</b> {{ job.cargo_type.name }}<br>
+                        <b>Weight:</b> {{ job.weight_kg|default:'—' }} kg<br>
+                        <b>Dimensions:</b> {{ job.length_cm|default:'—' }} × {{ job.width_cm|default:'—' }} × {{ job.height_cm|default:'—' }} cm<br>
+                        <b>Volume:</b> {{ job.volume_m3|default:'—' }} m³<br>
+                        <b>Special Requirements:</b> {{ job.special_requirements|default:'—' }}<br>
+                        <b>Declared Value:</b> {{ job.declared_value|default:'—' }}<br>
+                        <b>Reference Code:</b> {{ job.reference_code|default:'—' }}
+                    </div>
                 </div>
-                
-                <div class="detail-section">
-                    <div class="detail-label">Description:</div>
-                    <div class="description-box">
+                <div class="detail-section" style="background:#f8f9fa; border-radius:8px; padding:14px 18px; margin-bottom:14px;">
+                    <div class="detail-label" style="color:#2c3e50; font-size:16px; margin-bottom:4px;">Description</div>
+                    <div class="description-box" style="background:#fff; border-left:4px solid #3498db;">
                         {{ job.description|linebreaks }}
                     </div>
                 </div>
@@ -311,12 +355,12 @@
             </div>
 
             <!-- Recommended Jobs Section -->
-            <div style="margin-top:40px;">
+            <div style="margin-top:40px;" class="recommended-section">
                 <h3 style="color:#2980b9;">You might also like</h3>
                 {% if recommended_jobs and recommended_jobs|length > 0 %}
                     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:18px; margin-top:18px;">
                         {% for rec in recommended_jobs %}
-                            <a href="{% url 'logistics:job_detail' rec.id %}" style="text-decoration:none; color:inherit; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.07); padding:18px; display:block; transition:box-shadow 0.2s; border-left:4px solid #3498db;">
+                            <a href="{% url 'logistics:job_detail' rec.id %}" class="recommended-jobs-card" style="text-decoration:none; color:inherit; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.07); padding:18px; display:block; transition:box-shadow 0.2s; border-left:4px solid #3498db;">
                                 <div style="font-weight:bold; font-size:18px; margin-bottom:8px; color:#2c3e50;">{{ rec.title }}</div>
                                 <div style="color:#555; font-size:15px; margin-bottom:4px;">
                                     <span>{{ rec.origin }}</span>
@@ -397,5 +441,48 @@
             });
         }
     </script>
+    <script>
+// Persistent dark mode toggle for all pages, fallback to system preference on logout
+function setDarkMode(on) {
+    if(on) {
+        document.body.classList.add('dark-mode');
+        document.body.style.background = '#222';
+        document.querySelectorAll('.container, .header, .job-detail-card, .route-section, .detail-section, .description-box, .meta-info').forEach(function(el){
+            el.style.background = '';
+            el.style.color = '';
+        });
+    } else {
+        document.body.classList.remove('dark-mode');
+        document.body.style.background = '#f5f5f5';
+        document.querySelectorAll('.container, .header, .job-detail-card, .route-section, .detail-section, .description-box, .meta-info').forEach(function(el){
+            el.style.background = '';
+            el.style.color = '';
+        });
+    }
+}
+function getDarkMode() {
+    const pref = localStorage.getItem('darkMode');
+    if (pref === null) {
+        // No preference, use system
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return pref === 'on';
+}
+document.getElementById('darkModeToggle').onclick = function() {
+    const on = !getDarkMode();
+    localStorage.setItem('darkMode', on ? 'on' : 'off');
+    setDarkMode(on);
+};
+// On page load
+setDarkMode(getDarkMode());
+// On logout, clear darkMode preference
+if (document.querySelectorAll('.logout').length) {
+    document.querySelectorAll('.logout').forEach(function(logoutLink) {
+        logoutLink.addEventListener('click', function() {
+            localStorage.removeItem('darkMode');
+        });
+    });
+}
+</script>
 </body>
 </html> 
