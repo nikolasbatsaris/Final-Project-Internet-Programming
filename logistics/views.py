@@ -121,28 +121,37 @@ def dashboard(request):
     user = request.user
     if user.is_staff:
         return redirect('logistics:admin_dashboard')
-    saved_jobs = SavedJob.objects.filter(user=user).select_related('job', 'job__cargo_type', 'job__created_by')
     # Profile summary
     profile = {
         'email': user.email,
         'date_joined': user.date_joined,
-        'saved_count': saved_jobs.count(),
+        'saved_count': 0,
     }
-    # Recent activity: last 5 saved jobs
-    recent_saved = saved_jobs.order_by('-id')[:5]
-    # Saved job status: active if job still exists, closed if not
-    job_statuses = {sj.job.id: sj.job for sj in saved_jobs}
     # Show change password link (always True for now)
     show_change_password = True
     # Booked jobs
     booked_jobs = BookedJob.objects.filter(user=user).select_related('job', 'job__cargo_type', 'job__created_by')
+    # Liked jobs
+    liked_jobs = JobPost.objects.filter(joblike__user=user).select_related('cargo_type', 'created_by').distinct()
+    # --- Recommender System ---
+    booked_job_ids = set(booked_jobs.values_list('job_id', flat=True))
+    liked_job_ids = set(JobLike.objects.filter(user=user).values_list('job_id', flat=True))
+    saved_job_ids = set()  # No saved jobs
+    cargo_type_ids = set(JobPost.objects.filter(id__in=liked_job_ids | booked_job_ids).values_list('cargo_type_id', flat=True))
+    recommended_jobs = JobPost.objects.filter(
+        cargo_type_id__in=cargo_type_ids,
+        hidden=False
+    ).exclude(id__in=liked_job_ids | booked_job_ids).order_by('-created_at')[:5]
+    if recommended_jobs.count() < 5:
+        extra_needed = 5 - recommended_jobs.count()
+        extra_jobs = JobPost.objects.filter(hidden=False).exclude(id__in=liked_job_ids | booked_job_ids | set(recommended_jobs.values_list('id', flat=True))).order_by('-created_at')[:extra_needed]
+        recommended_jobs = list(recommended_jobs) + list(extra_jobs)
     return render(request, 'dashboard.html', {
-        'saved_jobs': saved_jobs,
         'profile': profile,
-        'recent_saved': recent_saved,
-        'job_statuses': job_statuses,
         'show_change_password': show_change_password,
         'booked_jobs': booked_jobs,
+        'recommended_jobs': recommended_jobs,
+        'liked_jobs': liked_jobs,
     })
 
 @login_required

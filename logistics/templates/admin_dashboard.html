@@ -73,6 +73,16 @@
             <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
         </div>
         <div class="main-content">
+            <!-- Hero/Header Card -->
+            <div style="display:flex; align-items:center; gap:24px; background: linear-gradient(90deg,#3498db 0%,#8fd3f4 100%); color:#fff; border-radius:18px; padding:32px 36px; margin-bottom:36px; box-shadow:0 4px 24px rgba(52,152,219,0.10);">
+                <div style="width:80px; height:80px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:2.7rem; font-weight:bold; color:#3498db; box-shadow:0 2px 8px rgba(52,152,219,0.10);">
+                    🛡️
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:2rem; font-weight:bold; letter-spacing:1px;">Admin Dashboard</div>
+                    <div style="margin-top:8px; font-size:1.1rem;">Manage jobs, users, and requests with a modern, unified interface.</div>
+                </div>
+            </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h1>{% if is_superuser %}Admin Dashboard{% else %}Staff Dashboard{% endif %}</h1>
             </div>
@@ -277,7 +287,7 @@
                     <th>Actions</th>
                 </tr>
                 {% for job in hidden_jobs %}
-                <tr style="background:#f8d7da;">
+                <tr>
                     <td>{{ job.id }}</td>
                     <td><a href="{% url 'logistics:job_detail' job.id %}">{{ job.title }}</a></td>
                     <td>{{ job.origin }} → {{ job.destination }}</td>

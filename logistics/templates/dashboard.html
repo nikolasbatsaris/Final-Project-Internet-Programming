@@ -381,140 +381,116 @@
         </div>
     </div>
 
-    <div class="dashboard-container">
-        <!-- Profile Summary -->
-        <div style="margin-bottom: 30px; background: #ecf0f1; padding: 20px; border-radius: 8px;">
-            <h2 style="color:#2c3e50;">Profile Summary</h2>
-            <p><strong>Email:</strong> {{ profile.email }}</p>
-            <p><strong>Joined:</strong> {{ profile.date_joined|date:'F j, Y' }}</p>
-            <p><strong>Saved Jobs:</strong> {{ profile.saved_count }}</p>
-            <a href="{% url 'logistics:edit_profile' %}" class="cta-button" style="background-color:#3498db;">Edit Profile</a>
-        </div>
-        {% if not user.is_staff %}
-        <div style="margin-bottom: 30px;">
-            <h2 style="color:#3498db;">Recent Activity</h2>
-            {% if recent_saved %}
-                <ul>
-                {% for saved in recent_saved %}
-                    <li>
-                        <a href="{% url 'logistics:job_detail' saved.job.id %}">{{ saved.job.title }}</a>
-                        ({{ saved.job.origin }} → {{ saved.job.destination }}, {{ saved.job.cargo_type.name }})
-                    </li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <p>No recent activity.</p>
-            {% endif %}
-        </div>
-        {% endif %}
-        {% if not user.is_staff %}
-        <div style="margin-bottom: 30px; background: #d6eaf8; padding: 20px; border-radius: 8px; border: 2px solid #2980b9;">
-            <h2 style="color:#21618c;">User Features</h2>
-            <a href="{% url 'logistics:request_job' %}" class="cta-button" style="background-color:#27ae60;">+ Request a Job</a>
-            <a href="{% url 'logistics:my_job_requests' %}" class="cta-button" style="background-color:#8e44ad;">My Job Requests</a>
-        </div>
-        {% endif %}
-        {% if user.is_staff %}
-        <div style="margin-bottom: 30px; background: #d6eaf8; padding: 20px; border-radius: 8px; border: 2px solid #2980b9;">
-            <h2 style="color:#21618c;">Staff Features</h2>
-            <a href="{% url 'logistics:admin_dashboard' %}" class="cta-button" style="background-color:#e67e22;">Staff Dashboard</a>
-        </div>
-        {% endif %}
-        <!-- Django Messages -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="success-message">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        <!-- Saved Jobs Section -->
-        <h2 style="text-align:center; color:#3498db; margin-bottom:10px;">Your Saved Jobs</h2>
-        <div class="stats-section">
-            <div class="stat-card">
-                <div class="stat-number">{{ saved_jobs.count }}</div>
-                <div class="stat-label">Saved Jobs</div>
+    <div class="dashboard-container" style="background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); box-shadow: 0 4px 32px rgba(52,152,219,0.10);">
+        <!-- Profile Hero Card -->
+        <div style="display:flex; align-items:center; gap:24px; background: linear-gradient(90deg,#3498db 0%,#8fd3f4 100%); color:#fff; border-radius:18px; padding:32px 36px; margin-bottom:36px; box-shadow:0 4px 24px rgba(52,152,219,0.10);">
+            <div style="width:80px; height:80px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:2.7rem; font-weight:bold; color:#3498db; box-shadow:0 2px 8px rgba(52,152,219,0.10);">
+                {% if user.first_name %}{{ user.first_name|slice:":1"|upper }}{% else %}👤{% endif %}
             </div>
-        </div>
-        <div class="saved-jobs-section">
-            {% if saved_jobs %}
-                <div class="job-grid">
-                    {% for saved_job in saved_jobs %}
-                        <div class="job-card">
-                            <a href="{% url 'logistics:job_detail' saved_job.job.id %}" class="job-title">
-                                {{ saved_job.job.title }}
-                            </a>
-                            <div class="route-info">
-                                <span>{{ saved_job.job.origin }}</span>
-                                <span class="route-arrow">→</span>
-                                <span>{{ saved_job.job.destination }}</span>
-                            </div>
-                            <div class="cargo-type">
-                                {{ saved_job.job.cargo_type.name }}
-                            </div>
-                            <div class="weight-info">
-                                Weight: {{ saved_job.job.weight_kg }} kg
-                            </div>
-                            <div style="margin-top:10px;">
-                                <span class="{% if saved_job.job.id in job_statuses %}active-job{% else %}closed-job{% endif %}">
-                                    {% if saved_job.job.id in job_statuses %}Active{% else %}Closed{% endif %}
-                                </span>
-                                <form method="post" action="{% url 'logistics:remove_saved_job' saved_job.job.id %}" style="display:inline; margin-left:10px;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="cta-button" style="background-color:#e74c3c; padding:5px 12px; font-size:14px;">Remove</button>
-                                </form>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="no-saved-jobs">
-                    <h3>No saved jobs yet</h3>
-                    <p>Start browsing available jobs and save the ones you're interested in!</p>
-                    <a href="{% url 'logistics:job_list' %}" class="browse-link">Browse Available Jobs</a>
-                </div>
-            {% endif %}
+            <div style="flex:1;">
+                <div style="font-size:2rem; font-weight:bold; letter-spacing:1px;">Welcome, {{ user.first_name|default:user.username }}!</div>
+                <div style="margin-top:8px; font-size:1.1rem;">Email: <b>{{ profile.email }}</b></div>
+                <div style="margin-top:2px; font-size:1rem;">Joined: <b>{{ profile.date_joined|date:'F j, Y' }}</b></div>
+            </div>
+            <a href="{% url 'logistics:edit_profile' %}" class="cta-button" style="background-color:#fff; color:#3498db; font-weight:bold; border:2px solid #3498db;">Edit Profile</a>
         </div>
         <!-- Booked Jobs Section -->
-        <h2 style="text-align:center; color:#27ae60; margin:40px 0 10px 0;">My Booked Jobs</h2>
-        <div class="stats-section">
-            <div class="stat-card">
-                <div class="stat-number">{{ booked_jobs.count }}</div>
-                <div class="stat-label">Booked Jobs</div>
+        <div style="background: #eafaf1; border-radius: 14px; padding: 28px 24px; margin-bottom: 32px; box-shadow: 0 2px 12px rgba(39, 174, 96, 0.07);">
+            <h2 style="text-align:center; color:#27ae60; margin-bottom:18px; display:flex; align-items:center; justify-content:center; gap:10px;">🚚 My Booked Jobs <span style="background:#27ae60; color:#fff; border-radius:12px; padding:2px 14px; font-size:1rem; margin-left:8px;">{{ booked_jobs.count }}</span></h2>
+            <div class="saved-jobs-section">
+                {% if booked_jobs %}
+                    <div class="job-grid">
+                        {% for booked in booked_jobs %}
+                            <div class="job-card" style="border-left:6px solid #27ae60;">
+                                <a href="{% url 'logistics:job_detail' booked.job.id %}" class="job-title">
+                                    {{ booked.job.title }}
+                                </a>
+                                <div class="route-info">
+                                    <span>{{ booked.job.origin }}</span>
+                                    <span class="route-arrow">→</span>
+                                    <span>{{ booked.job.destination }}</span>
+                                </div>
+                                <div class="cargo-type">
+                                    {{ booked.job.cargo_type.name }}
+                                </div>
+                                <div class="weight-info">
+                                    Weight: {{ booked.job.weight_kg }} kg
+                                </div>
+                                <div style="color:#888; font-size:13px; margin-top:8px;">Booked at: {{ booked.booked_at|date:'M j, Y H:i' }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-saved-jobs">
+                        <h3>No booked jobs yet</h3>
+                        <p>Book a job from the job list or job detail page.</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
-        <div class="saved-jobs-section">
-            {% if booked_jobs %}
+        <!-- Liked Jobs Section -->
+        <div style="background: #fceeee; border-radius: 14px; padding: 28px 24px; margin-bottom: 32px; box-shadow: 0 2px 12px rgba(231, 76, 60, 0.07);">
+            <h2 style="text-align:center; color:#e74c3c; margin-bottom:18px; display:flex; align-items:center; justify-content:center; gap:10px;">❤️ My Liked Jobs <span style="background:#e74c3c; color:#fff; border-radius:12px; padding:2px 14px; font-size:1rem; margin-left:8px;">{{ liked_jobs.count }}</span></h2>
+            <div class="saved-jobs-section">
+                {% if liked_jobs %}
+                    <div class="job-grid">
+                        {% for job in liked_jobs %}
+                            <div class="job-card" style="border-left:6px solid #e74c3c;">
+                                <a href="{% url 'logistics:job_detail' job.id %}" class="job-title">
+                                    {{ job.title }}
+                                </a>
+                                <div class="route-info">
+                                    <span>{{ job.origin }}</span>
+                                    <span class="route-arrow">→</span>
+                                    <span>{{ job.destination }}</span>
+                                </div>
+                                <div class="cargo-type">
+                                    {{ job.cargo_type.name }}
+                                </div>
+                                <div class="weight-info">
+                                    Weight: {{ job.weight_kg }} kg
+                                </div>
+                                <div style="font-size:13px; color:#888; margin-top:8px;">Liked by you</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-saved-jobs">
+                        <h3>No liked jobs yet</h3>
+                        <p>Like jobs from the job list to see them here!</p>
+                        <a href="{% url 'logistics:job_list' %}" class="browse-link">Browse Available Jobs</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Job Recommendations Section -->
+        <div style="background: #eaf6fb; border-radius: 14px; padding: 28px 24px; margin-bottom: 32px; box-shadow: 0 2px 12px rgba(52, 152, 219, 0.07);">
+            <h2 style="text-align:center; color:#16a085; margin-bottom:18px; display:flex; align-items:center; justify-content:center; gap:10px;">✨ Recommended Jobs For You</h2>
+            {% if recommended_jobs and recommended_jobs|length > 0 %}
                 <div class="job-grid">
-                    {% for booked in booked_jobs %}
-                        <div class="job-card">
-                            <a href="{% url 'logistics:job_detail' booked.job.id %}" class="job-title">
-                                {{ booked.job.title }}
+                    {% for job in recommended_jobs %}
+                        <div class="job-card" style="border-left:6px solid #16a085;">
+                            <a href="{% url 'logistics:job_detail' job.id %}" class="job-title">
+                                {{ job.title }}
                             </a>
                             <div class="route-info">
-                                <span>{{ booked.job.origin }}</span>
+                                <span>{{ job.origin }}</span>
                                 <span class="route-arrow">→</span>
-                                <span>{{ booked.job.destination }}</span>
+                                <span>{{ job.destination }}</span>
                             </div>
                             <div class="cargo-type">
-                                {{ booked.job.cargo_type.name }}
+                                {{ job.cargo_type.name }}
                             </div>
                             <div class="weight-info">
-                                Weight: {{ booked.job.weight_kg }} kg
+                                Weight: {{ job.weight_kg }} kg
                             </div>
-                            <div style="color:#888; font-size:13px; margin-top:8px;">Booked at: {{ booked.booked_at|date:'M j, Y H:i' }}</div>
+                            <div style="font-size:13px; color:#888; margin-top:8px;">Posted: {{ job.created_at|date:'M j, Y H:i' }}</div>
                         </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <div class="no-saved-jobs">
-                    <h3>No booked jobs yet</h3>
-                    <p>Book a job from the job list or job detail page.</p>
-                </div>
+                <div style="margin-top:16px; color:#888; font-size:16px;">No recommendations available at this time.</div>
             {% endif %}
-        </div>
-        <!-- Job Recommendations (placeholder) -->
-        <div style="margin-top:40px;">
-            <h2 style="color:#16a085;">Recommended Jobs For You</h2>
-            <p>Job recommendations coming soon!</p>
         </div>
     </div>
 <script>

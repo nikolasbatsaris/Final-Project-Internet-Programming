@@ -8,12 +8,8 @@
         .container { max-width: 1100px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 40px; }
         h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
         .job-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
-        .job-card { background: #f8f9fa; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 4px solid #e67e22; }
-        .job-title { color: #2c3e50; font-size: 20px; font-weight: bold; margin-bottom: 10px; }
-        .job-section { margin-bottom: 10px; }
-        .job-section b { color: #2980b9; }
-        .booked-by { color: #e67e22; font-weight: bold; margin-top: 10px; }
-        .meta { color: #888; font-size: 13px; margin-top: 8px; }
+        .job-card { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 4px solid #e67e22; color: #1565c0; }
+        .job-title, .job-section, .booked-by, .meta { color: #1565c0 !important; }
     </style>
     <style>
 .dark-mode body { background: #181a20 !important; }
@@ -28,6 +24,16 @@
 <body>
     <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
         <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+    </div>
+    <!-- Hero/Header Card -->
+    <div style="display:flex; align-items:center; gap:24px; background: linear-gradient(90deg,#3498db 0%,#8fd3f4 100%); color:#fff; border-radius:18px; padding:32px 36px; margin:32px auto 36px auto; max-width:1100px; box-shadow:0 4px 24px rgba(52,152,219,0.10);">
+        <div style="width:80px; height:80px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:2.7rem; font-weight:bold; color:#3498db; box-shadow:0 2px 8px rgba(52,152,219,0.10);">
+            🙈
+        </div>
+        <div style="flex:1;">
+            <div style="font-size:2rem; font-weight:bold; letter-spacing:1px;">Booked/Hidden Jobs</div>
+            <div style="margin-top:8px; font-size:1.1rem;">View jobs that are hidden or booked. Only visible to you and admins.</div>
+        </div>
     </div>
     <div class="container">
         <a href="/" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; text-decoration:none; display:inline-block;">← Back to Home</a>

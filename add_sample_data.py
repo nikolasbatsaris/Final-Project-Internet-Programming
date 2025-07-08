@@ -140,6 +140,141 @@ def add_sample_data():
             'cargo_type': 'General Cargo',
             'weight_kg': 3500.0,
             'pickup_date': date.today() + timedelta(days=1)
+        },
+        {
+            'title': 'Medical Supplies - Athens to Lamia',
+            'description': 'Urgent delivery of medical supplies to Lamia hospital. Requires temperature control and fast delivery.',
+            'origin': 'Athens, Greece',
+            'destination': 'Lamia, Greece',
+            'cargo_type': 'General Cargo',
+            'weight_kg': 800.0,
+            'pickup_date': date.today() + timedelta(days=2)
+        },
+        {
+            'title': 'Luxury Car Transport - Athens to Mykonos',
+            'description': 'Transport of luxury vehicles for a private client. Requires covered transport and insurance.',
+            'origin': 'Athens, Greece',
+            'destination': 'Mykonos, Greece',
+            'cargo_type': 'Automotive',
+            'weight_kg': 2200.0,
+            'pickup_date': date.today() + timedelta(days=6)
+        },
+        {
+            'title': 'Bulk Cement - Patras to Kalamata',
+            'description': 'Bulk shipment of cement for construction site. Requires silo truck.',
+            'origin': 'Patras, Greece',
+            'destination': 'Kalamata, Greece',
+            'cargo_type': 'Construction Materials',
+            'weight_kg': 10000.0,
+            'pickup_date': date.today() + timedelta(days=3)
+        },
+        {
+            'title': 'Frozen Seafood - Thessaloniki to Volos',
+            'description': 'Frozen seafood delivery for restaurant chain. Requires refrigerated truck.',
+            'origin': 'Thessaloniki, Greece',
+            'destination': 'Volos, Greece',
+            'cargo_type': 'Food & Beverages',
+            'weight_kg': 1800.0,
+            'pickup_date': date.today() + timedelta(days=2)
+        },
+        {
+            'title': 'Machinery Parts - Heraklion to Athens',
+            'description': 'Machinery parts for factory maintenance. Requires careful handling.',
+            'origin': 'Heraklion, Crete',
+            'destination': 'Athens, Greece',
+            'cargo_type': 'Heavy Machinery',
+            'weight_kg': 3500.0,
+            'pickup_date': date.today() + timedelta(days=4)
+        },
+        {
+            'title': 'Designer Furniture - Athens to Santorini',
+            'description': 'Designer furniture for hotel renovation. Fragile items, white-glove service required.',
+            'origin': 'Athens, Greece',
+            'destination': 'Santorini, Greece',
+            'cargo_type': 'Furniture',
+            'weight_kg': 1200.0,
+            'pickup_date': date.today() + timedelta(days=7)
+        },
+        {
+            'title': 'Organic Produce - Kalamata to Athens',
+            'description': 'Organic fruits and vegetables for supermarket chain. Requires quick delivery.',
+            'origin': 'Kalamata, Greece',
+            'destination': 'Athens, Greece',
+            'cargo_type': 'Agricultural Products',
+            'weight_kg': 2000.0,
+            'pickup_date': date.today() + timedelta(days=2)
+        },
+        {
+            'title': 'Hazardous Chemicals - Volos to Thessaloniki',
+            'description': 'Transport of hazardous chemicals. Requires certified driver and safety equipment.',
+            'origin': 'Volos, Greece',
+            'destination': 'Thessaloniki, Greece',
+            'cargo_type': 'Chemicals',
+            'weight_kg': 5000.0,
+            'pickup_date': date.today() + timedelta(days=5)
+        },
+        {
+            'title': 'Textile Export - Athens to Paris',
+            'description': 'Export of textiles to France. Requires customs documentation.',
+            'origin': 'Athens, Greece',
+            'destination': 'Paris, France',
+            'cargo_type': 'Textiles',
+            'weight_kg': 6000.0,
+            'pickup_date': date.today() + timedelta(days=8)
+        },
+        {
+            'title': 'Wine Delivery - Nemea to Thessaloniki',
+            'description': 'Wine bottles for distributor. Requires careful handling and temperature control.',
+            'origin': 'Nemea, Greece',
+            'destination': 'Thessaloniki, Greece',
+            'cargo_type': 'Food & Beverages',
+            'weight_kg': 1200.0,
+            'pickup_date': date.today() + timedelta(days=3)
+        },
+        {
+            'title': 'Solar Panels - Athens to Tripoli',
+            'description': 'Solar panels for new installation. Requires flatbed truck and careful securing.',
+            'origin': 'Athens, Greece',
+            'destination': 'Tripoli, Greece',
+            'cargo_type': 'Electronics',
+            'weight_kg': 3200.0,
+            'pickup_date': date.today() + timedelta(days=4)
+        },
+        {
+            'title': 'Books Shipment - Thessaloniki to Heraklion',
+            'description': 'Books for university library. Requires dry, clean transport.',
+            'origin': 'Thessaloniki, Greece',
+            'destination': 'Heraklion, Crete',
+            'cargo_type': 'General Cargo',
+            'weight_kg': 900.0,
+            'pickup_date': date.today() + timedelta(days=6)
+        },
+        {
+            'title': 'Steel Beams - Patras to Athens',
+            'description': 'Steel beams for construction. Heavy load, requires crane for unloading.',
+            'origin': 'Patras, Greece',
+            'destination': 'Athens, Greece',
+            'cargo_type': 'Construction Materials',
+            'weight_kg': 14000.0,
+            'pickup_date': date.today() + timedelta(days=5)
+        },
+        {
+            'title': 'Farm Equipment - Ioannina to Larissa',
+            'description': 'Farm equipment for agricultural cooperative. Large items, requires special permits.',
+            'origin': 'Ioannina, Greece',
+            'destination': 'Larissa, Greece',
+            'cargo_type': 'Agricultural Products',
+            'weight_kg': 9000.0,
+            'pickup_date': date.today() + timedelta(days=7)
+        },
+        {
+            'title': 'Office Electronics - Athens to London',
+            'description': 'Office computers and printers for new branch. Requires international shipping.',
+            'origin': 'Athens, Greece',
+            'destination': 'London, UK',
+            'cargo_type': 'Electronics',
+            'weight_kg': 1800.0,
+            'pickup_date': date.today() + timedelta(days=10)
         }
     ]
     

@@ -40,50 +40,69 @@
         .job-card {
             background-color: white;
             padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            border-left: 4px solid #3498db;
+            padding-bottom: 60px;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(52,152,219,0.08);
+            transition: transform 0.18s, box-shadow 0.18s;
+            border-left: 8px solid #3498db;
+            position: relative;
+            overflow: hidden;
         }
         .job-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            transform: translateY(-4px) scale(1.025);
+            box-shadow: 0 8px 32px rgba(52,152,219,0.18);
+            border-left: 8px solid #16a085;
         }
-        .job-title {
-            color: #2c3e50;
-            font-size: 20px;
+        .cargo-icon {
+            font-size: 2.1rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .badge-new {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: linear-gradient(90deg,#16a085,#27ae60);
+            color: #fff;
+            font-size: 0.95rem;
             font-weight: bold;
-            margin-bottom: 15px;
-            text-decoration: none;
+            padding: 4px 14px;
+            border-radius: 12px;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(22,160,133,0.12);
         }
-        .job-title:hover {
-            color: #3498db;
-        }
-        .job-details {
-            color: #555;
-            margin-bottom: 10px;
-        }
-        .route-info {
+        .like-btn {
+            background: #fff;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #2c3e50;
+            justify-content: center;
+            position: absolute;
+            bottom: 18px;
+            right: 18px;
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s;
+            box-shadow: 0 2px 8px rgba(231,76,60,0.08);
         }
-        .route-arrow {
-            margin: 0 10px;
-            color: #3498db;
-            font-weight: bold;
+        .like-btn.liked, .like-btn:hover {
+            background: #e74c3c;
+            color: #fff;
         }
         .cargo-type {
-            background-color: #ecf0f1;
-            color: #2c3e50;
-            padding: 5px 10px;
+            background-color: #3498db;
+            color: white;
+            padding: 5px 14px;
             border-radius: 15px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
             display: inline-block;
             margin-top: 10px;
+            letter-spacing: 0.5px;
         }
         .weight-info {
             color: #7f8c8d;
@@ -151,6 +170,11 @@
 .dark-mode .back-link, .dark-mode .job-likes {
     color: #8ab4f8 !important;
 }
+.dark-mode .like-btn.liked, .dark-mode .like-btn:hover {
+    background: #e74c3c !important;
+    color: #fff !important;
+    border-color: #e74c3c !important;
+}
 .dark-mode .job-card:hover {
     box-shadow: 0 6px 24px rgba(20,30,40,0.22);
 }
@@ -186,6 +210,16 @@
         <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
     </div>
     <div class="container">
+        <!-- Hero/Header Card -->
+        <div style="display:flex; align-items:center; gap:24px; background: linear-gradient(90deg,#3498db 0%,#8fd3f4 100%); color:#fff; border-radius:18px; padding:32px 36px; margin-bottom:36px; box-shadow:0 4px 24px rgba(52,152,219,0.10);">
+            <div style="width:80px; height:80px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:2.7rem; font-weight:bold; color:#3498db; box-shadow:0 2px 8px rgba(52,152,219,0.10);">
+                🔎
+            </div>
+            <div style="flex:1;">
+                <div style="font-size:2rem; font-weight:bold; letter-spacing:1px;">Browse Available Jobs</div>
+                <div style="margin-top:8px; font-size:1.1rem;">Find your next shipment, delivery, or logistics opportunity. Use the filters below to narrow your search!</div>
+            </div>
+        </div>
         <button onclick="window.history.back()" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer;">← Back</button>
         <div class="header">
             <h1>Available Jobs</h1>
@@ -228,8 +262,14 @@
         {% if jobs %}
             <div class="job-grid">
                 {% for job in jobs %}
-                <div class="job-card" style="display:flex; flex-direction:column; gap:10px;">
-                    <a href="{% url 'logistics:job_detail' job.id %}" class="job-title" style="font-size:1.2rem; margin-bottom:0;">{{ job.title }}</a>
+                <div class="job-card" style="display:flex; flex-direction:column; gap:10px; position:relative;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="cargo-icon">{% if job.cargo_type.name == 'Electronics' %}💻{% elif job.cargo_type.name == 'Heavy Machinery' %}🚜{% elif job.cargo_type.name == 'Food & Beverages' %}🍎{% elif job.cargo_type.name == 'Construction Materials' %}🏗️{% elif job.cargo_type.name == 'Automotive' %}🚗{% elif job.cargo_type.name == 'Furniture' %}🛋️{% elif job.cargo_type.name == 'Textiles' %}👕{% elif job.cargo_type.name == 'Chemicals' %}⚗️{% elif job.cargo_type.name == 'Agricultural Products' %}🌾{% else %}📦{% endif %}</span>
+                        <a href="{% url 'logistics:job_detail' job.id %}" class="job-title" style="font-size:1.2rem; margin-bottom:0;">{{ job.title }}</a>
+                        {% if job.created_at >= now|date:'Y-m-d'|add:'-3 days' %}
+                            <span class="badge-new">NEW</span>
+                        {% endif %}
+                    </div>
                     <div style="font-size:14px; color:#888; margin-bottom:6px;">
                         <b>Route:</b> {{ job.origin }} → {{ job.destination }}
                     </div>
@@ -266,8 +306,9 @@
                     </div>
                     <div class="job-meta">
                         <span class="job-date">Posted: {{ job.created_at|date:"Y-m-d H:i" }}</span>
-                        <span class="job-likes">👍 {{ job.like_count }}</span>
+                        <span class="job-likes" id="like-count-{{ job.id }}">👍 {{ job.like_count }}</span>
                     </div>
+                    <button class="like-btn{% if job.id in liked_job_ids %} liked{% endif %}" data-job-id="{{ job.id }}" title="Like this job">{% if job.id in liked_job_ids %}❤{% else %}🤍{% endif %}</button>
                 </div>
                 {% empty %}
                 <div class="no-jobs"><h2>No jobs found.</h2></div>
@@ -280,6 +321,7 @@
             </div>
         {% endif %}
     </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 // Persistent dark mode toggle for all pages, fallback to system preference on logout
 function setDarkMode(on) {
@@ -321,6 +363,51 @@ if (document.querySelectorAll('.logout').length) {
             localStorage.removeItem('darkMode');
         });
     });
+}
+
+// Like button AJAX integration
+$('.like-btn').click(function(e) {
+    e.preventDefault();
+    var btn = $(this);
+    var jobId = btn.data('job-id');
+    var likeCountSpan = $('#like-count-' + jobId);
+    btn.prop('disabled', true);
+    $.ajax({
+        url: '/jobs/' + jobId + '/like/',
+        type: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        success: function(data) {
+            if (data.success) {
+                likeCountSpan.text('👍 ' + data.likes);
+                if (data.action === 'liked') {
+                    btn.addClass('liked');
+                    btn.text('❤');
+                } else {
+                    btn.removeClass('liked');
+                    btn.text('🤍');
+                }
+            }
+            btn.prop('disabled', false);
+        },
+        error: function() {
+            btn.prop('disabled', false);
+            alert('Error liking job. Please try again.');
+        }
+    });
+});
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 </script>
 </body>
