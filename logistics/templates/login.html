@@ -56,9 +56,24 @@
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.3s;
+            display: block;
+            text-align: center;
+            margin-bottom: 16px;
         }
         .submit-btn:hover {
             background-color: #2980b9;
+        }
+        .submit-btn.gray {
+            background-color: #7f8c8d;
+        }
+        .submit-btn.gray:hover {
+            background-color: #636e72;
+        }
+        .submit-btn.green {
+            background-color: #27ae60;
+        }
+        .submit-btn.green:hover {
+            background-color: #219150;
         }
         .register-link {
             text-align: center;
@@ -114,11 +129,9 @@
             </div>
             
             <button type="submit" class="submit-btn">Login</button>
+            <button type="button" onclick="window.location='/'" class="submit-btn gray">Continue as Guest</button>
+            <button type="button" onclick="window.location='{% url 'logistics:register' %}'" class="submit-btn green">Register here</button>
         </form>
-        
-        <div class="register-link">
-            Don't have an account? <a href="{% url 'logistics:register' %}">Register here</a>
-        </div>
     </div>
 </body>
 </html> 
