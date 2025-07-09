@@ -80,10 +80,7 @@
 </head>
 <body>
     <div class="dashboard-flex">
-        <div style="position:fixed; top:24px; right:32px; z-index:1000;">
-            <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
-        </div>
-        <nav class="sidebar">
+        <nav class="sidebar" id="sidebar">
             <h2>Management Menu</h2>
             <a href="{% url 'logistics:manager_dashboard' %}" class="active">Management</a>
             <a href="{% url 'logistics:manager_logs_staff' %}">Staff Logs</a>
@@ -91,10 +88,20 @@
             <div style="display:flex; flex-direction:column; gap:14px; margin: 36px 0 0 0; align-items:center;">
                 <a href="{% url 'logistics:admin_dashboard' %}" style="display:block; width:88%; background:#e67e22; color:#fff; border-radius:7px; padding:20px 0; text-align:center; font-weight:bold; font-size:1.13em; box-shadow:0 2px 8px rgba(0,0,0,0.08);">Staff Dashboard</a>
                 <a href="{% url 'logistics:logout' %}" class="logout" style="display:block; width:88%; background:#e74c3c; color:#fff; border-radius:7px; padding:20px 0; text-align:center; font-weight:bold; font-size:1.13em; box-shadow:0 2px 8px rgba(0,0,0,0.08);">Logout</a>
+                <!-- Removed sidebar dark mode toggle button -->
             </div>
+            <button class="sidebar-toggle" id="sidebarToggle" style="display:none; margin:24px auto 0 auto; background:#3498db; color:#fff; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; cursor:pointer;">☰ Menu</button>
         </nav>
+        <div style="position:fixed; top:24px; right:32px; z-index:1000;">
+            <button id="darkModeToggle" class="styled-btn" title="Toggle dark mode">🌙</button>
+        </div>
         <div class="main-content">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="summary-cards">
+                <div class="summary-card"><span class="summary-icon">👤</span><div class="summary-label">Users</div><div class="summary-value">{{ normal_users|length }}</div></div>
+                <div class="summary-card"><span class="summary-icon">🛡️</span><div class="summary-label">Staff</div><div class="summary-value">{{ staff_users|length }}</div></div>
+                <div class="summary-card"><span class="summary-icon">⭐</span><div class="summary-label">Managers</div><div class="summary-value">{{ manager_users|length }}</div></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
                 <h1>Manager Dashboard</h1>
             </div>
             {% if messages %}
@@ -125,98 +132,313 @@
                 </form>
             </div>
             <h3 class="section-title">Current Staff Members</h3>
-            <table>
-                <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Actions</th>
-                </tr>
+            <div class="user-cards-grid">
                 {% for staff in staff_users %}
-                <tr>
-                    <td>{{ staff.username }} (ID: {{ staff.id }})</td>
-                    <td>{{ staff.email }}</td>
-                    <td>
+                <div class="user-card">
+                    <div class="user-card-header"><span class="user-icon">🛡️</span> <b>{{ staff.username }}</b> <span class="user-id">(ID: {{ staff.id }})</span></div>
+                    <div class="user-card-body">Email: {{ staff.email }}</div>
+                    <div class="user-card-actions">
                         <a href="{% url 'logistics:manager_edit_user' staff.id %}" class="btn edit">Edit</a>
                         <form method="post" action="" style="display:inline;">
                             {% csrf_token %}
                             <input type="hidden" name="demote_user_id" value="{{ staff.id }}">
                             <button type="submit" class="btn remove">Remove Staff</button>
                         </form>
-                    </td>
-                </tr>
+                    </div>
+                </div>
                 {% empty %}
-                <tr><td colspan="3">No staff users found.</td></tr>
+                <div class="user-card">No staff users found.</div>
                 {% endfor %}
-            </table>
+            </div>
             <h3 class="section-title">Current Managers</h3>
-            <table>
-                <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                </tr>
+            <div class="user-cards-grid">
                 {% for manager in manager_users %}
-                <tr>
-                    <td>{{ manager.username }} (ID: {{ manager.id }})</td>
-                    <td>{{ manager.email }}</td>
-                </tr>
+                <div class="user-card">
+                    <div class="user-card-header"><span class="user-icon">⭐</span> <b>{{ manager.username }}</b> <span class="user-id">(ID: {{ manager.id }})</span></div>
+                    <div class="user-card-body">Email: {{ manager.email }}</div>
+                </div>
                 {% empty %}
-                <tr><td colspan="2">No managers found.</td></tr>
+                <div class="user-card">No managers found.</div>
                 {% endfor %}
-            </table>
+            </div>
             <h3 class="section-title">Current Users</h3>
-            <table>
-                <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Actions</th>
-                </tr>
+            <div class="user-cards-grid">
                 {% for user in normal_users %}
-                <tr>
-                    <td>{{ user.username }} (ID: {{ user.id }})</td>
-                    <td>{{ user.email }}</td>
-                    <td><a href="{% url 'logistics:manager_edit_user' user.id %}" class="btn edit">Edit</a></td>
-                </tr>
+                <div class="user-card">
+                    <div class="user-card-header"><span class="user-icon">👤</span> <b>{{ user.username }}</b> <span class="user-id">(ID: {{ user.id }})</span></div>
+                    <div class="user-card-body">Email: {{ user.email }}</div>
+                    <div class="user-card-actions">
+                        <a href="{% url 'logistics:manager_edit_user' user.id %}" class="btn edit">Edit</a>
+                    </div>
+                </div>
                 {% empty %}
-                <tr><td colspan="3">No users found.</td></tr>
+                <div class="user-card">No users found.</div>
                 {% endfor %}
-            </table>
+            </div>
             {% if found_users is not None %}
-                <table>
-                    <tr>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Edit</th>
-                    </tr>
+                <h3 class="section-title">Search Results</h3>
+                <div class="user-cards-grid">
                     {% for user in found_users %}
-                    <tr>
-                        <td>{{ user.username }} (ID: {{ user.id }})</td>
-                        <td>{{ user.email }}</td>
-                        <td><a href="{% url 'logistics:manager_edit_user' user.id %}" class="btn edit">Edit</a></td>
-                    </tr>
+                    <div class="user-card">
+                        <div class="user-card-header"><span class="user-icon">👤</span> <b>{{ user.username }}</b> <span class="user-id">(ID: {{ user.id }})</span></div>
+                        <div class="user-card-body">Email: {{ user.email }}</div>
+                        <div class="user-card-actions">
+                            <a href="{% url 'logistics:manager_edit_user' user.id %}" class="btn edit">Edit</a>
+                        </div>
+                    </div>
                     {% empty %}
-                    <tr><td colspan="3">No users found.</td></tr>
+                    <div class="user-card">No users found.</div>
                     {% endfor %}
-                </table>
+                </div>
             {% endif %}
         </div>
     </div>
+    <style>
+    body {
+        background: #f3f4f8;
+    }
+    .main-content {
+        background: #f7f8fa;
+        border-radius: 18px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        margin: 32px 0;
+    }
+    .summary-cards {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 32px;
+        justify-content: flex-start;
+    }
+    .summary-card {
+        background: #f0f1f5;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(52,152,219,0.07);
+        padding: 24px 32px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 120px;
+        min-height: 100px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        position: relative;
+    }
+    .user-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 22px;
+        margin-bottom: 32px;
+    }
+    .user-card {
+        background: #f4f5f8;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(52,152,219,0.07);
+        padding: 22px 20px 16px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        position: relative;
+        min-width: 0;
+    }
+    .user-card-header {
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .user-icon {
+        font-size: 1.3rem;
+    }
+    .user-id {
+        color: #888;
+        font-size: 0.97rem;
+        margin-left: 6px;
+    }
+    .user-card-body {
+        color: #232946;
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+    .user-card-actions {
+        display: flex;
+        gap: 10px;
+    }
+    @media (max-width: 900px) {
+        .summary-cards { flex-direction: column; gap: 16px; }
+        .user-cards-grid { grid-template-columns: 1fr; }
+        .sidebar { display: none; }
+        .sidebar.open { display: flex !important; position: absolute; top:0; left:0; width: 80vw; height: 100vh; background: #2c3e50; z-index: 2000; }
+        #sidebarToggle { display: block !important; }
+    }
+    .dark-mode body {
+        background: #222 !important;
+    }
+    .dark-mode .main-content {
+        background: #181818 !important;
+    }
+    .dark-mode .summary-card, .dark-mode .user-card {
+        background: #23272f !important;
+        color: #e3e6ed !important;
+        box-shadow: 0 2px 12px rgba(138,180,248,0.07);
+    }
+    .dark-mode .summary-value {
+        color: #8ab4f8 !important;
+    }
+    .dark-mode .user-card-body {
+        color: #b0b8c1 !important;
+    }
+    .big-toggle {
+        width: 84px !important;
+        height: 44px !important;
+        background: #e0e0e0;
+        border-radius: 28px !important;
+        box-shadow: 0 4px 16px rgba(52,152,219,0.13);
+        transition: background 0.3s;
+    }
+    .big-toggle .slider {
+        font-size: 1.7rem !important;
+        padding: 0 14px !important;
+    }
+    .big-toggle .slider:before {
+        width: 32px !important;
+        height: 32px !important;
+        left: 8px !important;
+        top: 6px !important;
+    }
+    .big-toggle input:checked + .slider:before {
+        transform: translateX(36px);
+    }
+    .big-toggle .icon {
+        font-size: 1.5rem !important;
+    }
+    .dark-toggle-switch {
+        display: inline-block;
+        position: relative;
+        width: 60px;
+        height: 32px;
+        background: #e0e0e0;
+        border-radius: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: background 0.3s;
+        cursor: pointer;
+        vertical-align: middle;
+    }
+    .dark-toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .dark-toggle-switch .slider {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border-radius: 20px;
+        transition: background 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 8px;
+        font-size: 1.3rem;
+    }
+    .dark-toggle-switch .icon {
+        pointer-events: none;
+        transition: opacity 0.3s;
+    }
+    .dark-toggle-switch .sun {
+        opacity: 1;
+    }
+    .dark-toggle-switch .moon {
+        opacity: 0.5;
+    }
+    .dark-toggle-switch input:checked + .slider .sun {
+        opacity: 0.5;
+    }
+    .dark-toggle-switch input:checked + .slider .moon {
+        opacity: 1;
+    }
+    .dark-toggle-switch .slider:before {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 5px;
+        width: 22px;
+        height: 22px;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.10);
+        transition: transform 0.3s;
+    }
+    .dark-toggle-switch input:checked + .slider:before {
+        transform: translateX(28px);
+        background: #232946;
+    }
+    .dark-mode .dark-toggle-switch {
+        background: #232946;
+    }
+    .dark-mode .dark-toggle-switch .slider:before {
+        background: #ffe066;
+    }
+    .styled-btn {
+        background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+        color: #fff;
+        border: none;
+        border-radius: 24px;
+        padding: 10px 28px;
+        font-size: 1rem;
+        font-weight: bold;
+        margin-bottom: 8px;
+        margin-top: 0;
+        box-shadow: 0 2px 8px rgba(33,147,176,0.10);
+        text-decoration: none;
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        position: relative;
+        cursor: pointer;
+    }
+    .styled-btn:hover {
+        background: linear-gradient(90deg, #6dd5ed 0%, #2193b0 100%);
+        color: #232946;
+        box-shadow: 0 4px 16px rgba(33,147,176,0.18);
+    }
+    .dark-mode .styled-btn {
+        background: linear-gradient(90deg, #232323 0%, #181a1b 100%) !important;
+        color: #fff !important;
+        box-shadow: 0 2px 8px rgba(255,224,102,0.10);
+    }
+    .dark-mode .styled-btn:hover {
+        background: linear-gradient(90deg, #181a1b 0%, #232323 100%) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 16px rgba(255,224,102,0.18);
+    }
+    </style>
     <script>
+    (function() {
+        // Set initial dark mode on <html> based on localStorage or system preference
+        const pref = localStorage.getItem('darkMode');
+        if (
+            (pref === 'on') ||
+            (pref === null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+            document.documentElement.classList.add('dark-mode');
+        } else {
+            document.documentElement.classList.remove('dark-mode');
+        }
+        // Set the correct icon on page load
+        var btn = document.getElementById('darkModeToggle');
+        if (btn) {
+            btn.textContent = document.documentElement.classList.contains('dark-mode') ? '\u2600\ufe0f' : '\ud83c\udf19';
+        }
+    })();
     // Persistent dark mode toggle for all pages, fallback to system preference on logout
     function setDarkMode(on) {
         if(on) {
-            document.body.classList.add('dark-mode');
-            document.body.style.background = '#222';
-            document.querySelectorAll('.container, main, .main-content, .welcome, .links, .card').forEach(function(el){
-                el.style.background = '#181818';
-                el.style.color = '#eee';
-            });
+            document.documentElement.classList.add('dark-mode');
         } else {
-            document.body.classList.remove('dark-mode');
-            document.body.style.background = '#f5f5f5';
-            document.querySelectorAll('.container, main, .main-content, .welcome, .links, .card').forEach(function(el){
-                el.style.background = '';
-                el.style.color = '';
-            });
+            document.documentElement.classList.remove('dark-mode');
+        }
+        // Update button icon
+        var btn = document.getElementById('darkModeToggle');
+        if (btn) {
+            btn.textContent = on ? '\u2600\ufe0f' : '\ud83c\udf19';
         }
     }
     function getDarkMode() {
@@ -232,13 +454,23 @@
         localStorage.setItem('darkMode', on ? 'on' : 'off');
         setDarkMode(on);
     };
-    // On page load
+    // On page load, ensure correct mode and icon
     setDarkMode(getDarkMode());
     // On logout, clear darkMode preference
     document.querySelectorAll('.logout').forEach(function(logoutLink) {
         logoutLink.addEventListener('click', function() {
             localStorage.removeItem('darkMode');
         });
+    });
+    // Sidebar toggle for mobile
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebar && sidebarToggle) {
+            sidebarToggle.onclick = function() {
+                sidebar.classList.toggle('open');
+            };
+        }
     });
     </script>
 </body>
