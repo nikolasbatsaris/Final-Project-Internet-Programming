@@ -3,35 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreightFlow - Available Jobs</title>
+    <title>ShipLink - Available Jobs</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+            overflow-x: hidden;
+            transition: background 0.5s;
+        }
+        .dark-mode body {
+            background: linear-gradient(135deg, #232946 0%, #1a1a2e 100%) !important;
+        }
+        .nav {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 32px 48px 0 48px;
+        }
+        .nav a, .nav button {
+            margin-left: 24px;
+            background: none;
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav a:hover, .nav button:hover {
+            background: #fff;
+            color: #2193b0;
+        }
+        .dark-mode .nav a, .dark-mode .nav button {
+            border: 2px solid #ffe066;
+            color: #ffe066;
+        }
+        .dark-mode .nav a:hover, .dark-mode .nav button:hover {
+            background: #ffe066;
+            color: #232946;
+        }
+        .dark-toggle {
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 16px;
+            color: #fff;
+            transition: color 0.2s;
+        }
+        .dark-mode .dark-toggle {
+            color: #ffe066;
         }
         .header {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            background: linear-gradient(90deg,#3498db 0%,#8fd3f4 100%);
+            color: #fff;
+            border-radius: 18px;
+            padding: 32px 36px;
+            margin: 32px auto 36px auto;
+            max-width: 1100px;
+            box-shadow: 0 4px 24px rgba(52,152,219,0.10);
+            position: relative;
+            z-index: 2;
         }
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
+        .header-icon {
+            width: 80px; height: 80px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 2.7rem; font-weight: bold; color: #3498db; box-shadow: 0 2px 8px rgba(52,152,219,0.10);
         }
-        .back-link {
-            color: #3498db;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
+        .header-content { flex: 1; }
+        .header-title { font-size: 2rem; font-weight: bold; letter-spacing: 1px; }
+        .header-desc { margin-top: 8px; font-size: 1.1rem; }
+        .dark-mode .header { background: linear-gradient(90deg,#232946 0%,#232946 100%) !important; color: #ffe066 !important; }
+        .dark-mode .header-icon { background: #232946 !important; color: #ffe066 !important; }
+        .dark-mode .header-title, .dark-mode .header-desc { color: #ffe066 !important; }
         .job-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -53,91 +101,247 @@
             box-shadow: 0 8px 32px rgba(52,152,219,0.18);
             border-left: 8px solid #16a085;
         }
+        .dark-mode .job-card {
+            background: #232946;
+            color: #ffe066;
+            border-left: 8px solid #ffe066;
+            box-shadow: 0 4px 18px rgba(255,224,102,0.08);
+        }
         .cargo-icon {
             font-size: 2.1rem;
             margin-right: 10px;
             vertical-align: middle;
         }
-        .badge-new {
+        /* Sun/Moon SVG in top right */
+        .svg-corner {
             position: absolute;
-            top: 18px;
-            right: 18px;
-            background: linear-gradient(90deg,#16a085,#27ae60);
-            color: #fff;
-            font-size: 0.95rem;
-            font-weight: bold;
-            padding: 4px 14px;
-            border-radius: 12px;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 8px rgba(22,160,133,0.12);
+            top: 0; right: 0;
+            width: 180px; height: 180px;
+            z-index: 10;
+            pointer-events: none;
         }
-        .like-btn {
-            background: #fff;
-            color: #e74c3c;
-            border: 2px solid #e74c3c;
-            border-radius: 50%;
+        .sun { transition: opacity 0.5s; }
+        .moon { transition: opacity 0.5s; }
+        .dark-mode .sun { opacity: 0; }
+        .dark-mode .moon { opacity: 1; }
+        .sun { opacity: 1; }
+        .moon { opacity: 0; }
+        .cloud { opacity: 0.35; transition: opacity 0.5s; }
+        .dark-mode .cloud { opacity: 0; }
+        .star { opacity: 0; transition: opacity 0.5s; animation: twinkle 2.5s infinite; }
+        .dark-mode .star { opacity: 1; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+        @media (max-width: 900px) {
+            .header { flex-direction: column; padding: 24px 10px; }
+            .nav { padding: 24px 10px 0 10px; }
+        }
+        .floating-bg {
+            position: absolute;
+            top: 120px;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .floating-bg.left { left: 0; }
+        .floating-bg.right { right: 0; }
+        .main-content { position: relative; z-index: 1; }
+        .job-card .job-icon {
             width: 38px;
             height: 38px;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            bottom: 18px;
-            right: 18px;
-            cursor: pointer;
-            transition: background 0.18s, color 0.18s;
-            box-shadow: 0 2px 8px rgba(231,76,60,0.08);
-        }
-        .like-btn.liked, .like-btn:hover {
-            background: #e74c3c;
-            color: #fff;
-        }
-        .cargo-type {
-            background-color: #3498db;
-            color: white;
-            padding: 5px 14px;
-            border-radius: 15px;
-            font-size: 13px;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 10px;
-            letter-spacing: 0.5px;
-        }
-        .weight-info {
-            color: #7f8c8d;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .like-info {
-            color: #7f8c8d;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .no-jobs {
-            text-align: center;
-            padding: 40px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .no-jobs h2 {
-            color: #7f8c8d;
             margin-bottom: 10px;
+            display: block;
         }
-        .job-meta {
+        .job-card .job-title {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-top: 10px;
-        }
-        .job-date {
-            color: #7f8c8d;
-            font-size: 14px;
-        }
-        .job-likes {
-            color: #3498db;
+            gap: 10px;
+            font-size: 1.1rem;
             font-weight: bold;
+            color: #3498db;
+        }
+        .dark-mode .job-card .job-title { color: #ffe066; }
+        .floating-bg-fixed {
+            position: fixed;
+            top: 120px;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .floating-bg-fixed.left { left: 0; }
+        .floating-bg-fixed.right { right: 0; }
+        .main-content { position: relative; z-index: 1; }
+        .job-carousel {
+            display: flex;
+            align-items: stretch;
+            gap: 24px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 32px;
+        }
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(52,152,219,0.18);
+            transition: background 0.2s, box-shadow 0.2s;
+            outline: 3px solid #fff;
+        }
+        .carousel-arrow:disabled { opacity: 0.2; cursor: default; }
+        .carousel-arrow.left { left: -60px; }
+        .carousel-arrow.right { right: -60px; }
+        @media (max-width: 900px) {
+            .carousel-arrow.left { left: -20px; }
+            .carousel-arrow.right { right: -20px; }
+        }
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(.77,0,.18,1);
+            will-change: transform;
+        }
+        .job-card {
+            min-width: 340px;
+            max-width: 340px;
+            flex: 0 0 340px;
+        }
+        .truck-anim-container {
+            position: relative;
+            width: 100vw;
+            height: 90px;
+            margin-bottom: 0px;
+            z-index: 3;
+            pointer-events: none;
+        }
+        .truck-svg {
+            position: absolute;
+            top: 18px;
+            left: -120px;
+            width: 100px;
+            height: 60px;
+            z-index: 3;
+            animation: drive-truck 12s linear infinite;
+            animation-delay: 0s;
+        }
+        .truck-svg.truck2 {
+            top: 48px;
+            left: -200px;
+            width: 80px;
+            height: 48px;
+            animation: drive-truck2 16s linear infinite;
+            opacity: 0.9;
+            animation-delay: 3s;
+        }
+        .truck-svg.truck3 {
+            top: 0px;
+            left: -180px;
+            width: 90px;
+            height: 54px;
+            animation: drive-truck3 18s linear infinite;
+            opacity: 0.8;
+            animation-delay: 6s;
+        }
+        .truck-svg.truck4 {
+            top: 70px;
+            left: -160px;
+            width: 70px;
+            height: 42px;
+            animation: drive-truck4 14s linear infinite;
+            opacity: 0.7;
+            animation-delay: 9s;
+        }
+        @keyframes drive-truck {
+            0% { left: -120px; }
+            100% { left: calc(100vw + 120px); }
+        }
+        @keyframes drive-truck2 {
+            0% { left: -200px; }
+            100% { left: calc(100vw + 200px); }
+        }
+        @keyframes drive-truck3 {
+            0% { left: -180px; }
+            100% { left: calc(100vw + 180px); }
+        }
+        @keyframes drive-truck4 {
+            0% { left: -160px; }
+            100% { left: calc(100vw + 160px); }
+        }
+        .floating-cargo {
+            position: fixed;
+            z-index: 1;
+            pointer-events: none;
+            animation: float-cargo 7s ease-in-out infinite;
+        }
+        .floating-cargo.box2 { animation-delay: 2s; }
+        .floating-cargo.box3 { animation-delay: 4s; }
+        .floating-cargo.box4 { animation-delay: 1s; }
+        .floating-cargo.box5 { animation-delay: 3.5s; }
+        @keyframes float-cargo {
+            0% { transform: translateY(0px) rotate(-2deg); }
+            50% { transform: translateY(-30px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(-2deg); }
+        }
+        /* Light theme cargo colors */
+        .floating-cargo .cargo-rect { fill: #ffe066; stroke: #e1b900; }
+        .floating-cargo.box2 .cargo-rect { fill: #8fd3f4; stroke: #2193b0; }
+        .floating-cargo.box3 .cargo-rect { fill: #f72585; stroke: #b5179e; }
+        .floating-cargo.box4 .cargo-rect { fill: #27ae60; stroke: #14532d; }
+        .floating-cargo.box5 .cargo-rect { fill: #fff; stroke: #bdc3c7; }
+        /* Dark mode cargo colors */
+        .dark-mode .floating-cargo .cargo-rect { fill: #b3a125; stroke: #ffe066; }
+        .dark-mode .floating-cargo.box2 .cargo-rect { fill: #2563a6; stroke: #8fd3f4; }
+        .dark-mode .floating-cargo.box3 .cargo-rect { fill: #a8326e; stroke: #f72585; }
+        .dark-mode .floating-cargo.box4 .cargo-rect { fill: #14532d; stroke: #27ae60; }
+        .dark-mode .floating-cargo.box5 .cargo-rect { fill: #23272f; stroke: #bdc3c7; }
+        body.paused .truck-svg,
+        body.paused .floating-cargo {
+            animation-play-state: paused !important;
+        }
+        .nav-btn, .back-btn, .filter-btn {
+            display: inline-block;
+            border: 2px solid #ffe066;
+            border-radius: 24px;
+            font-weight: bold;
+            font-size: 1.08rem;
+            padding: 10px 28px;
+            margin: 0 6px 0 0;
+            background: none;
+            color: #ffe066;
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s, border 0.18s;
+            box-shadow: 0 2px 8px rgba(52,152,219,0.10);
+        }
+        .nav-btn:hover, .back-btn:hover, .filter-btn:hover {
+            background: #ffe066;
+            color: #232946;
+            border-color: #ffe066;
+        }
+        .back-btn {
+            background: #3498db;
+            color: #fff;
+            border: 2px solid #3498db;
+            margin-bottom: 14px;
+        }
+        .back-btn:hover {
+            background: #1565c0;
+            color: #ffe066;
+            border-color: #ffe066;
+        }
+        .filter-btn {
+            background: #ffe066;
+            color: #232946;
+            border: 2px solid #ffe066;
+        }
+        .filter-btn:hover {
+            background: #f6c90e;
+            color: #232946;
+            border-color: #ffe066;
         }
     </style>
     <style>
@@ -203,29 +407,96 @@
     color: #e3e6ed !important;
     border: 1px solid #3a4256 !important;
 }
-</style>
+    </style>
 </head>
 <body>
-    <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
-        <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+    <div style="position: absolute; left: 32px; top: 24px; z-index: 10; font-size: 2rem; font-weight: bold; color: #2193b0; letter-spacing: 2px; font-family: 'Segoe UI', Arial, sans-serif;">
+        ShipLink
     </div>
-    <div class="container">
-        <!-- Hero/Header Card -->
-        <div style="display:flex; align-items:center; gap:24px; background: linear-gradient(90deg,#3498db 0%,#8fd3f4 100%); color:#fff; border-radius:18px; padding:32px 36px; margin-bottom:36px; box-shadow:0 4px 24px rgba(52,152,219,0.10);">
-            <div style="width:80px; height:80px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:2.7rem; font-weight:bold; color:#3498db; box-shadow:0 2px 8px rgba(52,152,219,0.10);">
-                🔎
-            </div>
-            <div style="flex:1;">
-                <div style="font-size:2rem; font-weight:bold; letter-spacing:1px;">Browse Available Jobs</div>
-                <div style="margin-top:8px; font-size:1.1rem;">Find your next shipment, delivery, or logistics opportunity. Use the filters below to narrow your search!</div>
-            </div>
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'logistics:logout' %}">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        {% endif %}
+        <button class="dark-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
+    </div>
+    <div class="header">
+        <div class="header-icon">🔎</div>
+        <div class="header-content">
+            <div class="header-title">Browse Available Jobs</div>
+            <div class="header-desc">Find your next shipment, delivery, or logistics opportunity. Use the filters below to narrow your search!</div>
         </div>
-        <button onclick="window.history.back()" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer;">← Back</button>
-        <div class="header">
-            <h1>Available Jobs</h1>
-            <a href="{% url 'logistics:home' %}" class="back-link">← Back to Home</a>
-        </div>
-
+        <svg class="svg-corner" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="sun" cx="140" cy="40" r="40" fill="#ffe066"/>
+            <g class="moon">
+                <circle cx="140" cy="40" r="34" fill="#f4f6fb"/>
+                <circle cx="155" cy="30" r="7" fill="#e0e3ef"/>
+                <circle cx="130" cy="55" r="5" fill="#e0e3ef"/>
+                <circle cx="150" cy="60" r="4" fill="#e0e3ef"/>
+            </g>
+            <ellipse class="cloud" cx="60" cy="30" rx="28" ry="10" fill="#fff"/>
+            <ellipse class="cloud" cx="120" cy="70" rx="18" ry="7" fill="#fff"/>
+            <circle class="star" cx="30" cy="20" r="2" fill="#fff"/>
+            <circle class="star" cx="100" cy="10" r="1.5" fill="#ffe066"/>
+            <circle class="star" cx="160" cy="30" r="1.8" fill="#fff"/>
+        </svg>
+    </div>
+    <!-- Floating cargo boxes, spread in empty space -->
+    <svg class="floating-cargo" style="left:2vw;top:120px;width:54px;height:54px;transform:rotate(-6deg);" viewBox="0 0 54 54"><rect class="cargo-rect" x="4" y="8" width="46" height="38" rx="8" stroke-width="4"/><rect x="12" y="16" width="30" height="8" rx="2" fill="#fff" opacity=".18"/></svg>
+    <svg class="floating-cargo box2" style="left:6vw;top:340px;width:44px;height:44px;transform:rotate(8deg);" viewBox="0 0 44 44"><rect class="cargo-rect" x="4" y="8" width="36" height="28" rx="7" stroke-width="3"/><rect x="10" y="14" width="20" height="6" rx="2" fill="#fff" opacity=".13"/></svg>
+    <svg class="floating-cargo box3" style="right:3vw;top:180px;width:48px;height:48px;transform:rotate(-12deg);" viewBox="0 0 48 48"><rect class="cargo-rect" x="4" y="8" width="40" height="32" rx="8" stroke-width="4"/><rect x="14" y="18" width="16" height="7" rx="2" fill="#fff" opacity=".13"/></svg>
+    <svg class="floating-cargo box4" style="right:7vw;top:420px;width:38px;height:38px;transform:rotate(5deg);" viewBox="0 0 38 38"><rect class="cargo-rect" x="4" y="8" width="30" height="22" rx="6" stroke-width="3"/><rect x="8" y="12" width="14" height="5" rx="2" fill="#fff" opacity=".10"/></svg>
+    <svg class="floating-cargo box5" style="left:12vw;top:540px;width:34px;height:34px;transform:rotate(-8deg);" viewBox="0 0 34 34"><rect class="cargo-rect" x="4" y="8" width="26" height="18" rx="5" stroke-width="2"/><rect x="8" y="12" width="10" height="4" rx="1.5" fill="#fff" opacity=".10"/></svg>
+    <svg class="floating-cargo box6" style="right:12vw;top:80px;width:40px;height:40px;transform:rotate(10deg);" viewBox="0 0 40 40"><rect class="cargo-rect" x="4" y="8" width="32" height="24" rx="6" stroke-width="3"/><rect x="10" y="14" width="14" height="5" rx="2" fill="#fff" opacity=".10"/></svg>
+    <!-- Animated trucks -->
+    <div class="truck-anim-container">
+        <!-- Box Truck -->
+        <svg class="truck-svg" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="20" width="60" height="24" rx="6" fill="#3498db"/>
+            <rect x="70" y="28" width="18" height="16" rx="3" fill="#ffe066"/>
+            <circle cx="25" cy="50" r="7" fill="#23272f"/>
+            <circle cx="75" cy="50" r="7" fill="#23272f"/>
+            <rect x="18" y="26" width="18" height="8" rx="2" fill="#fff"/>
+        </svg>
+        <!-- Flatbed Truck -->
+        <svg class="truck-svg truck2" viewBox="0 0 90 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="32" width="60" height="10" rx="3" fill="#8fd3f4"/>
+            <rect x="70" y="28" width="14" height="14" rx="3" fill="#f72585"/>
+            <rect x="20" y="24" width="18" height="8" rx="2" fill="#fff"/>
+            <circle cx="25" cy="44" r="6" fill="#23272f"/>
+            <circle cx="75" cy="44" r="6" fill="#23272f"/>
+        </svg>
+        <!-- Tanker Truck -->
+        <svg class="truck-svg truck3" viewBox="0 0 100 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="40" cy="36" rx="22" ry="14" fill="#27ae60"/>
+            <rect x="70" y="28" width="16" height="16" rx="3" fill="#f6c90e"/>
+            <rect x="20" y="22" width="14" height="8" rx="2" fill="#fff"/>
+            <circle cx="30" cy="48" r="6" fill="#23272f"/>
+            <circle cx="80" cy="48" r="6" fill="#23272f"/>
+        </svg>
+        <!-- Delivery Van -->
+        <svg class="truck-svg truck4" viewBox="0 0 70 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="14" width="38" height="16" rx="6" fill="#a8326e"/>
+            <rect x="46" y="18" width="12" height="10" rx="3" fill="#8fd3f4"/>
+            <rect x="16" y="18" width="10" height="6" rx="2" fill="#fff"/>
+            <circle cx="18" cy="34" r="5" fill="#23272f"/>
+            <circle cx="44" cy="34" r="5" fill="#23272f"/>
+        </svg>
+    </div>
+    <!-- Floating clouds in empty space -->
+    <svg class="floating-cloud" style="left:10vw;top:60px;width:90px;height:38px;z-index:0;position:fixed;opacity:0.35;" viewBox="0 0 90 38"><ellipse cx="30" cy="28" rx="30" ry="10" fill="#fff"/><ellipse cx="70" cy="18" rx="20" ry="8" fill="#e3f6fc"/></svg>
+    <svg class="floating-cloud" style="right:8vw;top:220px;width:70px;height:28px;z-index:0;position:fixed;opacity:0.32;" viewBox="0 0 70 28"><ellipse cx="20" cy="18" rx="20" ry="8" fill="#fff"/><ellipse cx="50" cy="10" rx="14" ry="6" fill="#e3f6fc"/></svg>
+    <svg class="floating-cloud" style="left:18vw;top:400px;width:60px;height:22px;z-index:0;position:fixed;opacity:0.28;" viewBox="0 0 60 22"><ellipse cx="18" cy="14" rx="18" ry="8" fill="#fff"/><ellipse cx="42" cy="8" rx="12" ry="5" fill="#e3f6fc"/></svg>
+    <div class="main-content" style="max-width:1200px;margin:0 auto;padding:0 32px 48px 32px; position:relative;">
+        <!-- Removed Request a Job button -->
+        <!-- Filter/search bar and job grid go here -->
+        <button onclick="window.history.back()" class="back-btn">← Back</button>
         <!-- Filter/Search Form -->
         <form method="get" style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; margin-bottom:30px; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.07);">
             <div style="flex:1; min-width:180px;">
@@ -254,21 +525,40 @@
                 <input type="date" id="pickup_date" name="pickup_date" value="{{ pickup_date|default:'' }}" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc;">
             </div>
             <div style="min-width:120px;">
-                <button type="submit" style="background:#3498db; color:#fff; border:none; border-radius:4px; padding:10px 20px; font-weight:bold; cursor:pointer;">Filter</button>
+                <button type="submit" class="filter-btn" style="margin-left:24px;">Filter</button>
             </div>
         </form>
         <!-- End Filter/Search Form -->
 
         {% if jobs %}
-            <div class="job-grid">
+            <div class="job-list-row" style="display:flex; gap:24px; justify-content:center; margin-top:32px;">
                 {% for job in jobs %}
-                <div class="job-card" style="display:flex; flex-direction:column; gap:10px; position:relative;">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <span class="cargo-icon">{% if job.cargo_type.name == 'Electronics' %}💻{% elif job.cargo_type.name == 'Heavy Machinery' %}🚜{% elif job.cargo_type.name == 'Food & Beverages' %}🍎{% elif job.cargo_type.name == 'Construction Materials' %}🏗️{% elif job.cargo_type.name == 'Automotive' %}🚗{% elif job.cargo_type.name == 'Furniture' %}🛋️{% elif job.cargo_type.name == 'Textiles' %}👕{% elif job.cargo_type.name == 'Chemicals' %}⚗️{% elif job.cargo_type.name == 'Agricultural Products' %}🌾{% else %}📦{% endif %}</span>
-                        <a href="{% url 'logistics:job_detail' job.id %}" class="job-title" style="font-size:1.2rem; margin-bottom:0;">{{ job.title }}</a>
-                        {% if job.created_at >= now|date:'Y-m-d'|add:'-3 days' %}
-                            <span class="badge-new">NEW</span>
+                <div class="job-card" data-job-id="{{ job.id }}" onclick="openJobDetailModal({{ job.id }})" style="min-width:340px; max-width:340px; flex:0 0 340px; cursor:pointer;">
+                    <div class="job-title">
+                        {% if job.cargo_type.name == 'General Cargo' %}
+                            <svg class="job-icon" viewBox="0 0 32 32"><rect x="4" y="8" width="24" height="16" rx="4" fill="#3498db"/></svg>
+                        {% elif job.cargo_type.name == 'Heavy Machinery' %}
+                            <svg class="job-icon" viewBox="0 0 32 32"><rect x="6" y="14" width="20" height="10" rx="3" fill="#e67e22"/><rect x="10" y="8" width="12" height="8" rx="2" fill="#bdc3c7"/></svg>
+                        {% elif job.cargo_type.name == 'Electronics' %}
+                            <svg class="job-icon" viewBox="0 0 32 32"><rect x="8" y="10" width="16" height="12" rx="3" fill="#8fd3f4"/><rect x="12" y="14" width="8" height="4" rx="1" fill="#1565c0"/></svg>
+                        {% elif job.cargo_type.name == 'Food & Beverages' %}
+                            <svg class="job-icon" viewBox="0 0 32 32"><ellipse cx="16" cy="20" rx="10" ry="6" fill="#27ae60"/><ellipse cx="16" cy="14" rx="6" ry="4" fill="#ffe066"/></svg>
+                        {% elif job.cargo_type.name == 'Construction Materials' %}
+                            <svg class="job-icon" viewBox="0 0 32 32"><rect x="6" y="18" width="20" height="8" rx="2" fill="#e67e22"/><rect x="10" y="10" width="12" height="8" rx="2" fill="#bdc3c7"/></svg>
+                        {% elif job.cargo_type.name == 'Automotive' %}
+                            <svg class="job-icon" viewBox="0 0 32 32"><rect x="8" y="16" width="16" height="8" rx="3" fill="#f72585"/><circle cx="12" cy="26" r="3" fill="#222"/><circle cx="20" cy="26" r="3" fill="#222"/></svg>
+                        {% elif job.cargo_type.name == 'Furniture' %}
+                            <svg class="job-icon" viewBox="0 0 32 32"><rect x="6" y="18" width="20" height="8" rx="2" fill="#8fd3f4"/><rect x="10" y="10" width="12" height="8" rx="2" fill="#3498db"/></svg>
+                        {% elif job.cargo_type.name == 'Textiles' %}
+                            <svg class="job-icon" viewBox="0 0 32 32"><ellipse cx="16" cy="20" rx="10" ry="6" fill="#f6c90e"/><ellipse cx="16" cy="14" rx="6" ry="4" fill="#f72585"/></svg>
+                        {% elif job.cargo_type.name == 'Chemicals' %}
+                            <svg class="job-icon" viewBox="0 0 32 32"><ellipse cx="16" cy="20" rx="10" ry="6" fill="#e67e22"/><ellipse cx="16" cy="14" rx="6" ry="4" fill="#fff"/></svg>
+                        {% elif job.cargo_type.name == 'Agricultural Products' %}
+                            <svg class="job-icon" viewBox="0 0 32 32"><ellipse cx="16" cy="20" rx="10" ry="6" fill="#27ae60"/><ellipse cx="16" cy="14" rx="6" ry="4" fill="#ffe066"/></svg>
+                        {% else %}
+                            <svg class="job-icon" viewBox="0 0 32 32"><rect x="4" y="8" width="24" height="16" rx="4" fill="#bdc3c7"/></svg>
                         {% endif %}
+                        <span>{{ job.title }}</span>
                     </div>
                     <div style="font-size:14px; color:#888; margin-bottom:6px;">
                         <b>Route:</b> {{ job.origin }} → {{ job.destination }}
@@ -310,9 +600,16 @@
                     </div>
                     <button class="like-btn{% if job.id in liked_job_ids %} liked{% endif %}" data-job-id="{{ job.id }}" title="Like this job">{% if job.id in liked_job_ids %}❤{% else %}🤍{% endif %}</button>
                 </div>
-                {% empty %}
-                <div class="no-jobs"><h2>No jobs found.</h2></div>
                 {% endfor %}
+            </div>
+            <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:16px; width:100%; max-width:100%; margin-top:0; margin-bottom:24px;">
+                {% if page_obj.has_previous %}
+                    <a href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if cargo_type %}cargo_type={{ cargo_type }}&{% endif %}{% if origin %}origin={{ origin|urlencode }}&{% endif %}{% if destination %}destination={{ destination|urlencode }}&{% endif %}{% if pickup_date %}pickup_date={{ pickup_date }}&{% endif %}page={{ page_obj.previous_page_number }}" class="styled-btn pagination-btn">← Previous</a>
+                {% endif %}
+                <span class="pagination-info">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if cargo_type %}cargo_type={{ cargo_type }}&{% endif %}{% if origin %}origin={{ origin|urlencode }}&{% endif %}{% if destination %}destination={{ destination|urlencode }}&{% endif %}{% if pickup_date %}pickup_date={{ pickup_date }}&{% endif %}page={{ page_obj.next_page_number }}" class="styled-btn pagination-btn">Next →</a>
+                {% endif %}
             </div>
         {% else %}
             <div class="no-jobs">
@@ -321,41 +618,41 @@
             </div>
         {% endif %}
     </div>
+<!-- Job Detail Modal -->
+<div id="jobDetailModal" class="modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(30,34,40,0.82); align-items:center; justify-content:center;">
+  <div class="modal-content" style="background:#fff; color:#232946; border-radius:18px; max-width:520px; width:95vw; padding:36px 32px 28px 32px; box-shadow:0 8px 40px rgba(52,152,219,0.18); position:relative;">
+    <button onclick="closeJobDetailModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; font-size:2rem; color:#888; cursor:pointer;">&times;</button>
+    <div id="jobDetailContent">
+      <!-- Job details will be loaded here -->
+    </div>
+  </div>
+</div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-// Persistent dark mode toggle for all pages, fallback to system preference on logout
 function setDarkMode(on) {
     if(on) {
-        document.body.classList.add('dark-mode');
-        document.body.style.background = '#222';
-        document.querySelectorAll('.container, .header, .job-card, .no-jobs').forEach(function(el){
-            el.style.background = '';
-            el.style.color = '';
-        });
+        document.documentElement.classList.add('dark-mode');
+        localStorage.setItem('darkMode', 'on');
     } else {
-        document.body.classList.remove('dark-mode');
-        document.body.style.background = '#f5f5f5';
-        document.querySelectorAll('.container, .header, .job-card, .no-jobs').forEach(function(el){
-            el.style.background = '';
-            el.style.color = '';
-        });
+        document.documentElement.classList.remove('dark-mode');
+        localStorage.setItem('darkMode', 'off');
     }
 }
 function getDarkMode() {
     const pref = localStorage.getItem('darkMode');
     if (pref === null) {
-        // No preference, use system
         return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     return pref === 'on';
 }
 document.getElementById('darkModeToggle').onclick = function() {
     const on = !getDarkMode();
-    localStorage.setItem('darkMode', on ? 'on' : 'off');
     setDarkMode(on);
+    this.textContent = on ? '☀️' : '🌙';
 };
 // On page load
 setDarkMode(getDarkMode());
+document.getElementById('darkModeToggle').textContent = getDarkMode() ? '☀️' : '🌙';
 // On logout, clear darkMode preference
 if (document.querySelectorAll('.logout').length) {
     document.querySelectorAll('.logout').forEach(function(logoutLink) {
@@ -408,6 +705,145 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+// Carousel logic
+const track = document.getElementById('carouselTrack');
+const leftBtn = document.getElementById('carouselLeft');
+const rightBtn = document.getElementById('carouselRight');
+const cards = track ? track.children.length : 0;
+const visible = 3;
+let pos = 0;
+function updateCarousel() {
+    track.style.transform = `translateX(${-pos * 364}px)`;
+    if (cards <= visible) {
+        leftBtn.style.display = 'none';
+        rightBtn.style.display = 'none';
+    } else {
+        leftBtn.style.display = '';
+        rightBtn.style.display = '';
+        leftBtn.disabled = pos === 0;
+        rightBtn.disabled = pos >= cards - visible;
+    }
+}
+if (track && leftBtn && rightBtn) {
+    leftBtn.onclick = () => { if (pos > 0) { pos--; updateCarousel(); } };
+    rightBtn.onclick = () => { if (pos < cards - visible) { pos++; updateCarousel(); } };
+    updateCarousel();
+}
+// Pause/resume animation toggle
+const pauseBtn = document.getElementById('pauseAnimToggle');
+pauseBtn.onclick = function() {
+    const paused = document.body.classList.toggle('paused');
+    pauseBtn.textContent = paused ? '▶️' : '⏸️';
+    pauseBtn.title = paused ? 'Resume Animation' : 'Pause Animation';
+};
+
+// Job Detail Modal Functions
+function openJobDetailModal(jobId) {
+    // Show modal
+    document.getElementById('jobDetailModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    // Fetch job details via AJAX
+    fetch(`/jobs/${jobId}/json/`)
+        .then(response => response.json())
+        .then(data => {
+            // Render job details
+            let html = `<div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;">
+                <span style="font-size:2.2rem;">🚚</span>
+                <div style="font-size:1.5rem;font-weight:bold;">${data.title}</div>
+            </div>
+            <div style="margin-bottom:10px;"><b>Route:</b> ${data.origin} → ${data.destination}</div>
+            <div style="margin-bottom:10px;"><b>Pickup:</b> ${data.origin_address || '—'}, ${data.origin_zip || '—'}<br>Date: ${data.pickup_date || '—'}<br>Time: ${data.pickup_time_from || '—'}</div>
+            <div style="margin-bottom:10px;"><b>Dropoff:</b> ${data.destination_address || '—'}, ${data.destination_zip || '—'}<br>Time: ${data.pickup_time_to || '—'}<br>Deadline: ${data.delivery_deadline || '—'}</div>
+            <div style="margin-bottom:10px;"><b>Cargo:</b> ${data.cargo_type}<br>Weight: ${data.weight_kg || '—'} kg<br>Dimensions: ${data.length_cm || '—'} × ${data.width_cm || '—'} × ${data.height_cm || '—'} cm<br>Special: ${data.special_requirements || '—'}<br>Declared Value: ${data.declared_value || '—'}<br>Reference Code: ${data.reference_code || '—'}</div>
+            <div style="margin-bottom:10px;"><b>Description:</b> ${data.description || '—'}</div>
+            <div style="margin-bottom:10px;"><b>Posted:</b> ${data.created_at}</div>`;
+            
+            if (data.is_authenticated) {
+                html += `<div style="display:flex;gap:16px;margin-top:18px;">
+                    <button class="like-btn-modal${data.liked ? ' liked' : ''}" onclick="likeJobFromModal(${data.id}, this)" style="background:#e74c3c;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:bold;cursor:pointer;">${data.liked ? '❤' : '🤍'} Like</button>
+                    <button class="book-btn-modal" onclick="bookJobFromModal(${data.id}, this)" style="background:#27ae60;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:bold;cursor:pointer;">🚚 Book</button>
+                </div>`;
+            } else {
+                html += `<div style="margin-top:18px;color:#e74c3c;font-weight:bold;">Login to like or book this job.</div>`;
+            }
+            document.getElementById('jobDetailContent').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error fetching job details:', error);
+            document.getElementById('jobDetailContent').innerHTML = '<div style="color:#e74c3c;">Error loading job details. Please try again.</div>';
+        });
+}
+
+function closeJobDetailModal() {
+    document.getElementById('jobDetailModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal on click outside or Escape
+window.onclick = function(event) {
+    const modal = document.getElementById('jobDetailModal');
+    if (event.target === modal) closeJobDetailModal();
+};
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') closeJobDetailModal();
+});
+
+// Like/Book AJAX from modal
+function likeJobFromModal(jobId, btn) {
+    btn.disabled = true;
+    fetch(`/jobs/${jobId}/like/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            btn.classList.toggle('liked', data.action === 'liked');
+            btn.textContent = data.action === 'liked' ? '❤ Like' : '🤍 Like';
+            // Update like count on main card if present
+            const likeCountSpan = document.getElementById('like-count-' + jobId);
+            if (likeCountSpan) likeCountSpan.textContent = '👍 ' + data.likes;
+        }
+        btn.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error liking job:', error);
+        btn.disabled = false;
+        alert('Error liking job.');
+    });
+}
+
+function bookJobFromModal(jobId, btn) {
+    btn.disabled = true;
+    fetch(`/jobs/${jobId}/book/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            btn.textContent = 'Booked!';
+            btn.disabled = true;
+        } else {
+            btn.textContent = 'Book';
+            btn.disabled = false;
+            alert(data.message || 'Error booking job.');
+        }
+    })
+    .catch(error => {
+        console.error('Error booking job:', error);
+        btn.disabled = false;
+        alert('Error booking job.');
+    });
 }
 </script>
 </body>

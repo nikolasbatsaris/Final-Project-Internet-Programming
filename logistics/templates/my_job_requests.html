@@ -92,6 +92,42 @@
                 {% endfor %}
             </tbody>
         </table>
+        <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:16px; width:100%; max-width:100%; margin-top:0; margin-bottom:24px;">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="styled-btn pagination-btn">← Previous</a>
+            {% endif %}
+            <span class="pagination-info">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="styled-btn pagination-btn">Next →</a>
+            {% endif %}
+        </div>
+        <style>
+.pagination-info {
+    color: #232323;
+}
+.dark-mode .pagination-info {
+    color: #fff;
+}
+.styled-btn.pagination-btn {
+    background: #e0e7ef;
+    color: #232323;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.dark-mode .styled-btn.pagination-btn {
+    background: #232323;
+    color: #fff;
+}
+.styled-btn.pagination-btn:disabled, .styled-btn.pagination-btn[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+</style>
     </div>
 <script>
 // Persistent dark mode toggle for all pages, fallback to system preference on logout

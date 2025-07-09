@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
         .dashboard-flex { display: flex; min-height: 100vh; }
         .sidebar {
             width: 250px;
-            background: #2c3e50;
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
             color: #fff;
             display: flex;
             flex-direction: column;
@@ -16,47 +16,242 @@
             box-shadow: 2px 0 8px rgba(0,0,0,0.04);
         }
         .sidebar h2 {
-            color: #ecf0f1;
+            color: #ffe066;
             text-align: center;
             margin-bottom: 30px;
             font-size: 1.3em;
+            letter-spacing: 1px;
         }
         .sidebar a {
-            color: #ecf0f1;
+            color: #fff;
             text-decoration: none;
             padding: 16px 32px;
             display: block;
             font-size: 1.1em;
-            transition: background 0.2s;
+            border-radius: 18px 0 0 18px;
+            margin: 0 0 6px 0;
+            transition: background 0.2s, color 0.2s;
         }
         .sidebar a:hover, .sidebar a.active {
-            background: #34495e;
+            background: #ffe066;
+            color: #2193b0;
+        }
+        .dark-mode .sidebar {
+            background: linear-gradient(135deg, #181a1b 0%, #232323 100%) !important;
+            color: #fff;
+        }
+        .dark-mode .sidebar h2 { color: #fff; }
+        .dark-mode .sidebar a { color: #fff; }
+        .dark-mode .sidebar a:hover, .dark-mode .sidebar a.active {
+            background: #ffe066;
+            color: #232323;
         }
         .main-content {
             flex: 1;
             padding: 40px 60px;
             background: #fff;
             min-width: 0;
+            border-radius: 0 18px 18px 0;
         }
-        h1 { color: #2c3e50; text-align: left; }
+        .dark-mode .main-content {
+            background: #181a1b;
+            color: #fff;
+        }
+        h1 { color: #2193b0; text-align: left; font-family: 'Segoe UI', Arial, sans-serif; }
+        .dark-mode h1 { color: #fff; }
         .stats { text-align: left; margin-bottom: 30px; }
         .stat { display: inline-block; background: #3498db; color: #fff; border-radius: 8px; padding: 20px 40px; margin: 0 10px 10px 0; font-size: 20px; }
+        .dark-mode .stat { background: #232323; color: #fff; }
         table { width: 100%; border-collapse: collapse; margin-top: 30px; }
         th, td { padding: 12px 10px; border-bottom: 1px solid #eee; text-align: left; }
         th { background: #3498db; color: #fff; }
+        .dark-mode th { background: #232323; color: #fff; }
         tr:hover { background: #f1f1f1; }
-        .dark-mode tr:hover { background-color: #333 !important; }
-        a:not(.sidebar a) { color: #3498db; text-decoration: underline; }
+        .dark-mode tr:hover { background-color: #232323 !important; }
+        a:not(.sidebar a) { color: #2193b0; text-decoration: underline; }
+        .dark-mode a:not(.sidebar a) { color: #fff; }
         .section-title { margin-top: 0; padding-top: 40px; border-top: 1px solid #eee; }
+        .dark-mode .section-title { border-top: 1px solid #fff; }
+        .styled-btn {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+            color: #fff;
+            border: none;
+            border-radius: 24px;
+            padding: 10px 28px;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            margin-top: 0;
+            box-shadow: 0 2px 8px rgba(33,147,176,0.10);
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            position: relative;
+            cursor: pointer;
+        }
+        .styled-btn:hover {
+            background: linear-gradient(90deg, #6dd5ed 0%, #2193b0 100%);
+            color: #232946;
+            box-shadow: 0 4px 16px rgba(33,147,176,0.18);
+        }
+        .dark-mode .styled-btn {
+            background: linear-gradient(90deg, #232323 0%, #181a1b 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 2px 8px rgba(255,224,102,0.10);
+        }
+        .dark-mode .styled-btn:hover {
+            background: linear-gradient(90deg, #181a1b 0%, #232323 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 4px 16px rgba(255,224,102,0.18);
+        }
         @media (max-width: 900px) {
             .dashboard-flex { flex-direction: column; }
             .sidebar { width: 100%; flex-direction: row; padding: 0; }
             .sidebar a { flex: 1; text-align: center; padding: 16px 0; }
             .main-content { padding: 20px 5vw; }
         }
+        /* ShipLink app name style */
+        .shiplink-logo {
+            position: absolute;
+            left: 32px;
+            top: 24px;
+            z-index: 10;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #232323;
+            letter-spacing: 2px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .dark-mode .shiplink-logo { color: #fff; }
+        .sidebar { color: #232323; }
+        .dark-mode .sidebar { color: #fff; }
+        .sidebar h2, .sidebar a { color: #232323; }
+        .dark-mode .sidebar h2, .dark-mode .sidebar a { color: #fff; }
+        .even-row { background: #f8f9fa; }
+        .dark-mode .even-row { background: #23272f !important; }
+        .dark-mode table tr, .dark-mode table td, .dark-mode table th { background: #181a1b !important; color: #fff !important; }
+        .pagination-info { color: #2193b0; }
+        .dark-mode .pagination-info { color: #fff !important; }
+        .pagination-info {
+            color: #232323;
+        }
+        .dark-mode .pagination-info {
+            color: #fff;
+        }
+        .styled-btn.pagination-btn {
+            background: #e0e7ef;
+            color: #232323;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .dark-mode .styled-btn.pagination-btn {
+            background: #232323;
+            color: #fff;
+        }
+        .styled-btn.pagination-btn:disabled, .styled-btn.pagination-btn[aria-disabled="true"] {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     </style>
+    <script>
+    (function() {
+        // Set initial dark mode on <html> based on localStorage or system preference
+        const pref = localStorage.getItem('darkMode');
+        if (
+            (pref === 'on') ||
+            (pref === null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+            document.documentElement.classList.add('dark-mode');
+        } else {
+            document.documentElement.classList.remove('dark-mode');
+        }
+        // Set the correct icon on page load
+        var btn = document.getElementById('darkModeToggle');
+        if (btn) {
+            btn.textContent = document.documentElement.classList.contains('dark-mode') ? '\u2600\ufe0f' : '\ud83c\udf19';
+        }
+    })();
+    // Persistent dark mode toggle for all pages, fallback to system preference on logout
+    function setDarkMode(on) {
+        if(on) {
+            document.documentElement.classList.add('dark-mode');
+        } else {
+            document.documentElement.classList.remove('dark-mode');
+        }
+        // Update button icon
+        var btn = document.getElementById('darkModeToggle');
+        if (btn) {
+            btn.textContent = on ? '\u2600\ufe0f' : '\ud83c\udf19';
+        }
+    }
+    function getDarkMode() {
+        const pref = localStorage.getItem('darkMode');
+        if (pref === null) {
+            // No preference, use system
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        return pref === 'on';
+    }
+    document.getElementById('darkModeToggle').onclick = function() {
+        const on = !getDarkMode();
+        localStorage.setItem('darkMode', on ? 'on' : 'off');
+        setDarkMode(on);
+    };
+    // On page load, ensure correct mode and icon
+    setDarkMode(getDarkMode());
+    // On logout, clear darkMode preference
+    document.querySelectorAll('.logout').forEach(function(logoutLink) {
+        logoutLink.addEventListener('click', function() {
+            localStorage.removeItem('darkMode');
+        });
+    });
+    function toggleAll(type) {
+        let checkboxes = document.querySelectorAll('.' + type + '-checkbox');
+        let selectAll = document.getElementById('selectAll' + (type === 'jobrequest' ? 'JobRequests' : 'LiveJobs'));
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    }
+    function bulkApprove() {
+        document.getElementById('jobRequestBulkAction').value = 'approve';
+        document.getElementById('bulkJobRequestForm').submit();
+    }
+    function bulkRemove() {
+        document.getElementById('liveJobBulkAction').value = 'remove';
+        document.getElementById('bulkLiveJobsForm').submit();
+    }
+    function exportCSV() {
+        var type = document.getElementById('exportType').value;
+        window.location.href = "{% url 'logistics:export_jobs_csv' %}?q={{ q|urlencode }}&type=" + encodeURIComponent(type);
+    }
+    // Expand/collapse recent activity
+    (function() {
+        const btn = document.getElementById('expandActivityBtn');
+        const list = document.getElementById('recentActivityList');
+        if (!btn || !list) return;
+        const allItems = Array.from(list.children);
+        function showLimited() {
+            allItems.forEach((li, i) => li.style.display = i < 5 ? '' : 'none');
+            btn.textContent = 'Show All Activity';
+        }
+        function showAll() {
+            allItems.forEach(li => li.style.display = '');
+            btn.textContent = 'Show Less';
+        }
+        let expanded = false;
+        showLimited();
+        btn.onclick = function() {
+            expanded = !expanded;
+            if (expanded) showAll();
+            else showLimited();
+        };
+    })();
+    </script>
 </head>
 <body>
+    <div class="shiplink-logo">ShipLink</div>
     <div class="dashboard-flex">
         <nav class="sidebar">
             <h2>Menu</h2>
@@ -65,12 +260,12 @@
             <a href="#hidden-jobs">Hidden Jobs</a>
             <a href="#flagged-jobs">Flagged Jobs</a>
             {% if user.is_superuser %}
-            <a href="{% url 'logistics:manager_dashboard' %}" style="background:#e67e22; color:#fff; border-radius:5px; margin: 30px 16px 0 16px; text-align:center;">Manager Dashboard</a>
+            <a href="{% url 'logistics:manager_dashboard' %}" class="styled-btn" style="background:#e67e22; color:#fff; border-radius:5px; margin: 30px 16px 0 16px; text-align:center;">Manager Dashboard</a>
             {% endif %}
-            <a href="{% url 'logistics:logout' %}" style="background:#e74c3c; color:#fff; border-radius:5px; margin: 30px 16px 0 16px; text-align:center;">Logout</a>
+            <a href="{% url 'logistics:logout' %}" class="styled-btn" style="background:#e74c3c; color:#fff; border-radius:5px; margin: 30px 16px 0 16px; text-align:center;">Logout</a>
         </nav>
         <div style="position:fixed; top:24px; right:32px; z-index:1000;">
-            <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+            <button id="darkModeToggle" class="styled-btn" title="Toggle dark mode">🌙</button>
         </div>
         <div class="main-content">
             <!-- Hero/Header Card -->
@@ -92,7 +287,7 @@
                 <span class="stat">Live Jobs: <b>{{ stats.live_jobs }}</b></span>
                 <span class="stat">Flagged Jobs: <b>{{ stats.flagged_jobs }}</b></span>
                 <span class="stat">Hidden Jobs: <b>{{ stats.hidden_jobs }}</b></span>
-                <span class="stat">Users w/ Saved Jobs: <b>{{ stats.user_count }}</b></span>
+                <span class="stat">Users w/ Liked Jobs: <b>{{ stats.user_count }}</b></span>
                 <span class="stat">Total Jobs: <b>{{ stats.total_jobs }}</b></span>
             </div>
             <!-- Notification Badge -->
@@ -148,6 +343,14 @@
                     <button type="button" style="background:#f39c12; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;" onclick="exportCSV()">⬇️ Export CSV</button>
                 </div>
             </form>
+            <!-- Admin Dashboard Search Bar -->
+            <div style="display:flex; gap:16px; align-items:center; margin-bottom:24px;">
+                <form method="get" style="display:flex; gap:8px; align-items:center;">
+                    <input type="text" name="q" placeholder="Search jobs, users, etc..." value="{{ q }}" style="padding:8px 12px; border-radius:6px; border:1px solid #ccc; min-width:220px;">
+                    <input type="number" name="job_id" placeholder="Job ID" value="{{ request.GET.job_id|default:'' }}" style="padding:8px 12px; border-radius:6px; border:1px solid #ccc; width:110px;">
+                    <button type="submit" class="styled-btn" style="padding:8px 18px; font-size:1rem;">Search</button>
+                </form>
+            </div>
             {% if is_superuser %}
             <h2>All Job Posts</h2>
             <table>
@@ -248,7 +451,7 @@
                     <tr>
                         <td><input type="checkbox" name="selected_jobs" value="{{ job.id }}" class="livejob-checkbox"></td>
                         <td>{{ job.id }}</td>
-                        <td><a href="{% url 'logistics:job_detail' job.id %}">{{ job.title }}</a></td>
+                        <td>{{ job.title }}</td>
                         <td>{{ job.origin }} → {{ job.destination }}</td>
                         <td>{{ job.cargo_type.name }}</td>
                         <td>{{ job.created_by.username }}</td>
@@ -273,6 +476,15 @@
                     <tr><td colspan="7" style="text-align:center; color:#888;">No live jobs.</td></tr>
                     {% endfor %}
                 </table>
+                <div style="display:flex; justify-content:center; align-items:center; gap:12px; margin:18px 0 32px 0;">
+                    {% if live_jobs_page_obj.has_previous %}
+                        <a href="?live_jobs_page={{ live_jobs_page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" class="styled-btn" style="padding:6px 18px; font-size:1.1rem;">← Prev</a>
+                    {% endif %}
+                    <span style="font-weight:bold; color:#2193b0; font-size:1.1rem;">Page {{ live_jobs_page_obj.number }} of {{ live_jobs_page_obj.paginator.num_pages }}</span>
+                    {% if live_jobs_page_obj.has_next %}
+                        <a href="?live_jobs_page={{ live_jobs_page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}" class="styled-btn" style="padding:6px 18px; font-size:1.1rem;">Next →</a>
+                    {% endif %}
+                </div>
                 <input type="hidden" name="bulk_action" id="liveJobBulkAction" value="">
             </form>
             <h2 id="hidden-jobs" class="section-title">Hidden Jobs</h2>
@@ -287,9 +499,9 @@
                     <th>Actions</th>
                 </tr>
                 {% for job in hidden_jobs %}
-                <tr>
+                <tr{% if forloop.counter0|divisibleby:2 %} class="even-row"{% endif %}>
                     <td>{{ job.id }}</td>
-                    <td><a href="{% url 'logistics:job_detail' job.id %}">{{ job.title }}</a></td>
+                    <td>{{ job.title }}</td>
                     <td>{{ job.origin }} → {{ job.destination }}</td>
                     <td>{{ job.cargo_type.name }}</td>
                     <td>{{ job.created_by.username }}</td>
@@ -309,6 +521,16 @@
                 <tr><td colspan="6" style="text-align:center; color:#888;">No hidden jobs.</td></tr>
                 {% endfor %}
             </table>
+            <!-- HIDDEN JOBS PAGINATION -->
+            <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:16px; width:100%; max-width:100%; margin-top:0; margin-bottom:24px;">
+                {% if hidden_jobs_page_obj.has_previous %}
+                    <a href="?hidden_jobs_page={{ hidden_jobs_page_obj.previous_page_number }}" class="styled-btn pagination-btn">← Previous</a>
+                {% endif %}
+                <span class="pagination-info">Page {{ hidden_jobs_page_obj.number }} of {{ hidden_jobs_paginator.num_pages }}</span>
+                {% if hidden_jobs_page_obj.has_next %}
+                    <a href="?hidden_jobs_page={{ hidden_jobs_page_obj.next_page_number }}" class="styled-btn pagination-btn">Next →</a>
+                {% endif %}
+            </div>
             <h2 id="flagged-jobs" class="section-title">Flagged Jobs</h2>
             <table>
                 <tr>
@@ -322,7 +544,7 @@
                 </tr>
                 {% for job in flagged_jobs %}
                 <tr style="background:#fff3cd;">
-                    <td><a href="{% url 'logistics:job_detail' job.id %}">{{ job.title }}</a></td>
+                    <td>{{ job.title }}</td>
                     <td>{{ job.origin }} → {{ job.destination }}</td>
                     <td>{{ job.cargo_type.name }}</td>
                     <td>{{ job.created_by.username }}</td>
@@ -359,6 +581,16 @@
                 <tr><td colspan="7" style="text-align:center; color:#888;">No flagged jobs.</td></tr>
                 {% endfor %}
             </table>
+            <!-- FLAGGED JOBS PAGINATION -->
+            <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:16px; width:100%; max-width:100%; margin-top:0; margin-bottom:24px;">
+                {% if flagged_jobs_page_obj.has_previous %}
+                    <a href="?flagged_jobs_page={{ flagged_jobs_page_obj.previous_page_number }}" class="styled-btn pagination-btn">← Previous</a>
+                {% endif %}
+                <span class="pagination-info">Page {{ flagged_jobs_page_obj.number }} of {{ flagged_jobs_paginator.num_pages }}</span>
+                {% if flagged_jobs_page_obj.has_next %}
+                    <a href="?flagged_jobs_page={{ flagged_jobs_page_obj.next_page_number }}" class="styled-btn pagination-btn">Next →</a>
+                {% endif %}
+            </div>
             <h2 id="booked-jobs" class="section-title">Booked Jobs</h2>
             <table>
                 <tr>
@@ -384,6 +616,16 @@
                 <tr><td colspan="7" style="text-align:center; color:#888;">No jobs have been booked yet.</td></tr>
                 {% endfor %}
             </table>
+            <!-- BOOKED JOBS PAGINATION -->
+            <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:16px; width:100%; max-width:100%; margin-top:0; margin-bottom:24px;">
+                {% if booked_jobs_page_obj.has_previous %}
+                    <a href="?booked_jobs_page={{ booked_jobs_page_obj.previous_page_number }}" class="styled-btn pagination-btn">← Previous</a>
+                {% endif %}
+                <span class="pagination-info">Page {{ booked_jobs_page_obj.number }} of {{ booked_jobs_paginator.num_pages }}</span>
+                {% if booked_jobs_page_obj.has_next %}
+                    <a href="?booked_jobs_page={{ booked_jobs_page_obj.next_page_number }}" class="styled-btn pagination-btn">Next →</a>
+                {% endif %}
+            </div>
             {% endif %}
             {% if users and q %}
             <h2 id="user-results" class="section-title">User Results</h2>
@@ -412,19 +654,14 @@
     // Persistent dark mode toggle for all pages, fallback to system preference on logout
     function setDarkMode(on) {
         if(on) {
-            document.body.classList.add('dark-mode');
-            document.body.style.background = '#222';
-            document.querySelectorAll('.container, main, .main-content, .welcome, .links, .card').forEach(function(el){
-                el.style.background = '#181818';
-                el.style.color = '#eee';
-            });
+            document.documentElement.classList.add('dark-mode');
         } else {
-            document.body.classList.remove('dark-mode');
-            document.body.style.background = '#f5f5f5';
-            document.querySelectorAll('.container, main, .main-content, .welcome, .links, .card').forEach(function(el){
-                el.style.background = '';
-                el.style.color = '';
-            });
+            document.documentElement.classList.remove('dark-mode');
+        }
+        // Update button icon
+        var btn = document.getElementById('darkModeToggle');
+        if (btn) {
+            btn.textContent = on ? '\u2600\ufe0f' : '\ud83c\udf19';
         }
     }
     function getDarkMode() {
@@ -440,7 +677,7 @@
         localStorage.setItem('darkMode', on ? 'on' : 'off');
         setDarkMode(on);
     };
-    // On page load
+    // On page load, ensure correct mode and icon
     setDarkMode(getDarkMode());
     // On logout, clear darkMode preference
     document.querySelectorAll('.logout').forEach(function(logoutLink) {
