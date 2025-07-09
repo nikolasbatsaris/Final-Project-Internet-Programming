@@ -325,6 +325,50 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
   background: #b0e0e6;
 }
         .modal-content .form-text { color: #fff !important; }
+        
+        /* Success Modal Styling */
+        #successMessageModal .modal-content {
+            background: rgba(35, 41, 70, 0.98) !important;
+            color: #fff !important;
+            border-radius: 18px !important;
+            box-shadow: 0 8px 40px rgba(33, 147, 176, 0.18) !important;
+        }
+        
+        #successMessageModal .modal-header {
+            border-bottom: none !important;
+        }
+        
+        #successMessageModal .modal-title {
+            color: #ffe066 !important;
+            font-weight: bold !important;
+        }
+        
+        #successMessageModal .btn-warning {
+            background: #ffe066 !important;
+            color: #232946 !important;
+            border: none !important;
+            font-weight: bold !important;
+        }
+        
+        #successMessageModal .btn-warning:hover {
+            background: #ffea94 !important;
+            color: #232946 !important;
+        }
+        
+        /* Light mode overrides for success modal */
+        body.light-mode #successMessageModal .modal-content {
+            background: #fff !important;
+            color: #232946 !important;
+        }
+        
+        body.light-mode #successMessageModal .modal-title {
+            color: #2193b0 !important;
+        }
+        
+        body.light-mode #successMessageModal .btn-warning {
+            background: #ffe066 !important;
+            color: #232946 !important;
+        }
     </style>
 </head>
 <body>
@@ -363,6 +407,35 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
             <animate attributeName="x" values="300;350;300" dur="9s" repeatCount="indefinite"/>
           </rect>
         </svg>
+        <!-- Success Message Modal -->
+        {% if messages %}
+        <div class="modal fade" id="successMessageModal" tabindex="-1" aria-labelledby="successMessageModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background:rgba(35,41,70,0.98);color:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(33,147,176,0.18);">
+              <div class="modal-header border-0">
+                <h5 class="modal-title" id="successMessageModalLabel">Success!</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body text-center">
+                {% for message in messages %}
+                  {% if forloop.first %}
+                  <div class="d-flex align-items-center justify-content-center mb-3">
+                    <span style="font-size: 3rem; margin-right: 1rem;">
+                      {% if message.level_tag == 'error' %}❌{% else %}✅{% endif %}
+                    </span>
+                    <span style="font-size: 1.2rem; font-weight: bold;">{{ message }}</span>
+                  </div>
+                  {% endif %}
+                {% endfor %}
+                <div class="mt-4">
+                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal" style="border-radius: 12px; padding: 10px 24px; font-weight: bold;">Continue</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        
         <!-- Unified Dashboard Container -->
         <div class="dashboard-unified-container mx-auto d-flex flex-column align-items-center justify-content-center" style="max-width:1400px;width:98vw;background:rgba(30,36,60,0.93);backdrop-filter:blur(18px);border-radius:36px;box-shadow:0 16px 64px rgba(33,147,176,0.22);padding:3.5rem 2.5rem 2.5rem 2.5rem;">
           <!-- User Info Row -->
@@ -559,15 +632,9 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
     </div>
         </div>
       </div>
-    <footer class="footer mt-auto">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-auto">
-                    &copy; 2025 ShipLink. All rights reserved.
-    </div>
-            </div>
-        </div>
-    </footer>
+    <footer class="footer">
+  © 2024 ShipLink. All rights reserved.
+</footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     function setDarkMode(on) {
@@ -593,6 +660,18 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
     };
     setDarkMode(getDarkMode());
     document.getElementById('darkModeToggle').textContent = getDarkMode() ? '☀️' : '🌙';
+    
+    // Auto-show success message modal if messages exist
+    document.addEventListener('DOMContentLoaded', function() {
+        const successModal = document.getElementById('successMessageModal');
+        if (successModal) {
+            // Small delay to ensure page is fully loaded
+            setTimeout(function() {
+                const modal = new bootstrap.Modal(successModal);
+                modal.show();
+            }, 300);
+        }
+    });
     </script>
     <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -609,26 +688,129 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
           let html = '';
           if (type === 'job') {
-            html += `<h4>${data.title}</h4>`;
-            html += `<div><b>Description:</b> ${data.description || '—'}</div>`;
-            html += `<div><b>Origin:</b> ${data.origin} (${data.origin_address || '—'}, ${data.origin_zip || '—'})</div>`;
-            html += `<div><b>Destination:</b> ${data.destination} (${data.destination_address || '—'}, ${data.destination_zip || '—'})</div>`;
-            html += `<div><b>Pickup Date:</b> ${data.pickup_date || '—'}</div>`;
-            html += `<div><b>Pickup Time:</b> ${data.pickup_time_from || '—'} - ${data.pickup_time_to || '—'}</div>`;
-            html += `<div><b>Delivery Deadline:</b> ${data.delivery_deadline || '—'}</div>`;
-            html += `<div><b>Cargo Type:</b> ${data.cargo_type || '—'}</div>`;
-            html += `<div><b>Weight:</b> ${data.weight_kg || '—'} kg</div>`;
-            html += `<div><b>Dimensions:</b> ${data.length_cm || '—'} × ${data.width_cm || '—'} × ${data.height_cm || '—'} cm</div>`;
-            html += `<div><b>Special Requirements:</b> ${data.special_requirements || '—'}</div>`;
-            html += `<div><b>Declared Value:</b> ${data.declared_value || '—'}</div>`;
-            html += `<div><b>Reference Code:</b> ${data.reference_code || '—'}</div>`;
-            html += `<div><b>Created At:</b> ${data.created_at || '—'}</div>`;
+            // Enhanced job details with better styling and organization
+            html += `<div style="margin-bottom: 20px;">
+              <h4 style="color: #4fc3f7; margin-bottom: 10px;">🚚 Job Details</h4>
+              <div style="margin-bottom: 15px;">
+                <span style="font-weight: bold; color: #ffe066;">Status:</span> 
+                <span class="badge bg-success" style="font-size: 0.9rem; margin-left: 8px;">Available</span>
+              </div>
+            </div>`;
+            
+            // Basic Information Section
+            html += `<div style="background: rgba(79, 195, 247, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #4fc3f7; margin-bottom: 10px;">📝 Basic Information</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Title:</span> ${data.title || '—'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Description:</span> ${data.description || '—'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Reference Code:</span> ${data.reference_code || '—'}</div>
+            </div>`;
+            
+            // Route Information Section
+            html += `<div style="background: rgba(255, 224, 102, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #ffe066; margin-bottom: 10px;">🗺️ Route Information</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Origin:</span> ${data.origin} ${data.origin_address ? `(${data.origin_address}, ${data.origin_zip || ''})` : ''}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Destination:</span> ${data.destination} ${data.destination_address ? `(${data.destination_address}, ${data.destination_zip || ''})` : ''}</div>
+            </div>`;
+            
+            // Timing Information Section
+            html += `<div style="background: rgba(39, 174, 96, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #27ae60; margin-bottom: 10px;">⏰ Timing Details</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Pickup Date:</span> ${data.pickup_date || '—'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Pickup Time:</span> ${data.pickup_time_from || '—'} - ${data.pickup_time_to || '—'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Delivery Deadline:</span> ${data.delivery_deadline || '—'}</div>
+            </div>`;
+            
+            // Cargo Information Section
+            html += `<div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #e74c3c; margin-bottom: 10px;">📦 Cargo Details</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Cargo Type:</span> ${data.cargo_type || '—'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Weight:</span> ${data.weight_kg || '—'} kg</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Dimensions:</span> ${data.length_cm || '—'} × ${data.width_cm || '—'} × ${data.height_cm || '—'} cm</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Special Requirements:</span> ${data.special_requirements || '—'}</div>
+            </div>`;
+            
+            // Financial Information Section
+            html += `<div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #9b59b6; margin-bottom: 10px;">💰 Financial Information</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Declared Value:</span> ${data.declared_value || '—'}</div>
+            </div>`;
+            
+            // Job Statistics Section
+            html += `<div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #3498db; margin-bottom: 10px;">📊 Job Statistics</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Likes:</span> ${data.like_count || '0'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Booked:</span> ${data.booked ? 'Yes' : 'No'}</div>
+            </div>`;
+            
+            // Creation Information
+            html += `<div style="background: rgba(149, 165, 166, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #95a5a6; margin-bottom: 10px;">📅 Job Information</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Created:</span> ${data.created_at || '—'}</div>
+            </div>`;
             } else {
-            html += `<h4>Request: ${data.origin} → ${data.destination}</h4>`;
-            html += `<div><b>Status:</b> ${data.status || '—'}</div>`;
-            html += `<div><b>Notes:</b> ${data.staff_note || '—'}</div>`;
-            html += `<div><b>Declared Value:</b> ${data.declared_value || '—'}</div>`;
-            html += `<div><b>Created:</b> ${data.created_at || '—'}</div>`;
+            // Enhanced job request details with better styling and organization
+            html += `<div style="margin-bottom: 20px;">
+              <h4 style="color: #4fc3f7; margin-bottom: 10px;">📋 Job Request Details</h4>
+              <div style="margin-bottom: 15px;">
+                <span style="font-weight: bold; color: #ffe066;">Status:</span> 
+                <span class="badge ${data.status === 'pending' ? 'bg-warning text-dark' : data.status === 'approved' ? 'bg-success' : 'bg-danger'}" style="font-size: 0.9rem; margin-left: 8px;">${data.status || '—'}</span>
+              </div>
+            </div>`;
+            
+            // Basic Information Section
+            html += `<div style="background: rgba(79, 195, 247, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #4fc3f7; margin-bottom: 10px;">📝 Basic Information</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Title:</span> ${data.title || '—'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Description:</span> ${data.description || '—'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Reference Code:</span> ${data.reference_code || '—'}</div>
+            </div>`;
+            
+            // Route Information Section
+            html += `<div style="background: rgba(255, 224, 102, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #ffe066; margin-bottom: 10px;">🚚 Route Information</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Origin:</span> ${data.origin} ${data.origin_address ? `(${data.origin_address}, ${data.origin_zip || ''})` : ''}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Destination:</span> ${data.destination} ${data.destination_address ? `(${data.destination_address}, ${data.destination_zip || ''})` : ''}</div>
+            </div>`;
+            
+            // Timing Information Section
+            html += `<div style="background: rgba(39, 174, 96, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #27ae60; margin-bottom: 10px;">⏰ Timing Details</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Pickup Date:</span> ${data.pickup_date || '—'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Pickup Time Window:</span> ${data.pickup_time_from || '—'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Dropoff Time Window:</span> ${data.pickup_time_to || '—'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Delivery Deadline:</span> ${data.delivery_deadline || '—'}</div>
+            </div>`;
+            
+            // Cargo Information Section
+            html += `<div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #e74c3c; margin-bottom: 10px;">📦 Cargo Details</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Cargo Type:</span> ${data.cargo_type || '—'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Number of Boxes:</span> ${data.num_boxes || '—'}</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Weight per Box:</span> ${data.weight_per_box_kg || '—'} kg</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Box Dimensions:</span> ${data.length_per_box_cm || '—'} × ${data.width_per_box_cm || '—'} × ${data.height_per_box_cm || '—'} cm</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Total Weight:</span> ${data.weight_kg || '—'} kg</div>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Special Requirements:</span> ${data.special_requirements || '—'}</div>
+            </div>`;
+            
+            // Financial Information Section
+            html += `<div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #9b59b6; margin-bottom: 10px;">💰 Financial Information</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Declared Value:</span> ${data.declared_value || '—'}</div>
+            </div>`;
+            
+            // Staff Information Section (if available)
+            if (data.staff_note) {
+              html += `<div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <h6 style="color: #3498db; margin-bottom: 10px;">👨‍💼 Staff Notes</h6>
+                <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Notes:</span> ${data.staff_note}</div>
+              </div>`;
+            }
+            
+            // Creation Information
+            html += `<div style="background: rgba(149, 165, 166, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+              <h6 style="color: #95a5a6; margin-bottom: 10px;">📅 Request Information</h6>
+              <div style="margin-bottom: 8px;"><span style="font-weight: bold;">Created:</span> ${data.created_at || '—'}</div>
+            </div>`;
           }
           document.getElementById('jobDetailModalBody').innerHTML = html;
         })

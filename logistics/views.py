@@ -427,13 +427,15 @@ def edit_profile(request):
                 return JsonResponse({'success': False, 'error': 'Username already exists.'})
             else:
                 messages.error(request, 'Username already exists.')
-                return redirect('logistics:edit_profile')
+                # Render dashboard with error message
+                return dashboard(request)
         if User.objects.exclude(pk=request.user.pk).filter(email=email).exists():
             if is_ajax:
                 return JsonResponse({'success': False, 'error': 'Email already exists.'})
             else:
                 messages.error(request, 'Email already exists.')
-                return redirect('logistics:edit_profile')
+                # Render dashboard with error message
+                return dashboard(request)
         if form.is_valid():
             form.save()
             if is_ajax:
@@ -521,15 +523,18 @@ class JobRequestForm(forms.ModelForm):
         return date
     def clean(self):
         cleaned_data = super().clean()
-        # No need for 3-hour window validation, as windows are fixed
+        pickup_date = cleaned_data.get('pickup_date')
+        delivery_deadline = cleaned_data.get('delivery_deadline')
+        if pickup_date and delivery_deadline and delivery_deadline < pickup_date:
+            self.add_error('delivery_deadline', 'Dropoff date cannot be before pickup date.')
         return cleaned_data
 
     class Meta:
         model = JobRequest
         fields = [
             'title', 'description', 'origin', 'origin_address', 'origin_zip', 'destination', 'destination_address', 'destination_zip',
-            'cargo_type', 'weight_kg',
-            'length_cm', 'width_cm', 'height_cm', 'volume_m3',
+            'cargo_type',
+            'num_boxes', 'weight_per_box_kg', 'length_per_box_cm', 'width_per_box_cm', 'height_per_box_cm',
             'special_requirements',
             'pickup_date', 'pickup_time_from', 'pickup_time_to',
             'delivery_deadline',
@@ -557,8 +562,8 @@ def request_job(request):
             job_request.requested_by = request.user
             job_request.status = 'pending'
             job_request.save()
-            messages.success(request, 'Your job request has been submitted!')
-            return redirect('logistics:my_job_requests')
+            messages.success(request, 'Your job request has been successfully submitted! We will review it and get back to you soon. You can check your request status in "My Job Requests" section.')
+            return redirect('logistics:dashboard')
     else:
         form = JobRequestForm()
     return render(request, 'request_job.html', {'form': form})
@@ -1159,5 +1164,10 @@ def job_request_detail_json(request, request_id):
         'status': req.status,
         'staff_note': req.staff_note,
         'created_at': req.created_at.strftime('%Y-%m-%d %H:%M'),
+        'num_boxes': req.num_boxes,
+        'weight_per_box_kg': req.weight_per_box_kg,
+        'length_per_box_cm': req.length_per_box_cm,
+        'width_per_box_cm': req.width_per_box_cm,
+        'height_per_box_cm': req.height_per_box_cm,
     }
     return JsonResponse(data)
