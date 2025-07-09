@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact Messages - Staff</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+        .container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(44,62,80,0.08); padding: 36px 32px; }
+        h1 { color: #2c3e50; }
+        table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        th, td { padding: 12px 10px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #3498db; color: #fff; }
+        tr.unanswered { background: #fffbe6; }
+        tr.answered { background: #eafaf1; }
+        .answer-form textarea { width: 100%; min-height: 60px; border-radius: 6px; border: 1px solid #ccc; padding: 8px; }
+        .answer-form button { background: #27ae60; color: #fff; border: none; border-radius: 5px; padding: 7px 18px; font-weight: bold; margin-top: 6px; cursor: pointer; }
+        .answered-text { color: #27ae60; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Contact Messages</h1>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Message</th>
+                <th>Received</th>
+                <th>Status</th>
+                <th>Answer</th>
+            </tr>
+            {% for msg in messages %}
+            <tr class="{% if not msg.answered %}unanswered{% else %}answered{% endif %}">
+                <td>{{ msg.name }}</td>
+                <td>{{ msg.email }}</td>
+                <td>{{ msg.message }}</td>
+                <td>{{ msg.created_at|date:"Y-m-d H:i" }}</td>
+                <td>{% if msg.answered %}<span class="answered-text">Answered</span>{% else %}Pending{% endif %}</td>
+                <td>
+                    {% if not msg.answered %}
+                    <form method="post" class="answer-form" style="margin:0;">
+                        {% csrf_token %}
+                        <input type="hidden" name="msg_id" value="{{ msg.id }}">
+                        <textarea name="answer" placeholder="Type your answer here..." required></textarea>
+                        <button type="submit">Send Answer</button>
+                    </form>
+                    {% else %}
+                        <div>{{ msg.answer_text|linebreaksbr }}</div>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center; color:#888;">No contact messages found.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html> 

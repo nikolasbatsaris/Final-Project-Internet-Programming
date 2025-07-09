@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import JobCategory, JobPost, SavedJob, JobLike
+from .models import JobCategory, JobPost, JobLike, ContactMessage
 
 # Register your models here.
 
@@ -30,21 +30,6 @@ class JobLikeAdmin(admin.ModelAdmin):
     list_select_related = ['user', 'job']
     date_hierarchy = 'created_at'
 
-@admin.register(SavedJob)
-class SavedJobAdmin(admin.ModelAdmin):
-    list_display = ['user', 'job', 'job_title', 'job_origin', 'job_destination']
-    list_filter = ['job__cargo_type']
-    search_fields = ['user__username', 'user__email', 'job__title']
-    list_select_related = ['user', 'job']
-    
-    def job_title(self, obj):
-        return obj.job.title
-    job_title.short_description = 'Job Title'
-    
-    def job_origin(self, obj):
-        return obj.job.origin
-    job_origin.short_description = 'Origin'
-    
-    def job_destination(self, obj):
-        return obj.job.destination
-    job_destination.short_description = 'Destination'
+
+
+admin.site.register(ContactMessage)

@@ -160,3 +160,14 @@ class BookedJob(models.Model):
 
     def __str__(self):
         return f"{self.user.username} booked {self.job.title} at {self.booked_at}"
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    answered = models.BooleanField(default=False)
+    answer_text = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.email}) - {self.created_at:%Y-%m-%d %H:%M}"

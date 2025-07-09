@@ -5,27 +5,40 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.views.decorators.http import require_POST
-from .models import JobPost, SavedJob, JobLike, JobRequest, JobFlag, RecentActivity, JobCategory, BookedJob
+from .models import JobPost, JobLike, JobRequest, JobFlag, RecentActivity, JobCategory, BookedJob, ContactMessage
 from django import forms
 from django.utils import timezone
 from django.contrib.auth.models import User
 import csv
 from django.db.models import Q
+from django.contrib.admin.views.decorators import staff_member_required
+from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.dateformat import format as date_format
 
 # Create your views here.
 
 def home(request):
     """Home page view"""
+    from .models import JobPost
+    # Exclude booked jobs from carousel
+    booked_job_ids = set(BookedJob.objects.values_list('job_id', flat=True))
+    carousel_jobs = JobPost.objects.filter(hidden=False).exclude(id__in=booked_job_ids).order_by('-created_at')[:10]
     if request.user.is_authenticated:
         if request.user.is_superuser:
             return redirect('logistics:manager_dashboard')
         elif request.user.is_staff:
             return redirect('logistics:admin_dashboard')
-    return render(request, 'home.html')
+    return render(request, 'home.html', {'carousel_jobs': carousel_jobs})
 
 def job_list(request):
     """Display list of all job posts with filtering"""
     jobs = JobPost.objects.select_related('cargo_type', 'created_by').filter(hidden=False)
+    
+    # Exclude jobs that have been booked by any user
+    booked_job_ids = set(BookedJob.objects.values_list('job_id', flat=True))
+    jobs = jobs.exclude(id__in=booked_job_ids)
+    
     q = request.GET.get('q', '').strip()
     cargo_type = request.GET.get('cargo_type', '').strip()
     origin = request.GET.get('origin', '').strip()
@@ -47,26 +60,35 @@ def job_list(request):
         jobs = jobs.filter(pickup_date=pickup_date)
 
     categories = JobCategory.objects.all()
-    booked_job_ids = set()
+    user_booked_job_ids = set()
     if request.user.is_authenticated:
-        booked_job_ids = set(BookedJob.objects.filter(user=request.user, job__in=jobs).values_list('job_id', flat=True))
+        user_booked_job_ids = set(BookedJob.objects.filter(user=request.user, job__in=jobs).values_list('job_id', flat=True))
+
+    # PAGINATION: 10 jobs per page
+    paginator = Paginator(jobs, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'job_list.html', {
-        'jobs': jobs,
+        'jobs': page_obj.object_list,
         'categories': categories,
         'q': q,
         'cargo_type': cargo_type,
         'origin': origin,
         'destination': destination,
         'pickup_date': pickup_date,
-        'booked_job_ids': booked_job_ids,
+        'booked_job_ids': user_booked_job_ids,
+        'paginator': paginator,
+        'page_obj': page_obj,
     })
 
 def job_detail(request, job_id):
     """Display detailed view of a specific job post"""
     job = get_object_or_404(JobPost, id=job_id)
     is_liked = job.is_liked_by(request.user) if request.user.is_authenticated else False
-    # Recommended jobs: same cargo_type, exclude current job, order by created_at desc
-    recommended_jobs = JobPost.objects.filter(cargo_type=job.cargo_type, hidden=False).exclude(id=job.id).order_by('-created_at')[:5]
+    # Recommended jobs: same cargo_type, exclude current job and booked jobs, order by created_at desc
+    booked_job_ids = set(BookedJob.objects.values_list('job_id', flat=True))
+    recommended_jobs = JobPost.objects.filter(cargo_type=job.cargo_type, hidden=False).exclude(id=job.id).exclude(id__in=booked_job_ids).order_by('-created_at')[:5]
     booked = False
     if request.user.is_authenticated:
         booked = BookedJob.objects.filter(user=request.user, job=job).exists()
@@ -77,6 +99,44 @@ def job_detail(request, job_id):
         'recommended_jobs': recommended_jobs,
         'booked': booked
     })
+
+def job_detail_json(request, job_id):
+    job = get_object_or_404(JobPost, id=job_id)
+    is_authenticated = request.user.is_authenticated
+    liked = False
+    booked = False
+    if is_authenticated:
+        liked = job.is_liked_by(request.user)
+        booked = BookedJob.objects.filter(user=request.user, job=job).exists()
+    data = {
+        'id': job.id,
+        'title': job.title,
+        'origin': job.origin,
+        'origin_address': job.origin_address,
+        'origin_zip': job.origin_zip,
+        'destination': job.destination,
+        'destination_address': job.destination_address,
+        'destination_zip': job.destination_zip,
+        'pickup_date': job.pickup_date.strftime('%Y-%m-%d') if job.pickup_date else '',
+        'pickup_time_from': job.pickup_time_from,
+        'pickup_time_to': job.pickup_time_to,
+        'delivery_deadline': job.delivery_deadline.strftime('%Y-%m-%d') if job.delivery_deadline else '',
+        'cargo_type': job.cargo_type.name if job.cargo_type else '',
+        'weight_kg': job.weight_kg,
+        'length_cm': job.length_cm,
+        'width_cm': job.width_cm,
+        'height_cm': job.height_cm,
+        'special_requirements': job.special_requirements,
+        'declared_value': job.declared_value,
+        'reference_code': job.reference_code,
+        'description': job.description,
+        'created_at': date_format(job.created_at, 'Y-m-d H:i'),
+        'like_count': job.like_count(),
+        'is_authenticated': is_authenticated,
+        'liked': liked,
+        'booked': booked,
+    }
+    return JsonResponse(data)
 
 class CustomUserCreationForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True, label='First Name')
@@ -134,61 +194,7 @@ def logout_view(request):
     messages.success(request, 'You have been logged out successfully.')
     return redirect('logistics:home')
 
-@login_required
-def dashboard(request):
-    user = request.user
-    if user.is_staff:
-        return redirect('logistics:admin_dashboard')
-    # Profile summary
-    profile = {
-        'email': user.email,
-        'date_joined': user.date_joined,
-        'saved_count': 0,
-    }
-    # Show change password link (always True for now)
-    show_change_password = True
-    # Booked jobs
-    booked_jobs = BookedJob.objects.filter(user=user).select_related('job', 'job__cargo_type', 'job__created_by')
-    # Liked jobs
-    liked_jobs = JobPost.objects.filter(joblike__user=user).select_related('cargo_type', 'created_by').distinct()
-    # --- Recommender System ---
-    booked_job_ids = set(booked_jobs.values_list('job_id', flat=True))
-    liked_job_ids = set(JobLike.objects.filter(user=user).values_list('job_id', flat=True))
-    saved_job_ids = set()  # No saved jobs
-    cargo_type_ids = set(JobPost.objects.filter(id__in=liked_job_ids | booked_job_ids).values_list('cargo_type_id', flat=True))
-    recommended_jobs = JobPost.objects.filter(
-        cargo_type_id__in=cargo_type_ids,
-        hidden=False
-    ).exclude(id__in=liked_job_ids | booked_job_ids).order_by('-created_at')[:5]
-    if recommended_jobs.count() < 5:
-        extra_needed = 5 - recommended_jobs.count()
-        extra_jobs = JobPost.objects.filter(hidden=False).exclude(id__in=liked_job_ids | booked_job_ids | set(recommended_jobs.values_list('id', flat=True))).order_by('-created_at')[:extra_needed]
-        recommended_jobs = list(recommended_jobs) + list(extra_jobs)
-    return render(request, 'dashboard.html', {
-        'profile': profile,
-        'show_change_password': show_change_password,
-        'booked_jobs': booked_jobs,
-        'recommended_jobs': recommended_jobs,
-        'liked_jobs': liked_jobs,
-    })
 
-@login_required
-def save_job(request, job_id):
-    """Save a job to user's saved jobs"""
-    job = get_object_or_404(JobPost, id=job_id)
-    
-    # Check if job is already saved by this user
-    saved_job, created = SavedJob.objects.get_or_create(
-        user=request.user,
-        job=job
-    )
-    
-    if created:
-        messages.success(request, f'Job "{job.title}" has been saved to your dashboard!')
-    else:
-        messages.info(request, f'Job "{job.title}" is already in your saved jobs.')
-    
-    return redirect('logistics:job_detail', job_id=job_id)
 
 @login_required
 @require_POST
@@ -219,26 +225,36 @@ def admin_dashboard(request):
     if not request.user.is_staff:
         return render(request, 'admin_error.html', status=403)
     q = request.GET.get('q', '').strip()
+    job_id = request.GET.get('job_id', '').strip()
     # Jobs
-    live_jobs = JobPost.objects.filter(hidden=False).order_by('-created_at')
-    hidden_jobs = JobPost.objects.filter(hidden=True).order_by('-created_at')
-    flagged_jobs = JobPost.objects.filter(flags__status='open').distinct().order_by('-created_at')
-    # Requests
-    job_requests = JobRequest.objects.filter(status='pending').order_by('-created_at')
-    # Booked jobs
-    booked_jobs = BookedJob.objects.select_related('job', 'user').order_by('-booked_at')
-    # Users (for user management)
+    live_jobs_qs = JobPost.objects.filter(hidden=False).order_by('-created_at')
+    hidden_jobs_qs = JobPost.objects.filter(hidden=True).order_by('-created_at')
+    flagged_jobs_qs = JobPost.objects.filter(flags__status='open').distinct().order_by('-created_at')
+    job_requests_qs = JobRequest.objects.filter(status='pending').order_by('-created_at')
+    booked_jobs_qs = BookedJob.objects.select_related('job', 'user').order_by('-booked_at')
     users = User.objects.all()
+    # Filter by Job ID if provided
+    if job_id:
+        try:
+            job_id_int = int(job_id)
+            live_jobs_qs = live_jobs_qs.filter(id=job_id_int)
+            hidden_jobs_qs = hidden_jobs_qs.filter(id=job_id_int)
+            flagged_jobs_qs = flagged_jobs_qs.filter(id=job_id_int)
+            booked_jobs_qs = booked_jobs_qs.filter(job__id=job_id_int)
+            job_requests_qs = job_requests_qs.filter(id=job_id_int)
+        except ValueError:
+            pass
+    # Existing q search logic
     if q:
         job_filter = (
             Q(title__icontains=q) | Q(description__icontains=q) |
             Q(origin__icontains=q) | Q(destination__icontains=q) |
             Q(cargo_type__name__icontains=q) | Q(created_by__username__icontains=q)
         )
-        live_jobs = live_jobs.filter(job_filter)
-        hidden_jobs = hidden_jobs.filter(job_filter)
-        flagged_jobs = flagged_jobs.filter(job_filter)
-        job_requests = job_requests.filter(
+        live_jobs_qs = live_jobs_qs.filter(job_filter)
+        hidden_jobs_qs = hidden_jobs_qs.filter(job_filter)
+        flagged_jobs_qs = flagged_jobs_qs.filter(job_filter)
+        job_requests_qs = job_requests_qs.filter(
             Q(title__icontains=q) | Q(description__icontains=q) |
             Q(origin__icontains=q) | Q(destination__icontains=q) |
             Q(cargo_type__name__icontains=q) | Q(requested_by__username__icontains=q)
@@ -247,13 +263,47 @@ def admin_dashboard(request):
             Q(username__icontains=q) | Q(email__icontains=q) |
             Q(first_name__icontains=q) | Q(last_name__icontains=q)
         )
+    # Pagination for live jobs
+    live_jobs_paginator = Paginator(live_jobs_qs, 10)
+    live_jobs_page_number = request.GET.get('live_jobs_page')
+    live_jobs_page_obj = live_jobs_paginator.get_page(live_jobs_page_number)
+    live_jobs = live_jobs_page_obj.object_list
+
+    # Paginate hidden jobs
+    hidden_jobs_paginator = Paginator(hidden_jobs_qs, 10)
+    hidden_jobs_page_number = request.GET.get('hidden_jobs_page')
+    hidden_jobs_page_obj = hidden_jobs_paginator.get_page(hidden_jobs_page_number)
+    hidden_jobs = hidden_jobs_page_obj.object_list
+
+    # Paginate flagged jobs
+    flagged_jobs_paginator = Paginator(flagged_jobs_qs, 10)
+    flagged_jobs_page_number = request.GET.get('flagged_jobs_page')
+    flagged_jobs_page_obj = flagged_jobs_paginator.get_page(flagged_jobs_page_number)
+    flagged_jobs = flagged_jobs_page_obj.object_list
+
+    # Paginate job requests
+    job_requests_paginator = Paginator(job_requests_qs, 10)
+    job_requests_page_number = request.GET.get('job_requests_page')
+    job_requests_page_obj = job_requests_paginator.get_page(job_requests_page_number)
+    job_requests = job_requests_page_obj.object_list
+
+    # Paginate booked jobs
+    booked_jobs_paginator = Paginator(booked_jobs_qs, 10)
+    booked_jobs_page_number = request.GET.get('booked_jobs_page')
+    booked_jobs_page_obj = booked_jobs_paginator.get_page(booked_jobs_page_number)
+    booked_jobs = booked_jobs_page_obj.object_list
+
+    # Users (for user management)
+    # The users filtering is now handled by the q search, so we just pass the current users
+    # If q is empty, this will be all users. If q is not empty, it will be filtered.
+
     # Quick stats
     stats = {
-        'pending_requests': job_requests.count(),
-        'live_jobs': live_jobs.count(),
-        'flagged_jobs': flagged_jobs.count(),
-        'hidden_jobs': hidden_jobs.count(),
-        'user_count': User.objects.filter(savedjob__isnull=False).distinct().count(),
+        'pending_requests': job_requests_qs.count(),
+        'live_jobs': live_jobs_qs.count(),
+        'flagged_jobs': flagged_jobs_qs.count(),
+        'hidden_jobs': hidden_jobs_qs.count(),
+        'user_count': User.objects.filter(joblike__isnull=False).distinct().count(),
         'total_jobs': JobPost.objects.count(),
     }
     # Recent activity (last 10 actions)
@@ -263,9 +313,20 @@ def admin_dashboard(request):
     recent_bulk = RecentActivity.objects.order_by('-timestamp')[:5]
     return render(request, 'admin_dashboard.html', {
         'job_requests': job_requests,
+        'job_requests_paginator': job_requests_paginator,
+        'job_requests_page_obj': job_requests_page_obj,
         'live_jobs': live_jobs,
+        'live_jobs_paginator': live_jobs_paginator,
+        'live_jobs_page_obj': live_jobs_page_obj,
         'hidden_jobs': hidden_jobs,
+        'hidden_jobs_paginator': hidden_jobs_paginator,
+        'hidden_jobs_page_obj': hidden_jobs_page_obj,
         'flagged_jobs': flagged_jobs,
+        'flagged_jobs_paginator': flagged_jobs_paginator,
+        'flagged_jobs_page_obj': flagged_jobs_page_obj,
+        'booked_jobs': booked_jobs,
+        'booked_jobs_paginator': booked_jobs_paginator,
+        'booked_jobs_page_obj': booked_jobs_page_obj,
         'stats': stats,
         'recent_requests': recent_requests,
         'recent_flags': recent_flags,
@@ -273,7 +334,7 @@ def admin_dashboard(request):
         'recent_bulk': recent_bulk,
         'users': users,
         'q': q,
-        'booked_jobs': booked_jobs,
+        'job_id': job_id, # Pass job_id to template for filtering
     })
 
 class JobPostForm(forms.ModelForm):
@@ -308,17 +369,12 @@ def post_job(request):
             job.created_by = request.user
             job.save()
             messages.success(request, 'Job posted successfully!')
-            return redirect('logistics:dashboard')
+            return redirect('logistics:admin_dashboard')
     else:
         form = JobPostForm()
     return render(request, 'post_job.html', {'form': form})
 
-@login_required
-def remove_saved_job(request, job_id):
-    saved_job = get_object_or_404(SavedJob, user=request.user, job_id=job_id)
-    saved_job.delete()
-    messages.success(request, 'Job removed from your saved jobs.')
-    return redirect('logistics:dashboard')
+
 
 class UserProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -365,7 +421,7 @@ def edit_profile(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated successfully!')
-            return redirect('logistics:dashboard')
+            return redirect('logistics:admin_dashboard')
     else:
         form = UserProfileForm(instance=request.user)
     date_joined = request.user.date_joined
@@ -374,15 +430,32 @@ def edit_profile(request):
 @login_required
 def change_password(request):
     if request.method == 'POST':
-        form = SetPasswordForm(request.user, request.POST)
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-            messages.success(request, 'Your password was successfully updated!')
+        # Check current password first
+        old_password = request.POST.get('old_password')
+        if not request.user.check_password(old_password):
+            messages.error(request, 'Your current password is incorrect.')
             return redirect('logistics:dashboard')
-    else:
-        form = SetPasswordForm(request.user)
-    return render(request, 'change_password.html', {'form': form})
+        
+        # Validate new passwords match
+        new_password1 = request.POST.get('new_password1')
+        new_password2 = request.POST.get('new_password2')
+        
+        if new_password1 != new_password2:
+            messages.error(request, 'New passwords do not match.')
+            return redirect('logistics:dashboard')
+        
+        if len(new_password1) < 8:
+            messages.error(request, 'Password must be at least 8 characters long.')
+            return redirect('logistics:dashboard')
+        
+        # Set new password
+        request.user.set_password(new_password1)
+        request.user.save()
+        update_session_auth_hash(request, request.user)
+        messages.success(request, 'Your password was successfully updated!')
+        return redirect('logistics:dashboard')
+    
+    return redirect('logistics:dashboard')
 
 class JobRequestForm(forms.ModelForm):
     TIME_WINDOWS = [
@@ -436,7 +509,7 @@ class JobRequestForm(forms.ModelForm):
 @login_required
 def request_job(request):
     if request.user.is_staff:
-        return redirect('logistics:dashboard')
+        return redirect('logistics:admin_dashboard')
     if request.method == 'POST':
         form = JobRequestForm(request.POST)
         if form.is_valid():
@@ -452,8 +525,20 @@ def request_job(request):
 
 @login_required
 def my_job_requests(request):
-    job_requests = JobRequest.objects.filter(requested_by=request.user).order_by('-created_at')
-    return render(request, 'my_job_requests.html', {'job_requests': job_requests})
+    job_requests_qs = JobRequest.objects.filter(requested_by=request.user).order_by('-created_at')
+    paginator = Paginator(job_requests_qs, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'my_job_requests.html', {
+        'job_requests': page_obj.object_list,
+        'paginator': paginator,
+        'page_obj': page_obj,
+    })
+
+@login_required
+def my_bookings(request):
+    bookings = BookedJob.objects.filter(user=request.user).select_related('job').order_by('-booked_at')
+    return render(request, 'my_bookings.html', {'bookings': bookings})
 
 @login_required
 @require_POST
@@ -865,21 +950,132 @@ def manager_edit_user(request, user_id):
     return render(request, 'manager_edit_user.html', {'form': form, 'edit_user': user})
 
 @login_required
+@require_POST
 def book_job(request, job_id):
+    """Book a job via AJAX"""
     job = get_object_or_404(JobPost, id=job_id)
-    already_booked = BookedJob.objects.filter(user=request.user, job=job).exists()
-    if not already_booked:
-        BookedJob.objects.create(user=request.user, job=job)
-        job.hidden = True
-        job.save()
-        messages.success(request, 'Job booked successfully!')
-    else:
-        messages.info(request, 'You have already booked this job.')
-    return redirect('logistics:job_detail', job_id=job.id)
+    # Check if job is already booked by this user
+    existing_booking = BookedJob.objects.filter(user=request.user, job=job).first()
+    if existing_booking:
+        return JsonResponse({
+            'success': False,
+            'message': 'You have already booked this job.'
+        })
+    # Create the booking (do NOT set job.hidden = True)
+    BookedJob.objects.create(user=request.user, job=job)
+    return JsonResponse({
+        'success': True,
+        'message': f'Job "{job.title}" has been booked successfully!'
+    })
 
 @login_required
 def hidden_jobs(request):
-    jobs = JobPost.objects.filter(hidden=True).select_related('cargo_type', 'created_by')
-    booked = BookedJob.objects.filter(job__in=jobs).select_related('user', 'job')
-    booked_map = {b.job_id: b.user for b in booked}
-    return render(request, 'hidden_jobs.html', {'jobs': jobs, 'booked_map': booked_map})
+    # Show all booked jobs (not just hidden ones), paginated
+    booked_jobs_qs = BookedJob.objects.select_related('job', 'user').order_by('-job__created_at')
+    paginator = Paginator(booked_jobs_qs, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'hidden_jobs.html', {
+        'booked_jobs': page_obj.object_list,
+        'paginator': paginator,
+        'page_obj': page_obj,
+    })
+
+def about_view(request):
+    return render(request, 'about.html')
+
+def contact_view(request):
+    success = False
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+        if name and email and message:
+            ContactMessage.objects.create(name=name, email=email, message=message)
+            success = True
+    return render(request, 'contact.html', {'success': success})
+
+@staff_member_required
+def staff_contact_messages(request):
+    if request.method == 'POST':
+        msg_id = request.POST.get('msg_id')
+        answer = request.POST.get('answer')
+        if msg_id and answer is not None:
+            try:
+                msg = ContactMessage.objects.get(id=msg_id)
+                msg.answered = True
+                msg.answer_text = answer
+                msg.save()
+            except ContactMessage.DoesNotExist:
+                pass
+    messages = ContactMessage.objects.all().order_by('answered', '-created_at')
+    return render(request, 'staff_contact_messages.html', {'messages': messages})
+
+@login_required
+def dashboard(request):
+    # Get user's job requests
+    job_requests = JobRequest.objects.filter(requested_by=request.user).order_by('-created_at')
+    
+    # Get user's booked jobs
+    booked_jobs = BookedJob.objects.filter(user=request.user).select_related('job', 'job__cargo_type', 'job__created_by')
+    
+    # Get user's liked jobs
+    liked_jobs = JobPost.objects.filter(joblike__user=request.user).select_related('cargo_type', 'created_by')
+    
+    # Get recommended jobs based on user's preferences
+    recommended_jobs = []
+    if liked_jobs.exists():
+        # Get cargo types from liked jobs
+        liked_cargo_types = liked_jobs.values_list('cargo_type', flat=True).distinct()
+        # Get origins and destinations from liked jobs
+        liked_origins = liked_jobs.values_list('origin', flat=True).distinct()
+        liked_destinations = liked_jobs.values_list('destination', flat=True).distinct()
+        
+        # Find jobs with similar characteristics that user hasn't liked or booked
+        # Also exclude jobs booked by any user
+        all_booked_job_ids = set(BookedJob.objects.values_list('job_id', flat=True))
+        recommended_jobs = JobPost.objects.filter(
+            hidden=False,
+            cargo_type__in=liked_cargo_types
+        ).exclude(
+            id__in=liked_jobs.values_list('id', flat=True)
+        ).exclude(
+            id__in=booked_jobs.values_list('job_id', flat=True)
+        ).exclude(
+            id__in=all_booked_job_ids
+        ).select_related('cargo_type', 'created_by').order_by('-created_at')[:6]
+        
+        # If not enough recommendations based on cargo type, add jobs from liked origins/destinations
+        if recommended_jobs.count() < 6:
+            additional_jobs = JobPost.objects.filter(
+                hidden=False,
+                origin__in=liked_origins
+            ).exclude(
+                id__in=liked_jobs.values_list('id', flat=True)
+            ).exclude(
+                id__in=booked_jobs.values_list('job_id', flat=True)
+            ).exclude(
+                id__in=all_booked_job_ids
+            ).exclude(
+                id__in=recommended_jobs.values_list('id', flat=True)
+            ).select_related('cargo_type', 'created_by').order_by('-created_at')[:6-recommended_jobs.count()]
+            
+            recommended_jobs = list(recommended_jobs) + list(additional_jobs)
+    else:
+        # If no liked jobs, show recent popular jobs
+        all_booked_job_ids = set(BookedJob.objects.values_list('job_id', flat=True))
+        recommended_jobs = JobPost.objects.filter(
+            hidden=False
+        ).exclude(
+            id__in=booked_jobs.values_list('job_id', flat=True)
+        ).exclude(
+            id__in=all_booked_job_ids
+        ).select_related('cargo_type', 'created_by').order_by('-created_at')[:6]
+    
+    context = {
+        'job_requests': job_requests,
+        'booked_jobs': booked_jobs,
+        'liked_jobs': liked_jobs,
+        'recommended_jobs': recommended_jobs,
+    }
+    return render(request, 'dashboard.html', context)

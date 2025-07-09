@@ -2,329 +2,294 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>ShipLink - Logistics + Job Matching</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreightFlow - Welcome</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+            overflow-x: hidden;
+            transition: background 0.5s;
         }
-        .header {
+        .dark-mode body {
+            background: linear-gradient(135deg, #232946 0%, #1a1a2e 100%) !important;
+        }
+        .nav {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
-            margin-bottom: 30px;
+            padding: 32px 48px 0 48px;
         }
-        .auth-links {
-            display: flex;
-            gap: 15px;
-        }
-        .auth-links a {
-            color: #3498db;
+        .nav a, .nav button {
+            margin-left: 24px;
+            background: none;
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-weight: bold;
             text-decoration: none;
-            font-weight: bold;
-            padding: 8px 16px;
-            border: 2px solid #3498db;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-        .auth-links a:hover {
-            background-color: #3498db;
-            color: white;
-        }
-        .auth-links .logout {
-            border-color: #e74c3c;
-            color: #e74c3c;
-        }
-        .auth-links .logout:hover {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .welcome-message {
-            color: #2c3e50;
-            font-weight: bold;
-        }
-        .container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-        p {
-            color: #555;
-            font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-        .cta-button {
-            display: inline-block;
-            background-color: #3498db;
-            color: white;
-            padding: 15px 30px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        .cta-button:hover {
-            background-color: #2980b9;
-        }
-        .features {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 40px;
-            flex-wrap: wrap;
-        }
-        .feature {
-            flex: 1;
-            min-width: 250px;
-            margin: 10px;
-            padding: 20px;
-            background-color: #ecf0f1;
-            border-radius: 5px;
-        }
-        .feature h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        .dark-mode body { background: #181a20 !important; }
-        .dark-mode .container, .dark-mode main, .dark-mode .main-content {
-            background: #23272f !important; color: #e3e6ed !important;
-        }
-        .dark-mode .header h1, .dark-mode h1, .dark-mode h2, .dark-mode h3 {
-            color: #8ab4f8 !important;
-        }
-        .dark-mode .card {
-            background: #23272f !important; color: #e3e6ed !important; border: 1px solid #23272f !important;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
-        }
-        .dark-mode .btn, .dark-mode button, .dark-mode input[type="submit"] {
-            background: #2d3748 !important; color: #f5f6fa !important; border: none !important;
-        }
-        .dark-mode .btn-primary, .dark-mode .btn-primary:visited {
-            background: #2563eb !important; color: #fff !important;
-        }
-        .dark-mode .btn-primary:hover {
-            background: #1e40af !important;
-        }
-        .dark-mode .links a, .dark-mode .links .btn {
-            color: #8ab4f8 !important;
-        }
-        .dark-mode .welcome, .dark-mode .links {
-            color: #bfc7d5 !important;
-        }
-        .dark-mode input, .dark-mode select, .dark-mode textarea {
-            background: #23272f !important; color: #e3e6ed !important; border: 1px solid #2d3748 !important;
-        }
-        .dark-mode .card {
-            border-radius: 12px;
-        }
-        .dark-mode .container {
-            border-radius: 16px;
-        }
-        .dark-mode .btn:focus, .dark-mode button:focus {
-            outline: 2px solid #8ab4f8 !important;
-        }
-        .dark-mode .btn, .dark-mode button {
             transition: background 0.2s, color 0.2s;
         }
-        .dark-mode .btn:hover, .dark-mode button:hover {
-            background: #353b48 !important;
+        .nav a:hover, .nav button:hover {
+            background: #fff;
+            color: #2193b0;
         }
-        .dark-mode .btn-primary {
-            box-shadow: 0 2px 8px rgba(36, 99, 235, 0.12);
+        .dark-mode .nav a, .dark-mode .nav button {
+            border: 2px solid #ffe066;
+            color: #ffe066;
         }
-        .dark-mode .btn-primary:active {
-            background: #1e40af !important;
+        .dark-mode .nav a:hover, .dark-mode .nav button:hover {
+            background: #ffe066;
+            color: #232946;
         }
-        .dark-mode .header {
-            background: transparent !important;
+        .dark-toggle {
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 16px;
+            color: #fff;
+            transition: color 0.2s;
         }
-        .dark-mode .main-content {
-            box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+        .dark-mode .dark-toggle {
+            color: #ffe066;
         }
-        .dark-mode .card {
-            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+        .hero {
+            max-width: 700px;
+            margin: 80px auto 0 auto;
+            text-align: left;
+            color: #fff;
+            position: relative;
+            z-index: 2;
         }
-        .dark-mode .main-content .card {
-            background: #23272f !important;
+        .dark-mode .hero {
+            color: #ffe066;
         }
-        .dark-mode .main-content .card h3 {
-            color: #8ab4f8 !important;
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
         }
-        .dark-mode .main-content .card p {
-            color: #bfc7d5 !important;
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 32px;
+            color: #e3f6fc;
         }
-        .dark-mode .main-content .btn-primary {
-            background: #2563eb !important;
+        .dark-mode .hero p {
+            color: #ffe066;
         }
-        .dark-mode .main-content .btn-primary:hover {
-            background: #1e40af !important;
+        .cta-btn {
+            background: #fff;
+            color: #2193b0;
+            border: none;
+            border-radius: 24px;
+            padding: 16px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 24px rgba(33,147,176,0.10);
+            transition: background 0.2s, color 0.2s;
         }
-        .dark-mode .main-content .btn-primary:active {
-            background: #1e40af !important;
+        .cta-btn:hover {
+            background: #2193b0;
+            color: #fff;
         }
-        .dark-mode .main-content .btn {
-            background: #2d3748 !important;
+        .dark-mode .cta-btn {
+            background: #ffe066;
+            color: #232946;
         }
-        .dark-mode .main-content .btn:hover {
-            background: #353b48 !important;
+        .dark-mode .cta-btn:hover {
+            background: #232946;
+            color: #ffe066;
         }
-        .dark-mode .main-content .btn:focus {
-            outline: 2px solid #8ab4f8 !important;
+        .features .feature {
+            background: #ecf0f1;
+            color: #2563a6;
         }
-        .dark-mode .main-content .links a {
-            color: #8ab4f8 !important;
-        }
-        .dark-mode .main-content .links a:hover {
-            color: #fff !important;
-        }
-        .dark-mode .main-content .welcome {
-            color: #bfc7d5 !important;
-        }
-        .dark-mode .main-content .card {
-            border: 1px solid #23272f !important;
-        }
-        .dark-mode .main-content .card h3 {
-            color: #8ab4f8 !important;
-        }
-        .dark-mode .main-content .card p {
-            color: #bfc7d5 !important;
-        }
-        .dark-mode .feature {
-            background: #232b36 !important;
-            color: #e3e6ed !important;
-            border: 1px solid #2d3748 !important;
-            box-shadow: 0 2px 10px rgba(20,30,40,0.18);
-        }
-        .dark-mode .feature h3 {
-            color: #7ed6a7 !important;
-        }
-        .dark-mode .feature p {
-            color: #bfc7d5 !important;
+        .dark-mode .features .feature {
+            background: #232946;
+            color: #ffe066;
+            box-shadow: 0 2px 10px rgba(255,224,102,0.08);
         }
         .welcome-banner {
-            margin: 0 auto 24px auto;
-            padding: 14px 0;
-            font-size: 1.15em;
-            font-weight: bold;
-            color: #2563a6;
             background: #eaf1fb;
-            border-radius: 8px;
-            max-width: 420px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(36,99,235,0.06);
-            letter-spacing: 0.01em;
+            color: #2563a6;
         }
         .dark-mode .welcome-banner {
-            color: #8ab4f8;
-            background: #232b36;
-            box-shadow: 0 2px 8px rgba(36,99,235,0.10);
+            background: #232946;
+            color: #ffe066;
+        }
+        /* Floating shapes and illustrations */
+        .bg-illustration {
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .floating {
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+        }
+        .floating2 {
+            animation-delay: 2s;
+        }
+        .floating3 {
+            animation-delay: 4s;
+        }
+        .sun {
+            transition: opacity 0.5s;
+        }
+        .moon {
+            transition: opacity 0.5s;
+        }
+        .dark-mode .sun { opacity: 0; }
+        .dark-mode .moon { opacity: 1; }
+        .sun { opacity: 1; }
+        .moon { opacity: 0; }
+        .cloud {
+            opacity: 0.35;
+            transition: opacity 0.5s;
+        }
+        .dark-mode .cloud { opacity: 0; }
+        .star {
+            opacity: 0;
+            transition: opacity 0.5s;
+            animation: twinkle 2.5s infinite;
+        }
+        .dark-mode .star { opacity: 1; }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-30px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        @media (max-width: 900px) {
+            .hero { max-width: 95vw; margin: 40px 2vw 0 2vw; }
+            .nav { padding: 24px 10px 0 10px; }
         }
     </style>
 </head>
 <body>
-    <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
-        <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+    <div style="position: absolute; left: 32px; top: 24px; z-index: 10; font-size: 2rem; font-weight: bold; color: #2193b0; letter-spacing: 2px; font-family: 'Segoe UI', Arial, sans-serif;">
+        ShipLink
     </div>
-    <div class="header">
-        <h1>FreightFlow</h1>
-        <div class="auth-links">
-            {% if user.is_authenticated %}
-                <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
-                <a href="{% url 'logistics:logout' %}" class="logout">Logout</a>
-            {% else %}
-                <a href="{% url 'logistics:login' %}">Login</a>
-                <a href="{% url 'logistics:register' %}">Register</a>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- Hero/Header Card -->
-        <div style="display:flex; align-items:center; gap:24px; background: linear-gradient(90deg,#3498db 0%,#8fd3f4 100%); color:#fff; border-radius:18px; padding:32px 36px; margin-bottom:36px; box-shadow:0 4px 24px rgba(52,152,219,0.10);">
-            <div style="width:80px; height:80px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:2.7rem; font-weight:bold; color:#3498db; box-shadow:0 2px 8px rgba(52,152,219,0.10);">
-                🏠
-            </div>
-            <div style="flex:1;">
-                <div style="font-size:2rem; font-weight:bold; letter-spacing:1px;">Welcome to FreightFlow</div>
-                <div style="margin-top:8px; font-size:1.1rem;">Your comprehensive logistics and freight management platform. Explore jobs, manage shipments, and more!</div>
-            </div>
-        </div>
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
         {% if user.is_authenticated %}
-        <div class="welcome-banner">Welcome, <strong>{{ user.username }}</strong>!</div>
+            <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
+            <a href="{% url 'logistics:logout' %}">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
         {% endif %}
-        <h1>Welcome to FreightFlow</h1>
-        <p>Your comprehensive logistics and freight management platform. Connect with reliable carriers and find the perfect shipping solutions for your cargo.</p>
-        
-        <a href="{% url 'logistics:job_list' %}" class="cta-button">Browse Available Jobs</a>
-        {% if user.is_authenticated and not user.is_staff %}
-        <a href="{% url 'logistics:request_job' %}" class="cta-button" style="background-color:#27ae60; margin-left: 10px;">Request a Job</a>
-        {% endif %}
-        
-        <div class="features">
-            <div class="feature">
-                <h3>Find Jobs</h3>
-                <p>Browse through available freight jobs from various locations and cargo types.</p>
-            </div>
-            <div class="feature">
-                <h3>Post Jobs</h3>
-                <p>Create job postings to find the right carrier for your shipping needs.</p>
-            </div>
-            <div class="feature">
-                <h3>Save Favorites</h3>
-                <p>Save interesting jobs for later review and easy access.</p>
-            </div>
+        <button class="dark-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
+    </div>
+    <div class="hero">
+        <h1>Logistics + Job Matching</h1>
+        <p>Find the perfect job or delivery with our smart matching platform. Fast, reliable, and designed for modern logistics professionals and companies.</p>
+        <button class="cta-btn" onclick="window.location.href='{% url 'logistics:job_list' %}'">Get Started</button>
+    </div>
+    <div class="features" style="display:flex;justify-content:space-around;margin:48px auto 0 auto;max-width:900px;flex-wrap:wrap;gap:24px;z-index:2;position:relative;">
+        <div class="feature" style="flex:1;min-width:220px;margin:10px;padding:24px 20px;background:#ecf0f1;border-radius:12px;box-shadow:0 2px 10px rgba(20,30,40,0.08);">
+            <h3 style="color:#2c3e50;margin-bottom:10px;">Find Jobs</h3>
+            <p style="color:#2563a6;">Browse through available freight jobs from various locations and cargo types.</p>
+        </div>
+        <div class="feature" style="flex:1;min-width:220px;margin:10px;padding:24px 20px;background:#ecf0f1;border-radius:12px;box-shadow:0 2px 10px rgba(20,30,40,0.08);">
+            <h3 style="color:#2c3e50;margin-bottom:10px;">Post Jobs</h3>
+            <p style="color:#2563a6;">Create job postings to find the right carrier for your shipping needs.</p>
+        </div>
+        <div class="feature" style="flex:1;min-width:220px;margin:10px;padding:24px 20px;background:#ecf0f1;border-radius:12px;box-shadow:0 2px 10px rgba(20,30,40,0.08);">
+            <h3 style="color:#2c3e50;margin-bottom:10px;">Like Jobs</h3>
+            <p style="color:#2563a6;">Like interesting jobs to keep track of your favorites and get recommendations.</p>
         </div>
     </div>
+    <!-- SVG/PNG Illustrations for trucks, boxes, and abstract shapes -->
+    <svg class="bg-illustration" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Sun (day mode) -->
+        <circle class="sun" cx="1450" cy="120" r="70" fill="#ffe066"/>
+        <!-- Moon (night mode) -->
+        <g class="moon">
+            <circle cx="1450" cy="120" r="60" fill="#f4f6fb"/>
+            <circle cx="1470" cy="110" r="12" fill="#e0e3ef"/>
+            <circle cx="1430" cy="140" r="8" fill="#e0e3ef"/>
+            <circle cx="1460" cy="150" r="6" fill="#e0e3ef"/>
+        </g>
+        <!-- Clouds (day only) -->
+        <ellipse class="cloud floating" cx="350" cy="120" rx="70" ry="28" fill="#fff"/>
+        <ellipse class="cloud floating2" cx="1200" cy="180" rx="50" ry="20" fill="#fff"/>
+        <ellipse class="cloud floating3" cx="900" cy="90" rx="40" ry="16" fill="#fff"/>
+        <!-- Abstract shapes -->
+        <ellipse cx="300" cy="200" rx="180" ry="90" fill="#fff" fill-opacity="0.18"/>
+        <ellipse cx="1400" cy="150" rx="120" ry="80" fill="#fff" fill-opacity="0.13"/>
+        <ellipse cx="1200" cy="700" rx="200" ry="100" fill="#fff" fill-opacity="0.10"/>
+        <ellipse cx="200" cy="800" rx="120" ry="60" fill="#fff" fill-opacity="0.10"/>
+        <!-- Floating boxes (more added) -->
+        <rect class="floating" x="400" y="300" width="48" height="48" rx="8" fill="#ffd166"/>
+        <rect class="floating floating2" x="900" y="200" width="32" height="32" rx="6" fill="#f6c90e"/>
+        <rect class="floating floating3" x="1300" y="400" width="40" height="40" rx="7" fill="#f9d923"/>
+        <rect class="floating" x="600" y="500" width="36" height="36" rx="7" fill="#f7b267"/>
+        <rect class="floating floating2" x="1100" y="300" width="28" height="28" rx="6" fill="#f6c90e"/>
+        <rect class="floating floating3" x="200" y="600" width="30" height="30" rx="6" fill="#ffd166"/>
+        <!-- Truck (left) -->
+        <g class="floating" style="animation-delay:1s;">
+            <rect x="250" y="600" width="120" height="36" rx="8" fill="#ffb703"/>
+            <rect x="370" y="610" width="40" height="26" rx="6" fill="#2193b0"/>
+            <circle cx="270" cy="640" r="12" fill="#222"/>
+            <circle cx="390" cy="640" r="12" fill="#222"/>
+        </g>
+        <!-- Truck (right) -->
+        <g class="floating floating2" style="animation-delay:2.5s;">
+            <rect x="1100" y="700" width="120" height="36" rx="8" fill="#ffb703"/>
+            <rect x="1220" y="710" width="40" height="26" rx="6" fill="#2193b0"/>
+            <circle cx="1120" cy="740" r="12" fill="#222"/>
+            <circle cx="1240" cy="740" r="12" fill="#222"/>
+        </g>
+        <!-- Big box center -->
+        <rect class="floating floating3" x="750" y="500" width="80" height="80" rx="14" fill="#f72585"/>
+        <!-- Dotted road -->
+        <path d="M 300 700 Q 800 400 1300 700" stroke="#fff" stroke-width="6" stroke-dasharray="30 18" fill="none" opacity="0.5"/>
+        <!-- Stars (night only) -->
+        <circle class="star floating" cx="200" cy="100" r="3" fill="#fff"/>
+        <circle class="star floating2" cx="600" cy="80" r="2.5" fill="#ffe066"/>
+        <circle class="star floating3" cx="1000" cy="60" r="2.8" fill="#fff"/>
+        <circle class="star floating" cx="1400" cy="200" r="2.2" fill="#ffe066"/>
+        <circle class="star floating2" cx="1200" cy="100" r="2.7" fill="#fff"/>
+        <circle class="star floating3" cx="300" cy="300" r="2.3" fill="#ffe066"/>
+    </svg>
     <script>
-    // Persistent dark mode toggle for all pages, fallback to system preference on logout
     function setDarkMode(on) {
         if(on) {
-            document.body.classList.add('dark-mode');
-            document.body.style.background = '#222';
-            document.querySelectorAll('.container, main, .main-content, .welcome, .links, .card').forEach(function(el){
-                el.style.background = '#181818';
-                el.style.color = '#eee';
-            });
+            document.documentElement.classList.add('dark-mode');
+            localStorage.setItem('darkMode', 'on');
         } else {
-            document.body.classList.remove('dark-mode');
-            document.body.style.background = '#f5f5f5';
-            document.querySelectorAll('.container, main, .main-content, .welcome, .links, .card').forEach(function(el){
-                el.style.background = '';
-                el.style.color = '';
-            });
+            document.documentElement.classList.remove('dark-mode');
+            localStorage.setItem('darkMode', 'off');
         }
     }
     function getDarkMode() {
         const pref = localStorage.getItem('darkMode');
         if (pref === null) {
-            // No preference, use system
             return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         }
         return pref === 'on';
     }
     document.getElementById('darkModeToggle').onclick = function() {
         const on = !getDarkMode();
-        localStorage.setItem('darkMode', on ? 'on' : 'off');
         setDarkMode(on);
+        this.textContent = on ? '☀️' : '🌙';
     };
     // On page load
     setDarkMode(getDarkMode());
-    // On logout, clear darkMode preference
-    document.querySelectorAll('.logout').forEach(function(logoutLink) {
-        logoutLink.addEventListener('click', function() {
-            localStorage.removeItem('darkMode');
-        });
-    });
+    document.getElementById('darkModeToggle').textContent = getDarkMode() ? '☀️' : '🌙';
     </script>
 </body>
 </html> 

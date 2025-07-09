@@ -3,254 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreightFlow - Job Details</title>
+    <title>ShipLink - Job Details</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #181a2a 0%, #232946 100%);
+            transition: background 0.5s;
         }
-        .header {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            text-align: center;
+        .nav {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 32px 48px 0 48px;
         }
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
+        .nav a, .nav button {
+            margin-left: 24px;
+            background: none;
+            border: 2px solid #ffe066;
+            color: #ffe066;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav a:hover, .nav button:hover {
+            background: #ffe066;
+            color: #232946;
+        }
+        .dark-toggle {
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 16px;
+            color: #ffe066;
+            transition: color 0.2s;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 80vh;
         }
         .back-link {
-            color: #3498db;
+            color: #ffe066;
             text-decoration: none;
             font-weight: bold;
+            margin: 32px 0 0 0;
+            align-self: flex-start;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .back-link:hover {
             text-decoration: underline;
         }
         .job-detail-card {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: #232946;
+            color: #fff;
+            padding: 36px 36px 28px 36px;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(52,152,219,0.10);
+            max-width: 540px;
+            width: 95vw;
+            margin: 32px auto 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
         }
         .job-title {
-            color: #2c3e50;
-            font-size: 28px;
+            color: #ffe066;
+            font-size: 2rem;
             font-weight: bold;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-        }
-        .route-section {
-            background-color: #ecf0f1;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 2px;
+            letter-spacing: 0.5px;
         }
         .route-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
+            font-size: 1.1rem;
+            color: #8fd3f4;
+            font-weight: 500;
+            margin-bottom: 18px;
+        }
+        .section {
+            margin-bottom: 18px;
+        }
+        .section-title {
+            color: #ffe066;
+            font-size: 1.1rem;
             font-weight: bold;
-            color: #2c3e50;
+            margin-bottom: 4px;
+            margin-top: 18px;
+            letter-spacing: 0.5px;
         }
-        .route-arrow {
-            margin: 0 20px;
-            color: #3498db;
-            font-size: 24px;
-        }
-        .detail-section {
-            margin-bottom: 25px;
-        }
-        .detail-label {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-            font-size: 16px;
-        }
-        .detail-value {
-            color: #555;
-            font-size: 16px;
+        .section-content {
+            color: #f5f6fa;
+            font-size: 1rem;
             line-height: 1.6;
         }
-        .cargo-badge {
-            background-color: #3498db;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 5px;
-        }
-        .description-box {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #3498db;
-        }
         .meta-info {
-            background-color: #ecf0f1;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #7f8c8d;
+            color: #8fd3f4;
+            font-size: 0.95rem;
+            margin-bottom: 18px;
         }
         .action-buttons {
-            margin-top: 30px;
-            text-align: center;
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
         }
-        .save-btn {
-            background-color: #27ae60;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
+        .save-btn, .like-btn, .login-prompt {
+            border-radius: 7px;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            transition: background-color 0.3s;
-        }
-        .save-btn:hover {
-            background-color: #229954;
-        }
-        .save-btn.saved {
-            background-color: #7f8c8d;
-        }
-        .save-btn.saved:hover {
-            background-color: #6c7b7d;
-        }
-        .like-btn {
-            background-color: #e74c3c;
-            color: white;
+            transition: background 0.3s, color 0.3s;
             padding: 12px 24px;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background-color 0.3s;
         }
-        .like-btn:hover {
-            background-color: #c0392b;
-        }
-        .like-btn:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-        }
-        .like-btn.liked {
-            background-color: #e74c3c;
-        }
-        .like-btn.liked:hover {
-            background-color: #c0392b;
-        }
+        .save-btn { background: #3498db; color: #fff; }
+        .save-btn:hover { background: #217dbb; }
+        .save-btn.saved { background: #7f8c8d; }
+        .like-btn { background: #e74c3c; color: #fff; }
+        .like-btn:hover { background: #c0392b; }
+        .like-btn.liked { background: #e74c3c; }
+        .like-btn.liked:hover { background: #c0392b; }
+        .like-btn:disabled { background: #bdc3c7; cursor: not-allowed; }
+        .login-prompt { background: #f39c12; color: #fff; }
+        .login-prompt:hover { background: #e67e22; }
         .like-count {
-            background-color: #ecf0f1;
-            color: #2c3e50;
-            padding: 12px 24px;
-            border-radius: 5px;
-            font-size: 16px;
+            color: #ffe066;
+            font-size: 1rem;
             font-weight: bold;
-            display: inline-block;
+            align-self: center;
         }
-        .login-prompt {
-            background-color: #f39c12;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
+        .description-box {
+            color: #f5f6fa;
+            background: none;
+            border-left: 4px solid #ffe066;
+            padding-left: 12px;
+            margin-top: 4px;
+        }
+        .recommended-section {
+            width: 95vw;
+            max-width: 540px;
+            margin: 40px auto 0 auto;
+        }
+        .recommended-section h3 {
+            color: #ffe066;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+        .recommended-jobs-card {
+            background: #232946;
+            color: #8fd3f4;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            padding: 12px 18px;
+            display: block;
+            border-left: 4px solid #3498db;
+            margin-bottom: 8px;
             text-decoration: none;
-            display: inline-block;
-            transition: background-color 0.3s;
+            transition: box-shadow 0.2s;
         }
-        .login-prompt:hover {
-            background-color: #e67e22;
+        .recommended-jobs-card:hover {
+            box-shadow: 0 4px 16px rgba(52,152,219,0.18);
         }
-        .message {
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .message.info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+        @media (max-width: 700px) {
+            .job-detail-card, .recommended-section { padding: 10px 2vw; }
+            .nav { padding: 12px 4px 0 4px; }
         }
     </style>
-    <style>
-.dark-mode body { background: #181a20 !important; }
-.dark-mode .container { background: #23272f !important; color: #e3e6ed !important; }
-.dark-mode .header { background: #232b36 !important; color: #e3e6ed !important; }
-.dark-mode .job-detail-card { background: #232b36 !important; color: #e3e6ed !important; }
-.dark-mode .job-title { color: #8ab4f8 !important; border-bottom: 2px solid #7ed6a7 !important; }
-.dark-mode .route-section { background: #20232a !important; color: #bfc7d5 !important; }
-.dark-mode .route-section div[style*='color:#2980b9'] { color: #8ab4f8 !important; }
-.dark-mode .route-info { color: #bfc7d5 !important; }
-.dark-mode .route-arrow { color: #8ab4f8 !important; }
-.dark-mode .detail-section { background: #232b36 !important; color: #e3e6ed !important; }
-.dark-mode .detail-label { color: #8ab4f8 !important; }
-.dark-mode .detail-value { color: #bfc7d5 !important; }
-.dark-mode .description-box { background: #20232a !important; color: #e3e6ed !important; border-left: 4px solid #7ed6a7 !important; }
-.dark-mode .meta-info { background: #232b36 !important; color: #bfc7d5 !important; }
-.dark-mode .save-btn, .dark-mode .like-btn { background: #23272f !important; color: #e3e6ed !important; border: none !important; }
-.dark-mode .save-btn:hover, .dark-mode .like-btn:hover { filter: brightness(1.15); color: #8ab4f8 !important; }
-.dark-mode .login-prompt { background: #3a4256 !important; color: #8ab4f8 !important; }
-.dark-mode .message.success { background: #2e7d32 !important; color: #bfc7d5 !important; border: 1px solid #388e3c !important; }
-.dark-mode .message.info { background: #1976d2 !important; color: #bfc7d5 !important; border: 1px solid #1565c0 !important; }
-.dark-mode .recommended-section h3 { color: #8ab4f8 !important; }
-.dark-mode .recommended-jobs-card { background: #232b36 !important; color: #e3e6ed !important; border-left: 4px solid #7ed6a7 !important; box-shadow: 0 2px 8px rgba(20,30,40,0.18); }
-.dark-mode .recommended-jobs-card:hover { box-shadow: 0 4px 16px rgba(20,30,40,0.22); }
-</style>
 </head>
 <body>
-    <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
-        <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+    <div style="position: absolute; left: 32px; top: 24px; z-index: 10; font-size: 2rem; font-weight: bold; color: #2193b0; letter-spacing: 2px; font-family: 'Segoe UI', Arial, sans-serif;">
+        ShipLink
+    </div>
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/about/">About</a>
+        <a href="/contact/">Contact</a>
+        <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'logistics:logout' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'logistics:login' %}">Login</a>
+            <a href="{% url 'logistics:register' %}">Register</a>
+        {% endif %}
+        <button class="dark-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
     </div>
     <div class="container">
-        <!-- Hero/Header Card -->
-        <div style="display:flex; align-items:center; gap:24px; background: linear-gradient(90deg,#3498db 0%,#8fd3f4 100%); color:#fff; border-radius:18px; padding:32px 36px; margin-bottom:36px; box-shadow:0 4px 24px rgba(52,152,219,0.10);">
-            <div style="width:80px; height:80px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:2.7rem; font-weight:bold; color:#3498db; box-shadow:0 2px 8px rgba(52,152,219,0.10);">
-                📦
-            </div>
-            <div style="flex:1;">
-                <div style="font-size:2rem; font-weight:bold; letter-spacing:1px;">Job Details</div>
-                <div style="margin-top:8px; font-size:1.1rem;">See all the details and actions for this job post below.</div>
-            </div>
-        </div>
-        {% if user.is_authenticated and user.is_staff %}
-        <a href="{% url 'logistics:admin_dashboard' %}" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; text-decoration:none; display:inline-block;">← Back to Staff Dashboard</a>
-        {% elif user.is_authenticated %}
-        <a href="{% url 'logistics:dashboard' %}" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; text-decoration:none; display:inline-block;">← Back to Dashboard</a>
-        {% else %}
-        <a href="{% url 'logistics:home' %}" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; text-decoration:none; display:inline-block;">← Back to Home</a>
-        {% endif %}
-        <div class="header">
-            <h1>Job Details</h1>
-            <a href="{% url 'logistics:job_list' %}" class="back-link">← Back to Job List</a>
-        </div>
-
+        <a href="{% url 'logistics:job_list' %}" class="back-link">← Back to Job List</a>
         {% if messages %}
             {% for message in messages %}
                 <div class="message {% if message.tags == 'success' %}success{% elif message.tags == 'info' %}info{% endif %}">
@@ -258,134 +207,111 @@
                 </div>
             {% endfor %}
         {% endif %}
-
         {% if job %}
-            <div class="job-detail-card">
-                <div class="job-title">{{ job.title }}</div>
-
-                <div class="route-section" style="background:#f0f4fa; border-radius:8px; padding:16px 20px; margin-bottom:18px;">
-                    <div style="font-weight:bold; font-size:18px; color:#2980b9; margin-bottom:6px;">Route</div>
-                    <div class="route-info">
-                        <span>{{ job.origin }}</span>
-                        <span class="route-arrow">→</span>
-                        <span>{{ job.destination }}</span>
-                    </div>
-                </div>
-                <div class="detail-section" style="background:#f8f9fa; border-radius:8px; padding:14px 18px; margin-bottom:14px;">
-                    <div class="detail-label" style="color:#2c3e50; font-size:16px; margin-bottom:4px;">Pickup</div>
-                    <div class="detail-value">
-                        <b>City:</b> {{ job.origin }}<br>
-                        <b>Address:</b> {{ job.origin_address|default:'—' }}<br>
-                        <b>ZIP:</b> {{ job.origin_zip|default:'—' }}<br>
-                        <b>Date:</b> {{ job.pickup_date|default:'—' }}<br>
-                        <b>Time Window:</b> {{ job.pickup_time_from|default:'—' }}
-                    </div>
-                </div>
-                <div class="detail-section" style="background:#f8f9fa; border-radius:8px; padding:14px 18px; margin-bottom:14px;">
-                    <div class="detail-label" style="color:#2c3e50; font-size:16px; margin-bottom:4px;">Dropoff</div>
-                    <div class="detail-value">
-                        <b>City:</b> {{ job.destination }}<br>
-                        <b>Address:</b> {{ job.destination_address|default:'—' }}<br>
-                        <b>ZIP:</b> {{ job.destination_zip|default:'—' }}<br>
-                        <b>Time Window:</b> {{ job.pickup_time_to|default:'—' }}<br>
-                        <b>Deadline:</b> {{ job.delivery_deadline|default:'—' }}
-                    </div>
-                </div>
-                <div class="detail-section" style="background:#f8f9fa; border-radius:8px; padding:14px 18px; margin-bottom:14px;">
-                    <div class="detail-label" style="color:#2c3e50; font-size:16px; margin-bottom:4px;">Cargo</div>
-                    <div class="detail-value">
-                        <b>Type:</b> {{ job.cargo_type.name }}<br>
-                        <b>Weight:</b> {{ job.weight_kg|default:'—' }} kg<br>
-                        <b>Dimensions:</b> {{ job.length_cm|default:'—' }} × {{ job.width_cm|default:'—' }} × {{ job.height_cm|default:'—' }} cm<br>
-                        <b>Volume:</b> {{ job.volume_m3|default:'—' }} m³<br>
-                        <b>Special Requirements:</b> {{ job.special_requirements|default:'—' }}<br>
-                        <b>Declared Value:</b> {{ job.declared_value|default:'—' }}<br>
-                        <b>Reference Code:</b> {{ job.reference_code|default:'—' }}
-                    </div>
-                </div>
-                <div class="detail-section" style="background:#f8f9fa; border-radius:8px; padding:14px 18px; margin-bottom:14px;">
-                    <div class="detail-label" style="color:#2c3e50; font-size:16px; margin-bottom:4px;">Description</div>
-                    <div class="description-box" style="background:#fff; border-left:4px solid #3498db;">
-                        {{ job.description|linebreaks }}
-                    </div>
-                </div>
-                
-                <div class="meta-info">
-                    <strong>Posted by:</strong> {{ job.created_by.username }}<br>
-                    <strong>Posted on:</strong> {{ job.created_at|date:"F j, Y" }}
-                </div>
-
-                <div class="action-buttons">
-                    {% if user.is_authenticated %}
-                        {% if user.is_staff %}
-                            {% if not job.hidden %}
-                            <form method="post" action="{% url 'logistics:hide_job' job.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="save-btn" style="background-color:#7f8c8d;">🙈 Hide Job</button>
-                            </form>
-                            {% else %}
-                            <form method="post" action="{% url 'logistics:unhide_job' job.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="save-btn" style="background-color:#27ae60;">👁️ Unhide Job</button>
-                            </form>
-                            {% endif %}
-                            <form method="post" action="{% url 'logistics:flag_job' job.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <input type="text" name="reason" placeholder="Flag reason..." required style="padding:6px; border-radius:4px; border:1px solid #ccc; margin-right:6px;">
-                                <button type="submit" class="like-btn" style="background-color:#f39c12;">🚩 Flag Job</button>
-                            </form>
-                            {% if job.flags.all %}
-                            <div style="margin-top:20px; text-align:left;">
-                                <strong>Flag History:</strong>
-                                <ul>
-                                    {% for flag in job.flags.all %}
-                                    <li>{{ flag.created_at|date:"M j, Y H:i" }} by {{ flag.flagged_by.username }}: {{ flag.reason }} ({{ flag.get_status_display }})</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                            {% endif %}
+        <div class="job-detail-card">
+            <div class="job-title">{{ job.title }}</div>
+            <div class="route-info">{{ job.origin }} <span style="color:#ffe066; font-size:1.2rem;">→</span> {{ job.destination }}</div>
+            <div class="meta-info">
+                Posted by: <b>{{ job.created_by.username }}</b> &nbsp;|&nbsp; {{ job.created_at|date:"F j, Y" }}
+            </div>
+            <div class="action-buttons">
+                {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                        {% if not job.hidden %}
+                        <form method="post" action="{% url 'logistics:hide_job' job.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="save-btn" style="background-color:#7f8c8d;">🙈 Hide</button>
+                        </form>
                         {% else %}
-                            {% if booked %}
-                                <span class="save-btn saved" style="background:#7f8c8d;">✓ You've booked this job</span>
-                            {% else %}
-                                <a href="{% url 'logistics:book_job' job.id %}" class="save-btn" style="background:#2980b9;">📦 Book this Job</a>
-                            {% endif %}
-                            {% if is_liked %}
-                                <button class="like-btn liked" onclick="likeJob({{ job.id }})">❤️ Liked</button>
-                            {% else %}
-                                <button class="like-btn" onclick="likeJob({{ job.id }})">🤍 Like</button>
-                            {% endif %}
+                        <form method="post" action="{% url 'logistics:unhide_job' job.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="save-btn" style="background-color:#27ae60;">👁️ Unhide</button>
+                        </form>
                         {% endif %}
+                        <form method="post" action="{% url 'logistics:flag_job' job.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="text" name="reason" placeholder="Flag reason..." required style="padding:6px; border-radius:4px; border:1px solid #ccc; margin-right:6px;">
+                            <button type="submit" class="like-btn" style="background-color:#f39c12;">🚩 Flag</button>
+                        </form>
                     {% else %}
-                        <a href="{% url 'logistics:login' %}" class="login-prompt">🔐 Login to Save Job</a>
-                        <a href="{% url 'logistics:login' %}" class="login-prompt">🔐 Login to Like</a>
+                        {% if booked %}
+                            <span class="save-btn saved" style="background:#7f8c8d;">✓ Booked</span>
+                        {% else %}
+                            <a href="{% url 'logistics:book_job' job.id %}" class="save-btn">📦 Book</a>
+                        {% endif %}
+                        {% if is_liked %}
+                            <button class="like-btn liked" onclick="likeJob({{ job.id }})">❤️ Liked</button>
+                        {% else %}
+                            <button class="like-btn" onclick="likeJob({{ job.id }})">🤍 Like</button>
+                        {% endif %}
                     {% endif %}
-                    <div class="like-count">❤️ <span id="like-count">{{ like_count }}</span> likes</div>
+                {% else %}
+                    <a href="{% url 'logistics:login' %}" class="login-prompt">🔐 Login to Book</a>
+                    <a href="{% url 'logistics:login' %}" class="login-prompt">🔐 Login to Like</a>
+                {% endif %}
+                <div class="like-count">❤️ <span id="like-count">{{ like_count }}</span></div>
+            </div>
+            <div class="section">
+                <div class="section-title">Pickup</div>
+                <div class="section-content">
+                    <b>City:</b> {{ job.origin }}<br>
+                    <b>Address:</b> {{ job.origin_address|default:'—' }}<br>
+                    <b>ZIP:</b> {{ job.origin_zip|default:'—' }}<br>
+                    <b>Date:</b> {{ job.pickup_date|default:'—' }}<br>
+                    <b>Time Window:</b> {{ job.pickup_time_from|default:'—' }}
                 </div>
             </div>
-
-            <!-- Recommended Jobs Section -->
-            <div style="margin-top:40px;" class="recommended-section">
-                <h3 style="color:#2980b9;">You might also like</h3>
-                {% if recommended_jobs and recommended_jobs|length > 0 %}
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:18px; margin-top:18px;">
-                        {% for rec in recommended_jobs %}
-                            <a href="{% url 'logistics:job_detail' rec.id %}" class="recommended-jobs-card" style="text-decoration:none; color:inherit; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.07); padding:18px; display:block; transition:box-shadow 0.2s; border-left:4px solid #3498db;">
-                                <div style="font-weight:bold; font-size:18px; margin-bottom:8px; color:#2c3e50;">{{ rec.title }}</div>
-                                <div style="color:#555; font-size:15px; margin-bottom:4px;">
-                                    <span>{{ rec.origin }}</span>
-                                    <span style="color:#3498db; font-weight:bold; margin:0 8px;">→</span>
-                                    <span>{{ rec.destination }}</span>
-                                </div>
-                                <div style="font-size:13px; color:#888;">{{ rec.created_at|date:"M j, Y" }}</div>
-                            </a>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div style="margin-top:16px; color:#888; font-size:16px;">No related jobs found.</div>
-                {% endif %}
+            <div class="section">
+                <div class="section-title">Dropoff</div>
+                <div class="section-content">
+                    <b>City:</b> {{ job.destination }}<br>
+                    <b>Address:</b> {{ job.destination_address|default:'—' }}<br>
+                    <b>ZIP:</b> {{ job.destination_zip|default:'—' }}<br>
+                    <b>Time Window:</b> {{ job.pickup_time_to|default:'—' }}<br>
+                    <b>Deadline:</b> {{ job.delivery_deadline|default:'—' }}
+                </div>
             </div>
-            <!-- End Recommended Jobs Section -->
+            <div class="section">
+                <div class="section-title">Cargo</div>
+                <div class="section-content">
+                    <b>Type:</b> {{ job.cargo_type.name }}<br>
+                    <b>Weight:</b> {{ job.weight_kg|default:'—' }} kg<br>
+                    <b>Dimensions:</b> {{ job.length_cm|default:'—' }} × {{ job.width_cm|default:'—' }} × {{ job.height_cm|default:'—' }} cm<br>
+                    <b>Volume:</b> {{ job.volume_m3|default:'—' }} m³<br>
+                    <b>Special Requirements:</b> {{ job.special_requirements|default:'—' }}<br>
+                    <b>Declared Value:</b> {{ job.declared_value|default:'—' }}<br>
+                    <b>Reference Code:</b> {{ job.reference_code|default:'—' }}
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Description</div>
+                <div class="description-box">
+                    {{ job.description|linebreaks }}
+                </div>
+            </div>
+        </div>
+        <!-- Recommended Jobs Section -->
+        <div class="recommended-section">
+            <h3>You might also like</h3>
+            {% if recommended_jobs and recommended_jobs|length > 0 %}
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-top:8px;">
+                    {% for rec in recommended_jobs %}
+                        <a href="{% url 'logistics:job_detail' rec.id %}" class="recommended-jobs-card">
+                            <div style="font-weight:bold; font-size:1.08rem; margin-bottom:4px; color:#ffe066;">{{ rec.title }}</div>
+                            <div style="color:#8fd3f4; font-size:0.98rem; margin-bottom:2px;">
+                                <span>{{ rec.origin }}</span>
+                                <span style="color:#ffe066; font-weight:bold; margin:0 8px;">→</span>
+                                <span>{{ rec.destination }}</span>
+                            </div>
+                            <div style="font-size:0.92rem; color:#aaa;">{{ rec.created_at|date:"M j, Y" }}</div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="margin-top:8px; color:#888; font-size:0.98rem;">No related jobs found.</div>
+            {% endif %}
+        </div>
+        <!-- End Recommended Jobs Section -->
         {% else %}
             <div class="job-detail-card">
                 <h2>Job not found</h2>
@@ -393,7 +319,6 @@
             </div>
         {% endif %}
     </div>
-
     <script>
         function getCookie(name) {
             let cookieValue = null;
@@ -409,14 +334,10 @@
             }
             return cookieValue;
         }
-
         function likeJob(jobId) {
             const likeBtn = $('.like-btn');
             const likeCount = $('#like-count');
-            
-            // Disable button to prevent multiple clicks
             likeBtn.prop('disabled', true);
-            
             $.ajax({
                 url: '/jobs/' + jobId + '/like/',
                 type: 'POST',
@@ -425,10 +346,7 @@
                 },
                 success: function(data) {
                     if (data.success) {
-                        // Update like count
                         likeCount.text(data.likes);
-                        
-                        // Update button appearance based on action
                         if (data.action === 'liked') {
                             likeBtn.text('❤️ Liked');
                             likeBtn.addClass('liked');
@@ -436,8 +354,6 @@
                             likeBtn.text('🤍 Like');
                             likeBtn.removeClass('liked');
                         }
-                        
-                        // Re-enable button after a short delay
                         setTimeout(function() {
                             likeBtn.prop('disabled', false);
                         }, 500);
@@ -452,47 +368,28 @@
         }
     </script>
     <script>
-// Persistent dark mode toggle for all pages, fallback to system preference on logout
-function setDarkMode(on) {
-    if(on) {
-        document.body.classList.add('dark-mode');
-        document.body.style.background = '#222';
-        document.querySelectorAll('.container, .header, .job-detail-card, .route-section, .detail-section, .description-box, .meta-info').forEach(function(el){
-            el.style.background = '';
-            el.style.color = '';
-        });
-    } else {
-        document.body.classList.remove('dark-mode');
-        document.body.style.background = '#f5f5f5';
-        document.querySelectorAll('.container, .header, .job-detail-card, .route-section, .detail-section, .description-box, .meta-info').forEach(function(el){
-            el.style.background = '';
-            el.style.color = '';
-        });
+    function setDarkMode(on) {
+        if(on) {
+            document.body.classList.add('dark-mode');
+            document.getElementById('darkModeToggle').textContent = '☀️';
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.getElementById('darkModeToggle').textContent = '🌙';
+        }
     }
-}
-function getDarkMode() {
-    const pref = localStorage.getItem('darkMode');
-    if (pref === null) {
-        // No preference, use system
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    function getDarkMode() {
+        const pref = localStorage.getItem('darkMode');
+        if (pref === null) {
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        return pref === 'on';
     }
-    return pref === 'on';
-}
-document.getElementById('darkModeToggle').onclick = function() {
-    const on = !getDarkMode();
-    localStorage.setItem('darkMode', on ? 'on' : 'off');
-    setDarkMode(on);
-};
-// On page load
-setDarkMode(getDarkMode());
-// On logout, clear darkMode preference
-if (document.querySelectorAll('.logout').length) {
-    document.querySelectorAll('.logout').forEach(function(logoutLink) {
-        logoutLink.addEventListener('click', function() {
-            localStorage.removeItem('darkMode');
-        });
-    });
-}
-</script>
+    document.getElementById('darkModeToggle').onclick = function() {
+        const on = !getDarkMode();
+        localStorage.setItem('darkMode', on ? 'on' : 'off');
+        setDarkMode(on);
+    };
+    setDarkMode(getDarkMode());
+    </script>
 </body>
 </html> 

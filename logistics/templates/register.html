@@ -3,77 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreightFlow - Register</title>
+    <title>ShipLink - Register</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+            transition: background 0.5s;
+        }
+        .dark-mode body, body.dark-mode {
+            background: linear-gradient(135deg, #232946 0%, #1a1a2e 100%) !important;
+        }
+        .nav {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 32px 48px 0 48px;
+        }
+        .nav a, .nav button {
+            margin-left: 24px;
+            background: none;
+            border: 2px solid #ffe066;
+            color: #ffe066;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav a:hover, .nav button:hover {
+            background: #ffe066;
+            color: #232946;
+        }
+        .dark-toggle {
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 16px;
+            color: #ffe066;
+            transition: color 0.2s;
         }
         .container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: #fff;
+            max-width: 420px;
+            margin: 64px auto 0 auto;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(52,152,219,0.10);
+            padding: 48px 36px 36px 36px;
+            position: relative;
+        }
+        .dark-mode .container, body.dark-mode .container {
+            background: #232946;
+            color: #ffe066;
+            box-shadow: 0 4px 24px rgba(255,224,102,0.10);
         }
         h1 {
-            color: #2c3e50;
+            color: #3498db;
             margin-bottom: 30px;
             text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .dark-mode h1, body.dark-mode h1 {
+            color: #ffe066;
         }
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
         label {
             display: block;
-            margin-bottom: 5px;
-            color: #2c3e50;
+            margin-bottom: 7px;
+            color: #3498db;
             font-weight: bold;
+        }
+        .dark-mode label, body.dark-mode label {
+            color: #ffe066;
         }
         input[type="text"], input[type="password"], input[type="email"] {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
+            padding: 13px;
+            border: 1.5px solid #ddd;
+            border-radius: 7px;
+            font-size: 1rem;
             box-sizing: border-box;
+            background: #f5f5f5;
+            color: #232946;
+            transition: border 0.2s;
         }
         input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus {
             outline: none;
             border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.2);
+        }
+        .dark-mode input[type="text"], .dark-mode input[type="password"], .dark-mode input[type="email"], body.dark-mode input[type="text"], body.dark-mode input[type="password"], body.dark-mode input[type="email"] {
+            background: #181a2a;
+            color: #ffe066;
+            border: 1.5px solid #ffe066;
         }
         .submit-btn {
             width: 100%;
-            background-color: #3498db;
+            background: #3498db;
             color: white;
             padding: 15px;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 7px;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s;
-            display: block;
-            text-align: center;
+            transition: background 0.3s;
             margin-bottom: 16px;
         }
         .submit-btn:hover {
-            background-color: #2980b9;
+            background: #1565c0;
         }
         .submit-btn.gray {
-            background-color: #7f8c8d;
+            background: #7f8c8d;
         }
         .submit-btn.gray:hover {
-            background-color: #636e72;
+            background: #636e72;
         }
         .submit-btn.green {
-            background-color: #27ae60;
+            background: #27ae60;
         }
         .submit-btn.green:hover {
-            background-color: #219150;
+            background: #219150;
         }
         .login-link {
             text-align: center;
@@ -111,12 +166,31 @@
             font-size: 12px;
             margin-top: 5px;
         }
+        @media (max-width: 600px) {
+            .container { padding: 24px 8px; }
+            .nav { padding: 18px 8px 0 8px; }
+        }
     </style>
 </head>
 <body>
+    <div style="position: absolute; left: 32px; top: 24px; z-index: 10; font-size: 2rem; font-weight: bold; color: #2193b0; letter-spacing: 2px; font-family: 'Segoe UI', Arial, sans-serif;">
+        ShipLink
+    </div>
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/about/">About</a>
+        <a href="/contact/">Contact</a>
+        <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'logistics:logout' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'logistics:login' %}">Login</a>
+            <a href="{% url 'logistics:register' %}">Register</a>
+        {% endif %}
+        <button class="dark-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
+    </div>
     <div class="container">
         <h1>Create Account</h1>
-        
         {% if messages %}
             {% for message in messages %}
                 <div class="{% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}">
@@ -124,10 +198,8 @@
                 </div>
             {% endfor %}
         {% endif %}
-        
         <form method="post">
             {% csrf_token %}
-            
             <div class="form-group">
                 <label for="{{ form.username.id_for_label }}">Username:</label>
                 {{ form.username }}
@@ -138,7 +210,6 @@
                     <div class="help-text">{{ form.username.help_text }}</div>
                 {% endif %}
             </div>
-
             <div class="form-group">
                 <label for="{{ form.first_name.id_for_label }}">First Name:</label>
                 {{ form.first_name }}
@@ -146,7 +217,6 @@
                     <div class="field-error">{{ form.first_name.errors.0 }}</div>
                 {% endif %}
             </div>
-
             <div class="form-group">
                 <label for="{{ form.last_name.id_for_label }}">Last Name:</label>
                 {{ form.last_name }}
@@ -154,7 +224,6 @@
                     <div class="field-error">{{ form.last_name.errors.0 }}</div>
                 {% endif %}
             </div>
-
             <div class="form-group">
                 <label for="{{ form.email.id_for_label }}">Email Address:</label>
                 {{ form.email }}
@@ -162,7 +231,6 @@
                     <div class="field-error">{{ form.email.errors.0 }}</div>
                 {% endif %}
             </div>
-
             <div class="form-group">
                 <label for="{{ form.password1.id_for_label }}">Password:</label>
                 {{ form.password1 }}
@@ -173,7 +241,6 @@
                     <div class="help-text">{{ form.password1.help_text }}</div>
                 {% endif %}
             </div>
-            
             <div class="form-group">
                 <label for="{{ form.password2.id_for_label }}">Confirm Password:</label>
                 {{ form.password2 }}
@@ -184,11 +251,35 @@
                     <div class="help-text">{{ form.password2.help_text }}</div>
                 {% endif %}
             </div>
-            
             <button type="submit" class="submit-btn">Create Account</button>
             <button type="button" onclick="window.location='/'" class="submit-btn gray">Continue as Guest</button>
             <button type="button" onclick="window.location='{% url 'logistics:login' %}'" class="submit-btn green">Login here</button>
         </form>
     </div>
+    <script>
+    // Dark mode toggle (persistent)
+    function setDarkMode(on) {
+        if(on) {
+            document.body.classList.add('dark-mode');
+            document.getElementById('darkModeToggle').textContent = '☀️';
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.getElementById('darkModeToggle').textContent = '🌙';
+        }
+    }
+    function getDarkMode() {
+        const pref = localStorage.getItem('darkMode');
+        if (pref === null) {
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        return pref === 'on';
+    }
+    document.getElementById('darkModeToggle').onclick = function() {
+        const on = !getDarkMode();
+        localStorage.setItem('darkMode', on ? 'on' : 'off');
+        setDarkMode(on);
+    };
+    setDarkMode(getDarkMode());
+    </script>
 </body>
 </html> 

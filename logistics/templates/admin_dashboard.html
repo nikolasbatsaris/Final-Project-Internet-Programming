@@ -476,13 +476,17 @@
                     <tr><td colspan="7" style="text-align:center; color:#888;">No live jobs.</td></tr>
                     {% endfor %}
                 </table>
-                <div style="display:flex; justify-content:center; align-items:center; gap:12px; margin:18px 0 32px 0;">
+                <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:16px; width:100%; max-width:100%; margin-top:0; margin-bottom:24px;">
                     {% if live_jobs_page_obj.has_previous %}
-                        <a href="?live_jobs_page={{ live_jobs_page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" class="styled-btn" style="padding:6px 18px; font-size:1.1rem;">← Prev</a>
+                        <a href="?live_jobs_page={{ live_jobs_page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" class="styled-btn pagination-btn">← Prev</a>
+                    {% else %}
+                        <span class="styled-btn pagination-btn" disabled aria-disabled="true">← Prev</span>
                     {% endif %}
-                    <span style="font-weight:bold; color:#2193b0; font-size:1.1rem;">Page {{ live_jobs_page_obj.number }} of {{ live_jobs_page_obj.paginator.num_pages }}</span>
+                    <span class="pagination-info">Page {{ live_jobs_page_obj.number }} of {{ live_jobs_page_obj.paginator.num_pages }}</span>
                     {% if live_jobs_page_obj.has_next %}
-                        <a href="?live_jobs_page={{ live_jobs_page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}" class="styled-btn" style="padding:6px 18px; font-size:1.1rem;">Next →</a>
+                        <a href="?live_jobs_page={{ live_jobs_page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}" class="styled-btn pagination-btn">Next →</a>
+                    {% else %}
+                        <span class="styled-btn pagination-btn" disabled aria-disabled="true">Next →</span>
                     {% endif %}
                 </div>
                 <input type="hidden" name="bulk_action" id="liveJobBulkAction" value="">
@@ -525,10 +529,14 @@
             <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:16px; width:100%; max-width:100%; margin-top:0; margin-bottom:24px;">
                 {% if hidden_jobs_page_obj.has_previous %}
                     <a href="?hidden_jobs_page={{ hidden_jobs_page_obj.previous_page_number }}" class="styled-btn pagination-btn">← Previous</a>
+                {% else %}
+                    <span class="styled-btn pagination-btn" disabled aria-disabled="true">← Previous</span>
                 {% endif %}
                 <span class="pagination-info">Page {{ hidden_jobs_page_obj.number }} of {{ hidden_jobs_paginator.num_pages }}</span>
                 {% if hidden_jobs_page_obj.has_next %}
                     <a href="?hidden_jobs_page={{ hidden_jobs_page_obj.next_page_number }}" class="styled-btn pagination-btn">Next →</a>
+                {% else %}
+                    <span class="styled-btn pagination-btn" disabled aria-disabled="true">Next →</span>
                 {% endif %}
             </div>
             <h2 id="flagged-jobs" class="section-title">Flagged Jobs</h2>
@@ -585,10 +593,14 @@
             <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:16px; width:100%; max-width:100%; margin-top:0; margin-bottom:24px;">
                 {% if flagged_jobs_page_obj.has_previous %}
                     <a href="?flagged_jobs_page={{ flagged_jobs_page_obj.previous_page_number }}" class="styled-btn pagination-btn">← Previous</a>
+                {% else %}
+                    <span class="styled-btn pagination-btn" disabled aria-disabled="true">← Previous</span>
                 {% endif %}
                 <span class="pagination-info">Page {{ flagged_jobs_page_obj.number }} of {{ flagged_jobs_paginator.num_pages }}</span>
                 {% if flagged_jobs_page_obj.has_next %}
                     <a href="?flagged_jobs_page={{ flagged_jobs_page_obj.next_page_number }}" class="styled-btn pagination-btn">Next →</a>
+                {% else %}
+                    <span class="styled-btn pagination-btn" disabled aria-disabled="true">Next →</span>
                 {% endif %}
             </div>
             <h2 id="booked-jobs" class="section-title">Booked Jobs</h2>
@@ -620,10 +632,14 @@
             <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:16px; width:100%; max-width:100%; margin-top:0; margin-bottom:24px;">
                 {% if booked_jobs_page_obj.has_previous %}
                     <a href="?booked_jobs_page={{ booked_jobs_page_obj.previous_page_number }}" class="styled-btn pagination-btn">← Previous</a>
+                {% else %}
+                    <span class="styled-btn pagination-btn" disabled aria-disabled="true">← Previous</span>
                 {% endif %}
                 <span class="pagination-info">Page {{ booked_jobs_page_obj.number }} of {{ booked_jobs_paginator.num_pages }}</span>
                 {% if booked_jobs_page_obj.has_next %}
                     <a href="?booked_jobs_page={{ booked_jobs_page_obj.next_page_number }}" class="styled-btn pagination-btn">Next →</a>
+                {% else %}
+                    <span class="styled-btn pagination-btn" disabled aria-disabled="true">Next →</span>
                 {% endif %}
             </div>
             {% endif %}

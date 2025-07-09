@@ -3,538 +3,938 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreightFlow - Dashboard</title>
+    <title>Dashboard - ShipLink</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%) !important;
+            margin: 0;
+            min-height: 100vh;
+            font-size: 1rem;
         }
-        .header {
+        /* --- NAVBAR STYLES FROM HOME PAGE --- */
+        .nav {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 32px 48px 0 48px;
+        }
+        .nav a, .nav button {
+            margin-left: 24px;
+            background: none;
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+            font-size: 1rem;
+        }
+        .nav a:hover, .nav button:hover {
+            background: #fff;
+            color: #2193b0;
+        }
+        .dark-mode .nav a, .dark-mode .nav button {
+            border: 2px solid #ffe066;
+            color: #ffe066;
+        }
+        .dark-mode .nav a:hover, .dark-mode .nav button:hover {
+            background: #ffe066;
+            color: #232946;
+        }
+        .dark-toggle {
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 16px;
+            color: #fff;
+            transition: color 0.2s;
+        }
+        .dark-mode .dark-toggle {
+            color: #ffe066;
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 48px auto;
+            background: #fff;
+            border-radius: 28px;
+            box-shadow: 0 8px 40px rgba(36, 99, 235, 0.10);
+            padding: 28px 32px 32px 32px;
+        }
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .user-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #3498db;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .user-name {
+            color: #2193b0;
+            font-size: 1.05rem;
+            font-weight: bold;
+        }
+        .dashboard-actions {
+            display: flex;
+            gap: 16px;
+        }
+        .dashboard-actions a {
+            border-radius: 28px;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 10px 24px;
+            text-decoration: none;
+            border: none;
+            transition: background 0.18s, color 0.18s;
+        }
+        .dashboard-actions a:nth-child(1), .dashboard-actions a:nth-child(2) {
+            background: #ffe066;
+            color: #232946;
+        }
+        .dashboard-actions a:nth-child(1):hover, .dashboard-actions a:nth-child(2):hover {
+            background: #fff6b3;
+        }
+        .dashboard-actions a:nth-child(3) {
+            background: #3498db;
+            color: #fff;
+        }
+        .dashboard-actions a:nth-child(3):hover {
+            background: #4fc3f7;
+            color: #232946;
+        }
+        .dashboard-cards {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .dashboard-card {
+            flex: 1;
+            background: #f5f7fa;
+            border-radius: 16px;
+            padding: 28px 24px 24px 24px;
+            color: #232946;
+            min-height: 120px;
+            box-shadow: 0 2px 8px rgba(36,99,235,0.06);
+        }
+        .dashboard-card h3 {
+            color: #2193b0;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+        .dashboard-card p {
+            color: #6c7a89;
+            margin: 0;
+        }
+        @media (max-width: 900px) {
+            .dashboard-container { padding: 18px 4vw 32px 4vw; }
+            .dashboard-header { flex-direction: column; align-items: flex-start; gap: 18px; }
+            .dashboard-cards { flex-direction: column; gap: 18px; }
+        }
+        /* --- DARK MODE OVERRIDES --- */
+        html.dark-mode body {
+            background: linear-gradient(135deg, #181a2a 0%, #232946 100%) !important;
+        }
+        .dark-mode .dashboard-container {
+            background: #232946;
+        }
+        .dark-mode .dashboard-card {
+            background: #181d2f;
+            color: #fff;
+        }
+        .dark-mode .dashboard-card h3 {
+            color: #4fc3f7;
+        }
+        .dark-mode .dashboard-card p {
+            color: #b0b8d1;
+        }
+        .dark-mode .user-name {
+            color: #4fc3f7;
+        }
+        
+        /* Enhanced button hover effects */
+        .dashboard-actions button:hover,
+        .dashboard-actions a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        
+        .dashboard-actions a[href*="job_list"]:hover {
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .dashboard-actions a[href*="job_list"]:hover div {
+            left: 0;
+        }
+        .dark-mode .dashboard-card div[style*="border-bottom"] {
+            border-bottom-color: #2d3748 !important;
+        }
+        .dark-mode .dashboard-card a {
+            color: #4fc3f7 !important;
+        }
+        .dark-mode .dashboard-card a:hover {
+            color: #81d4fa !important;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 40px rgba(36, 99, 235, 0.15);
+        }
+        
+        .modal-header {
+            background: linear-gradient(90deg,#3498db 0%,#8fd3f4 100%);
+            color: #fff;
+            padding: 24px 32px;
+            border-radius: 16px 16px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
         }
-        .nav-links {
-            display: flex;
-            gap: 15px;
-        }
-        .nav-links a {
-            color: #3498db;
-            text-decoration: none;
-            font-weight: bold;
-            padding: 8px 16px;
-            border: 2px solid #3498db;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-        .nav-links a:hover {
-            background-color: #3498db;
-            color: white;
-        }
-        .nav-links .logout {
-            border-color: #e74c3c;
-            color: #e74c3c;
-        }
-        .nav-links .logout:hover {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .welcome-message {
-            color: #2c3e50;
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
             font-weight: bold;
         }
-        .dashboard-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .stats-section {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-        .stat-card {
-            background-color: #ecf0f1;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            min-width: 150px;
-            margin: 10px;
-        }
-        .stat-number {
-            font-size: 24px;
+        
+        .close {
+            color: #fff;
+            font-size: 28px;
             font-weight: bold;
-            color: #3498db;
-        }
-        .stat-label {
-            color: #7f8c8d;
-            margin-top: 5px;
-        }
-        .saved-jobs-section {
-            margin-top: 30px;
-        }
-        .section-title {
-            color: #2c3e50;
-            font-size: 20px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-        }
-        .job-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-        }
-        .job-card {
-            background-color: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            border-left: 4px solid #3498db;
-        }
-        .job-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        }
-        .job-title {
-            color: #2c3e50;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            text-decoration: none;
-        }
-        .job-title:hover {
-            color: #3498db;
-        }
-        .route-info {
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            justify-content: center;
+        }
+        
+        .close:hover {
+            color: #ffe066;
+        }
+        
+        .modal-body {
+            padding: 24px 32px 32px 32px;
+        }
+        
+        .request-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            background: #f8f9fa;
+        }
+        
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .request-title {
+            font-size: 1.1rem;
             font-weight: bold;
-            color: #2c3e50;
+            color: #2193b0;
+            margin: 0;
         }
-        .route-arrow {
-            margin: 0 10px;
-            color: #3498db;
-            font-weight: bold;
-        }
-        .cargo-type {
-            background-color: #3498db;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 10px;
-        }
-        .weight-info {
-            color: #7f8c8d;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .no-saved-jobs {
-            text-align: center;
-            padding: 40px;
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            border: 2px dashed #bdc3c7;
-        }
-        .no-saved-jobs h3 {
-            color: #7f8c8d;
-            margin-bottom: 15px;
-        }
-        .browse-link {
-            color: #3498db;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .browse-link:hover {
-            text-decoration: underline;
-        }
-        .cta-button {
-            background-color: #3498db;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        .cta-button:hover {
-            background-color: #2980b9;
-        }
-        .active-job {
-            color: #27ae60;
+        
+        .request-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: bold;
         }
-        .closed-job {
-            color: #e74c3c;
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .request-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .detail-section h4 {
+            color: #6c7a89;
+            font-size: 0.9rem;
+            margin: 0 0 8px 0;
             font-weight: bold;
         }
-    </style>
-    <style>
-    /* Dark mode overrides for less bright colors and better section distinction */
-    .dark-mode .dashboard-container {
-        background: #23272f !important;
-        color: #e3e6ed !important;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-    }
-    .dark-mode h1, .dark-mode h2, .dark-mode h3, .dark-mode .section-title {
-        color: #8ab4f8 !important;
-    }
-    .dark-mode .stat-card {
-        background: #2d3748 !important;
-        color: #bfc7d5 !important;
-        border: 1px solid #3a4256 !important;
-    }
-    .dark-mode .stat-number {
-        color: #7ed6a7 !important;
-    }
-    .dark-mode .job-card {
-        background: #232b36 !important;
-        color: #e3e6ed !important;
-        border-left: 4px solid #7ed6a7 !important;
-        border: 1px solid #2d3748 !important;
-        box-shadow: 0 4px 16px rgba(20,30,40,0.18);
-    }
-    .dark-mode .no-saved-jobs {
-        background: #20232a !important;
-        color: #bfc7d5 !important;
-        border: 2px dashed #3a4256 !important;
-    }
-    .dark-mode .job-title, .dark-mode .route-info, .dark-mode .weight-info {
-        color: #bfc7d5 !important;
-    }
-    .dark-mode .route-arrow {
-        color: #8ab4f8 !important;
-    }
-    .dark-mode .cargo-type {
-        background: #3a4256 !important;
-        color: #bfc7d5 !important;
-    }
-    .dark-mode .cta-button, .dark-mode .btn, .dark-mode button, .dark-mode input[type="submit"] {
-        background: #23272f !important;
-        color: #e3e6ed !important;
-        border: none !important;
-    }
-    /* Specific button color overrides for dark mode */
-    .dark-mode .cta-button[style*="background-color:#3498db"],
-    .dark-mode .btn[style*="background:#3498db"],
-    .dark-mode .btn[style*="background-color:#3498db"] {
-        background: #2563a6 !important;
-    }
-    .dark-mode .cta-button[style*="background-color:#27ae60"],
-    .dark-mode .btn[style*="background:#27ae60"],
-    .dark-mode .btn[style*="background-color:#27ae60"] {
-        background: #218c53 !important;
-    }
-    .dark-mode .cta-button[style*="background-color:#8e44ad"],
-    .dark-mode .btn[style*="background:#8e44ad"],
-    .dark-mode .btn[style*="background-color:#8e44ad"] {
-        background: #6c3483 !important;
-    }
-    .dark-mode .cta-button[style*="background-color:#e74c3c"],
-    .dark-mode .btn[style*="background:#e74c3c"],
-    .dark-mode .btn[style*="background-color:#e74c3c"] {
-        background: #b03a2e !important;
-    }
-    .dark-mode .cta-button[style*="background-color:#e67e22"],
-    .dark-mode .btn[style*="background:#e67e22"],
-    .dark-mode .btn[style*="background-color:#e67e22"] {
-        background: #a65c17 !important;
-    }
-    .dark-mode .cta-button[style*="background-color:#2980b9"],
-    .dark-mode .btn[style*="background:#2980b9"],
-    .dark-mode .btn[style*="background-color:#2980b9"] {
-        background: #1c4a6e !important;
-    }
-    .dark-mode .cta-button[style*="background-color:#16a085"],
-    .dark-mode .btn[style*="background:#16a085"],
-    .dark-mode .btn[style*="background-color:#16a085"] {
-        background: #11706a !important;
-    }
-    .dark-mode .cta-button[style*="background-color:#21618c"],
-    .dark-mode .btn[style*="background:#21618c"],
-    .dark-mode .btn[style*="background-color:#21618c"] {
-        background: #183c5a !important;
-    }
-    .dark-mode .cta-button:hover, .dark-mode .btn:hover, .dark-mode button:hover {
-        filter: brightness(1.15);
-        color: #8ab4f8 !important;
-    }
-    .dark-mode .active-job {
-        color: #7ed6a7 !important;
-    }
-    .dark-mode .closed-job {
-        color: #e57373 !important;
-    }
-    .dark-mode .browse-link {
-        color: #8ab4f8 !important;
-    }
-    .dark-mode .browse-link:hover {
-        color: #fff !important;
-    }
-    .dark-mode .success-message {
-        background: #2d3748 !important;
-        color: #bfc7d5 !important;
-    }
-    /* Feature/user/staff boxes distinction */
-    .dark-mode [style*="background: #ecf0f1"],
-    .dark-mode [style*="background-color: #ecf0f1"] {
-        background: #23272f !important;
-        color: #e3e6ed !important;
-        border-color: #23272f !important;
-    }
-    .dark-mode [style*="background: #d6eaf8"],
-    .dark-mode [style*="background-color: #d6eaf8"] {
-        background: #22304a !important;
-        color: #bfc7d5 !important;
-        border-color: #3a4256 !important;
-    }
-    .dark-mode [style*="background: #f8f9fa"],
-    .dark-mode [style*="background-color: #f8f9fa"] {
-        background: #20232a !important;
-        color: #e3e6ed !important;
-        border-color: #23272f !important;
-    }
-    .dark-mode [style*="background: #e67e22"],
-    .dark-mode [style*="background-color: #e67e22"] {
-        background: #6d5c2c !important;
-        color: #e3e6ed !important;
-    }
-    .dark-mode [style*="background: #27ae60"],
-    .dark-mode [style*="background-color: #27ae60"] {
-        background: #2d6a4f !important;
-        color: #e3e6ed !important;
-    }
-    .dark-mode [style*="background: #8e44ad"],
-    .dark-mode [style*="background-color: #8e44ad"] {
-        background: #5e548e !important;
-        color: #e3e6ed !important;
-    }
-    .dark-mode [style*="background: #e74c3c"],
-    .dark-mode [style*="background-color: #e74c3c"] {
-        background: #a93226 !important;
-        color: #e3e6ed !important;
-    }
-    .dark-mode [style*="background: #3498db"],
-    .dark-mode [style*="background-color: #3498db"] {
-        background: #3a4256 !important;
-        color: #e3e6ed !important;
-    }
-    .dark-mode [style*="background: #2980b9"],
-    .dark-mode [style*="background-color: #2980b9"] {
-        background: #22304a !important;
-        color: #e3e6ed !important;
-    }
-    .dark-mode [style*="background: #16a085"],
-    .dark-mode [style*="background-color: #16a085"] {
-        background: #145c5c !important;
-        color: #e3e6ed !important;
-    }
-    .dark-mode [style*="background: #21618c"],
-    .dark-mode [style*="background-color: #21618c"] {
-        background: #22304a !important;
-        color: #e3e6ed !important;
-    }
-    .dark-mode [style*="border: 2px solid #2980b9"],
-    .dark-mode [style*="border: 2px solid #3498db"] {
-        border-color: #3a4256 !important;
-    }
-    .dark-mode [style*="color: #3498db"],
-    .dark-mode [style*="color: #2980b9"],
-    .dark-mode [style*="color: #2c3e50"],
-    .dark-mode [style*="color: #e67e22"],
-    .dark-mode [style*="color: #27ae60"],
-    .dark-mode [style*="color: #8e44ad"],
-    .dark-mode [style*="color: #e74c3c"],
-    .dark-mode [style*="color: #16a085"],
-    .dark-mode [style*="color: #21618c"] {
-        color: #8ab4f8 !important;
-    }
+        
+        .detail-section p {
+            margin: 4px 0;
+            font-size: 0.9rem;
+            color: #232946;
+        }
+        
+        .request-date {
+            font-size: 0.8rem;
+            color: #95a5a6;
+            text-align: right;
+        }
+        
+        /* Dark mode modal styles */
+        .dark-mode .modal-content {
+            background-color: #232946;
+        }
+        
+        .dark-mode .request-item {
+            background: #181d2f;
+            border-color: #2d3748;
+        }
+        
+        .dark-mode .request-title {
+            color: #4fc3f7;
+        }
+        
+        .dark-mode .detail-section h4 {
+            color: #b0b8d1;
+        }
+        
+        .dark-mode .detail-section p {
+            color: #e3e6ed;
+        }
+        
+        .dark-mode .request-date {
+            color: #95a5a6;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+            
+            .request-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+/* Minimal/modern custom scrollbars for dashboard cards */
+.dashboard-card div[style*="overflow-y: auto"]::-webkit-scrollbar {
+    width: 7px;
+    background: transparent;
+}
+.dashboard-card div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
+    background: #232946;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+.dashboard-card div[style*="overflow-y: auto"]:hover::-webkit-scrollbar-thumb {
+    background: #3498db;
+}
+.dashboard-card div[style*="overflow-y: auto"] {
+    scrollbar-width: thin;
+    scrollbar-color: #232946 transparent;
+}
+.dark-mode .dashboard-card div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
+    background: #4fc3f7;
+}
+.dark-mode .dashboard-card div[style*="overflow-y: auto"]:hover::-webkit-scrollbar-thumb {
+    background: #ffe066;
+}
+.dark-mode .dashboard-card div[style*="overflow-y: auto"] {
+    scrollbar-color: #4fc3f7 transparent;
+}
     </style>
 </head>
 <body>
-    <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
-        <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+    <div style="position: absolute; left: 32px; top: 24px; z-index: 10; font-size: 2rem; font-weight: bold; color: #2193b0; letter-spacing: 2px; font-family: 'Segoe UI', Arial, sans-serif;">
+        ShipLink
     </div>
-    <div class="header">
-        <h1>FreightFlow Dashboard</h1>
-        <div class="nav-links">
-            <a href="{% url 'logistics:home' %}">Home</a>
-            <a href="{% url 'logistics:job_list' %}">Browse Jobs</a>
-            <a href="{% url 'logistics:logout' %}" class="logout">Logout</a>
-        </div>
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'logistics:logout' %}">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        {% endif %}
+        <button class="dark-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
     </div>
-
-    <div class="dashboard-container" style="background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); box-shadow: 0 4px 32px rgba(52,152,219,0.10);">
-        <!-- Profile Hero Card -->
-        <div style="display:flex; align-items:center; gap:24px; background: linear-gradient(90deg,#3498db 0%,#8fd3f4 100%); color:#fff; border-radius:18px; padding:32px 36px; margin-bottom:36px; box-shadow:0 4px 24px rgba(52,152,219,0.10);">
-            <div style="width:80px; height:80px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:2.7rem; font-weight:bold; color:#3498db; box-shadow:0 2px 8px rgba(52,152,219,0.10);">
-                {% if user.first_name %}{{ user.first_name|slice:":1"|upper }}{% else %}👤{% endif %}
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="user-info">
+                <div class="user-avatar">{{ user.username|first|upper }}</div>
+                <span class="user-name">{{ user.username }}</span>
             </div>
-            <div style="flex:1;">
-                <div style="font-size:2rem; font-weight:bold; letter-spacing:1px;">Welcome, {{ user.first_name|default:user.username }}!</div>
-                <div style="margin-top:8px; font-size:1.1rem;">Email: <b>{{ profile.email }}</b></div>
-                <div style="margin-top:2px; font-size:1rem;">Joined: <b>{{ profile.date_joined|date:'F j, Y' }}</b></div>
+            <div class="dashboard-actions">
+                <button onclick="openEditInfoModal()" style="background: #ffe066; color: #232946; border: none; border-radius: 28px; font-weight: bold; font-size: 1rem; padding: 10px 24px; cursor: pointer; transition: all 0.2s ease;">Edit Info</button>
+                <button onclick="openChangePasswordModal()" style="background: #3498db; color: #fff; border: none; border-radius: 28px; font-weight: bold; font-size: 1rem; padding: 10px 24px; cursor: pointer; transition: all 0.2s ease;">Change Password</button>
+                <a href="{% url 'logistics:request_job' %}" style="background: #ffe066; color: #232946; border: none; border-radius: 28px; font-weight: bold; font-size: 1rem; padding: 10px 24px; text-decoration: none; display: inline-block; transition: all 0.2s ease;">Request a Job</a>
+                <a href="{% url 'logistics:job_list' %}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; border-radius: 28px; font-weight: bold; font-size: 1rem; padding: 12px 28px; text-decoration: none; display: inline-block; transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden;">
+                    <span style="position: relative; z-index: 1;">🚚 Browse Jobs</span>
+                    <div style="position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); transition: left 0.3s ease;"></div>
+                </a>
             </div>
-            <a href="{% url 'logistics:edit_profile' %}" class="cta-button" style="background-color:#fff; color:#3498db; font-weight:bold; border:2px solid #3498db;">Edit Profile</a>
         </div>
-        <!-- Booked Jobs Section -->
-        <div style="background: #eafaf1; border-radius: 14px; padding: 28px 24px; margin-bottom: 32px; box-shadow: 0 2px 12px rgba(39, 174, 96, 0.07);">
-            <h2 style="text-align:center; color:#27ae60; margin-bottom:18px; display:flex; align-items:center; justify-content:center; gap:10px;">🚚 My Booked Jobs <span style="background:#27ae60; color:#fff; border-radius:12px; padding:2px 14px; font-size:1rem; margin-left:8px;">{{ booked_jobs.count }}</span></h2>
-            <div class="saved-jobs-section">
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <h3>My Job Requests</h3>
+                {% if job_requests %}
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        {% for req in job_requests|slice:":3" %}
+                            <div style="border-bottom: 1px solid #e0e0e0; padding: 8px 0; margin-bottom: 8px;">
+                                <div style="font-weight: bold; color: #2193b0; margin-bottom: 4px;">{{ req.title }}</div>
+                                <div style="font-size: 0.9rem; color: #6c7a89;">
+                                    {{ req.origin }} → {{ req.destination }}
+                                </div>
+                                <div style="font-size: 0.8rem; color: #95a5a6; margin-top: 2px;">
+                                    Status: <span style="color: {% if req.status == 'pending' %}#e67e22{% elif req.status == 'approved' %}#27ae60{% else %}#e74c3c{% endif %}; font-weight: bold;">
+                                        {{ req.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% if job_requests.count > 3 %}
+                            <div style="text-align: center; margin-top: 8px;">
+                                <button onclick="openRequestsModal()" style="background: none; border: none; color: #3498db; text-decoration: none; font-size: 0.9rem; cursor: pointer;">View all {{ job_requests.count }} requests →</button>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p>No job requests yet.</p>
+                {% endif %}
+            </div>
+            <div class="dashboard-card">
+                <h3>Booked Jobs</h3>
                 {% if booked_jobs %}
-                    <div class="job-grid">
-                        {% for booked in booked_jobs %}
-                            <div class="job-card" style="border-left:6px solid #27ae60;">
-                                <a href="{% url 'logistics:job_detail' booked.job.id %}" class="job-title">
-                                    {{ booked.job.title }}
-                                </a>
-                                <div class="route-info">
-                                    <span>{{ booked.job.origin }}</span>
-                                    <span class="route-arrow">→</span>
-                                    <span>{{ booked.job.destination }}</span>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        {% for booking in booked_jobs|slice:":3" %}
+                            <div style="border-bottom: 1px solid #e0e0e0; padding: 8px 0; margin-bottom: 8px;">
+                                <div style="font-weight: bold; color: #2193b0; margin-bottom: 4px;">{{ booking.job.title }}</div>
+                                <div style="font-size: 0.9rem; color: #6c7a89;">
+                                    {{ booking.job.origin }} → {{ booking.job.destination }}
                                 </div>
-                                <div class="cargo-type">
-                                    {{ booked.job.cargo_type.name }}
+                                <div style="font-size: 0.8rem; color: #95a5a6; margin-top: 2px;">
+                                    Booked: {{ booking.booked_at|date:"M j, Y" }}
                                 </div>
-                                <div class="weight-info">
-                                    Weight: {{ booked.job.weight_kg }} kg
-                                </div>
-                                <div style="color:#888; font-size:13px; margin-top:8px;">Booked at: {{ booked.booked_at|date:'M j, Y H:i' }}</div>
                             </div>
                         {% endfor %}
+                        {% if booked_jobs.count > 3 %}
+                            <div style="text-align: center; margin-top: 8px;">
+                                <a href="{% url 'logistics:my_bookings' %}" style="color: #3498db; text-decoration: none; font-size: 0.9rem;">View all {{ booked_jobs.count }} bookings →</a>
+                            </div>
+                        {% endif %}
                     </div>
                 {% else %}
-                    <div class="no-saved-jobs">
-                        <h3>No booked jobs yet</h3>
-                        <p>Book a job from the job list or job detail page.</p>
-                    </div>
+                    <p>No booked jobs yet.</p>
                 {% endif %}
             </div>
         </div>
-        <!-- Liked Jobs Section -->
-        <div style="background: #fceeee; border-radius: 14px; padding: 28px 24px; margin-bottom: 32px; box-shadow: 0 2px 12px rgba(231, 76, 60, 0.07);">
-            <h2 style="text-align:center; color:#e74c3c; margin-bottom:18px; display:flex; align-items:center; justify-content:center; gap:10px;">❤️ My Liked Jobs <span style="background:#e74c3c; color:#fff; border-radius:12px; padding:2px 14px; font-size:1rem; margin-left:8px;">{{ liked_jobs.count }}</span></h2>
-            <div class="saved-jobs-section">
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <h3>Liked Jobs</h3>
                 {% if liked_jobs %}
-                    <div class="job-grid">
-                        {% for job in liked_jobs %}
-                            <div class="job-card" style="border-left:6px solid #e74c3c;">
-                                <a href="{% url 'logistics:job_detail' job.id %}" class="job-title">
-                                    {{ job.title }}
-                                </a>
-                                <div class="route-info">
-                                    <span>{{ job.origin }}</span>
-                                    <span class="route-arrow">→</span>
-                                    <span>{{ job.destination }}</span>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        {% for job in liked_jobs|slice:":3" %}
+                            <div style="border-bottom: 1px solid #e0e0e0; padding: 8px 0; margin-bottom: 8px;">
+                                <div style="font-weight: bold; color: #2193b0; margin-bottom: 4px;">{{ job.title }}</div>
+                                <div style="font-size: 0.9rem; color: #6c7a89;">
+                                    {{ job.origin }} → {{ job.destination }}
                                 </div>
-                                <div class="cargo-type">
-                                    {{ job.cargo_type.name }}
+                                <div style="font-size: 0.8rem; color: #95a5a6; margin-top: 2px;">
+                                    <a href="{% url 'logistics:job_detail' job.id %}" style="color: #3498db; text-decoration: none;">View Details →</a>
                                 </div>
-                                <div class="weight-info">
-                                    Weight: {{ job.weight_kg }} kg
-                                </div>
-                                <div style="font-size:13px; color:#888; margin-top:8px;">Liked by you</div>
                             </div>
                         {% endfor %}
+                        {% if liked_jobs.count > 3 %}
+                            <div style="text-align: center; margin-top: 8px;">
+                                <button onclick="openLikedJobsModal()" style="background: none; border: none; color: #3498db; text-decoration: none; font-size: 0.9rem; cursor: pointer;">View all {{ liked_jobs.count }} liked jobs →</button>
+                            </div>
+                        {% endif %}
                     </div>
                 {% else %}
-                    <div class="no-saved-jobs">
-                        <h3>No liked jobs yet</h3>
-                        <p>Like jobs from the job list to see them here!</p>
-                        <a href="{% url 'logistics:job_list' %}" class="browse-link">Browse Available Jobs</a>
+                    <p>No liked jobs yet.</p>
+                {% endif %}
+            </div>
+            <div class="dashboard-card">
+                <h3>💡 Recommended Jobs</h3>
+                {% if recommended_jobs %}
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        {% for job in recommended_jobs|slice:":3" %}
+                            <div style="border-bottom: 1px solid #e0e0e0; padding: 8px 0; margin-bottom: 8px;">
+                                <div style="font-weight: bold; color: #2193b0; margin-bottom: 4px;">{{ job.title }}</div>
+                                <div style="font-size: 0.9rem; color: #6c7a89;">
+                                    {{ job.origin }} → {{ job.destination }}
+                                </div>
+                                <div style="font-size: 0.8rem; color: #95a5a6; margin-top: 2px;">
+                                    <span style="color: #f39c12; font-weight: bold;">{{ job.cargo_type.name }}</span> • 
+                                    <a href="{% url 'logistics:job_detail' job.id %}" style="color: #3498db; text-decoration: none;">View Details →</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% if recommended_jobs.count > 3 %}
+                            <div style="text-align: center; margin-top: 8px;">
+                                <button onclick="openRecommendedJobsModal()" style="background: none; border: none; color: #3498db; text-decoration: none; font-size: 0.9rem; cursor: pointer;">View all {{ recommended_jobs.count }} recommendations →</button>
+                            </div>
+                        {% endif %}
                     </div>
+                {% else %}
+                    <p>No recommendations available yet. Like some jobs to get personalized recommendations!</p>
                 {% endif %}
             </div>
         </div>
-        <!-- Job Recommendations Section -->
-        <div style="background: #eaf6fb; border-radius: 14px; padding: 28px 24px; margin-bottom: 32px; box-shadow: 0 2px 12px rgba(52, 152, 219, 0.07);">
-            <h2 style="text-align:center; color:#16a085; margin-bottom:18px; display:flex; align-items:center; justify-content:center; gap:10px;">✨ Recommended Jobs For You</h2>
-            {% if recommended_jobs and recommended_jobs|length > 0 %}
-                <div class="job-grid">
-                    {% for job in recommended_jobs %}
-                        <div class="job-card" style="border-left:6px solid #16a085;">
-                            <a href="{% url 'logistics:job_detail' job.id %}" class="job-title">
-                                {{ job.title }}
-                            </a>
-                            <div class="route-info">
-                                <span>{{ job.origin }}</span>
-                                <span class="route-arrow">→</span>
-                                <span>{{ job.destination }}</span>
+    </div>
+    
+    <!-- Modal for All Job Requests -->
+    <div id="requestsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>All Job Requests</h2>
+                <button class="close" onclick="closeRequestsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                {% if job_requests %}
+                    {% for req in job_requests %}
+                        <div class="request-item">
+                            <div class="request-header">
+                                <h3 class="request-title">{{ req.title }}</h3>
+                                <span class="request-status status-{{ req.status }}">{{ req.get_status_display }}</span>
                             </div>
-                            <div class="cargo-type">
-                                {{ job.cargo_type.name }}
+                            <div class="request-details">
+                                <div class="detail-section">
+                                    <h4>Pickup Details</h4>
+                                    <p><strong>City:</strong> {{ req.origin }}</p>
+                                    <p><strong>Address:</strong> {{ req.origin_address|default:"—" }}</p>
+                                    <p><strong>ZIP:</strong> {{ req.origin_zip|default:"—" }}</p>
+                                    <p><strong>Date:</strong> {{ req.pickup_date }}</p>
+                                    <p><strong>Time:</strong> {{ req.pickup_time_from }}</p>
+                                </div>
+                                <div class="detail-section">
+                                    <h4>Dropoff Details</h4>
+                                    <p><strong>City:</strong> {{ req.destination }}</p>
+                                    <p><strong>Address:</strong> {{ req.destination_address|default:"—" }}</p>
+                                    <p><strong>ZIP:</strong> {{ req.destination_zip|default:"—" }}</p>
+                                    <p><strong>Time:</strong> {{ req.pickup_time_to }}</p>
+                                    <p><strong>Deadline:</strong> {{ req.delivery_deadline|default:"—" }}</p>
+                                </div>
                             </div>
-                            <div class="weight-info">
-                                Weight: {{ job.weight_kg }} kg
+                            <div class="detail-section">
+                                <h4>Cargo Information</h4>
+                                <p><strong>Type:</strong> {{ req.cargo_type.name }}</p>
+                                <p><strong>Weight:</strong> {{ req.weight_kg }} kg</p>
+                                <p><strong>Dimensions:</strong> {{ req.length_cm }}×{{ req.width_cm }}×{{ req.height_cm }} cm</p>
+                                <p><strong>Special Requirements:</strong> {{ req.special_requirements|default:"—" }}</p>
                             </div>
-                            <div style="font-size:13px; color:#888; margin-top:8px;">Posted: {{ job.created_at|date:'M j, Y H:i' }}</div>
+                            <div class="request-date">
+                                Requested on {{ req.created_at|date:"M j, Y H:i" }}
+                            </div>
                         </div>
                     {% endfor %}
-                </div>
-            {% else %}
-                <div style="margin-top:16px; color:#888; font-size:16px;">No recommendations available at this time.</div>
-            {% endif %}
+                {% else %}
+                    <div style="text-align: center; padding: 40px; color: #6c7a89;">
+                        <p>No job requests yet.</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-<script>
-// Persistent dark mode toggle for all pages, fallback to system preference on logout
-function setDarkMode(on) {
-    if(on) {
-        document.body.classList.add('dark-mode');
-        document.body.style.background = '#222';
-        document.querySelectorAll('.dashboard-container, .container, main, .main-content, .welcome, .links, .card').forEach(function(el){
-            el.style.background = '#181818';
-            el.style.color = '#eee';
-        });
-    } else {
-        document.body.classList.remove('dark-mode');
-        document.body.style.background = '#f5f5f5';
-        document.querySelectorAll('.dashboard-container, .container, main, .main-content, .welcome, .links, .card').forEach(function(el){
-            el.style.background = '';
-            el.style.color = '';
-        });
+    
+    <!-- Modal for All Liked Jobs -->
+    <div id="likedJobsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>All Liked Jobs</h2>
+                <button class="close" onclick="closeLikedJobsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                {% if liked_jobs %}
+                    {% for job in liked_jobs %}
+                        <div class="request-item">
+                            <div class="request-header">
+                                <h3 class="request-title">{{ job.title }}</h3>
+                                <span class="request-status" style="background: #e8f5e8; color: #2d5a2d;">Liked</span>
+                            </div>
+                            <div class="request-details">
+                                <div class="detail-section">
+                                    <h4>Route Information</h4>
+                                    <p><strong>Origin:</strong> {{ job.origin }}</p>
+                                    <p><strong>Destination:</strong> {{ job.destination }}</p>
+                                    <p><strong>Pickup Date:</strong> {{ job.pickup_date }}</p>
+                                    <p><strong>Created By:</strong> {{ job.created_by.username }}</p>
+                                </div>
+                                <div class="detail-section">
+                                    <h4>Cargo Details</h4>
+                                    <p><strong>Type:</strong> {{ job.cargo_type.name }}</p>
+                                    <p><strong>Weight:</strong> {{ job.weight_kg }} kg</p>
+                                    <p><strong>Special Requirements:</strong> {{ job.special_requirements|default:"—" }}</p>
+                                    <p><strong>Likes:</strong> {{ job.like_count }}</p>
+                                </div>
+                            </div>
+                            <div class="detail-section">
+                                <h4>Description</h4>
+                                <p>{{ job.description|truncatewords:30 }}</p>
+                            </div>
+                            <div style="text-align: right; margin-top: 12px;">
+                                <a href="{% url 'logistics:job_detail' job.id %}" style="background: #3498db; color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: bold;">View Full Details →</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 40px; color: #6c7a89;">
+                        <p>No liked jobs yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for All Recommended Jobs -->
+    <div id="recommendedJobsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💡 All Recommended Jobs</h2>
+                <button class="close" onclick="closeRecommendedJobsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                {% if recommended_jobs %}
+                    {% for job in recommended_jobs %}
+                        <div class="request-item">
+                            <div class="request-header">
+                                <h3 class="request-title">{{ job.title }}</h3>
+                                <span class="request-status" style="background: #fff3cd; color: #856404;">Recommended</span>
+                            </div>
+                            <div class="request-details">
+                                <div class="detail-section">
+                                    <h4>Route Information</h4>
+                                    <p><strong>Origin:</strong> {{ job.origin }}</p>
+                                    <p><strong>Destination:</strong> {{ job.destination }}</p>
+                                    <p><strong>Pickup Date:</strong> {{ job.pickup_date }}</p>
+                                    <p><strong>Created By:</strong> {{ job.created_by.username }}</p>
+                                </div>
+                                <div class="detail-section">
+                                    <h4>Cargo Details</h4>
+                                    <p><strong>Type:</strong> {{ job.cargo_type.name }}</p>
+                                    <p><strong>Weight:</strong> {{ job.weight_kg }} kg</p>
+                                    <p><strong>Special Requirements:</strong> {{ job.special_requirements|default:"—" }}</p>
+                                    <p><strong>Likes:</strong> {{ job.like_count }}</p>
+                                </div>
+                            </div>
+                            <div class="detail-section">
+                                <h4>Description</h4>
+                                <p>{{ job.description|truncatewords:30 }}</p>
+                            </div>
+                            <div style="text-align: right; margin-top: 12px;">
+                                <a href="{% url 'logistics:job_detail' job.id %}" style="background: #3498db; color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: bold;">View Full Details →</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 40px; color: #6c7a89;">
+                        <p>No recommendations available yet. Like some jobs to get personalized recommendations!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for Edit Info -->
+    <div id="editInfoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile Information</h2>
+                <button class="close" onclick="closeEditInfoModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'logistics:edit_profile' %}" style="display: flex; flex-direction: column; gap: 16px;">
+                    {% csrf_token %}
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label for="username" style="display: block; margin-bottom: 8px; font-weight: bold; color: #6c7a89;">Username</label>
+                            <input type="text" id="username" name="username" value="{{ user.username }}" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                        </div>
+                        <div>
+                            <label for="email" style="display: block; margin-bottom: 8px; font-weight: bold; color: #6c7a89;">Email</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label for="first_name" style="display: block; margin-bottom: 8px; font-weight: bold; color: #6c7a89;">First Name</label>
+                            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                        </div>
+                        <div>
+                            <label for="last_name" style="display: block; margin-bottom: 8px; font-weight: bold; color: #6c7a89;">Last Name</label>
+                            <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                        <button type="button" onclick="closeEditInfoModal()" style="background: #95a5a6; color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-weight: bold; cursor: pointer;">Cancel</button>
+                        <button type="submit" style="background: #3498db; color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-weight: bold; cursor: pointer;">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for Change Password -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Change Password</h2>
+                <button class="close" onclick="closeChangePasswordModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'logistics:change_password' %}" style="display: flex; flex-direction: column; gap: 16px;">
+                    {% csrf_token %}
+                    <div>
+                        <label for="old_password" style="display: block; margin-bottom: 8px; font-weight: bold; color: #6c7a89;">Current Password</label>
+                        <input type="password" id="old_password" name="old_password" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                    </div>
+                    <div>
+                        <label for="new_password1" style="display: block; margin-bottom: 8px; font-weight: bold; color: #6c7a89;">New Password</label>
+                        <input type="password" id="new_password1" name="new_password1" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                    </div>
+                    <div>
+                        <label for="new_password2" style="display: block; margin-bottom: 8px; font-weight: bold; color: #6c7a89;">Confirm New Password</label>
+                        <input type="password" id="new_password2" name="new_password2" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                    </div>
+                    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                        <button type="button" onclick="closeChangePasswordModal()" style="background: #95a5a6; color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-weight: bold; cursor: pointer;">Cancel</button>
+                        <button type="submit" style="background: #3498db; color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-weight: bold; cursor: pointer;">Change Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    // --- DARK MODE SCRIPT: toggles .dark-mode on <html> for full-page background ---
+    function setDarkMode(on) {
+        if(on) {
+            document.documentElement.classList.add('dark-mode');
+        } else {
+            document.documentElement.classList.remove('dark-mode');
+        }
     }
-}
-function getDarkMode() {
-    const pref = localStorage.getItem('darkMode');
-    if (pref === null) {
-        // No preference, use system
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    function getDarkMode() {
+        const pref = localStorage.getItem('darkMode');
+        if (pref === null) {
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        return pref === 'on';
     }
-    return pref === 'on';
-}
-document.getElementById('darkModeToggle').onclick = function() {
-    const on = !getDarkMode();
-    localStorage.setItem('darkMode', on ? 'on' : 'off');
-    setDarkMode(on);
-};
-// On page load
-setDarkMode(getDarkMode());
-// On logout, clear darkMode preference
-if (document.querySelectorAll('.logout').length) {
-    document.querySelectorAll('.logout').forEach(function(logoutLink) {
-        logoutLink.addEventListener('click', function() {
-            localStorage.removeItem('darkMode');
-        });
+    document.getElementById('darkModeToggle').onclick = function() {
+        const on = !getDarkMode();
+        localStorage.setItem('darkMode', on ? 'on' : 'off');
+        setDarkMode(on);
+        updateDarkModeIcon();
+    };
+    function updateDarkModeIcon() {
+        const btn = document.getElementById('darkModeToggle');
+        if (!btn) return;
+        btn.textContent = getDarkMode() ? '☀️' : '🌙';
+    }
+    // On page load
+    setDarkMode(getDarkMode());
+    updateDarkModeIcon();
+    
+    // Modal functions
+    function openRequestsModal() {
+        document.getElementById('requestsModal').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+    
+    function closeRequestsModal() {
+        document.getElementById('requestsModal').style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+    }
+    
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        const modal = document.getElementById('requestsModal');
+        if (event.target === modal) {
+            closeRequestsModal();
+        }
+    }
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeRequestsModal();
+            closeLikedJobsModal();
+        }
     });
-}
-</script>
+    
+    // Liked Jobs Modal functions
+    function openLikedJobsModal() {
+        document.getElementById('likedJobsModal').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+    
+    function closeLikedJobsModal() {
+        document.getElementById('likedJobsModal').style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+    }
+    
+    // Recommended Jobs Modal functions
+    function openRecommendedJobsModal() {
+        document.getElementById('recommendedJobsModal').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+    
+    function closeRecommendedJobsModal() {
+        document.getElementById('recommendedJobsModal').style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+    }
+    
+    // Update window click handler to handle all modals
+    window.onclick = function(event) {
+        const requestsModal = document.getElementById('requestsModal');
+        const likedJobsModal = document.getElementById('likedJobsModal');
+        const recommendedJobsModal = document.getElementById('recommendedJobsModal');
+        const editInfoModal = document.getElementById('editInfoModal');
+        const changePasswordModal = document.getElementById('changePasswordModal');
+        
+        if (event.target === requestsModal) {
+            closeRequestsModal();
+        }
+        if (event.target === likedJobsModal) {
+            closeLikedJobsModal();
+        }
+        if (event.target === recommendedJobsModal) {
+            closeRecommendedJobsModal();
+        }
+        if (event.target === editInfoModal) {
+            closeEditInfoModal();
+        }
+        if (event.target === changePasswordModal) {
+            closeChangePasswordModal();
+        }
+    }
+    
+    // Edit Info Modal functions
+    function openEditInfoModal() {
+        document.getElementById('editInfoModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeEditInfoModal() {
+        document.getElementById('editInfoModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Change Password Modal functions
+    function openChangePasswordModal() {
+        document.getElementById('changePasswordModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeChangePasswordModal() {
+        document.getElementById('changePasswordModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Update escape key handler to close all modals
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeRequestsModal();
+            closeLikedJobsModal();
+            closeRecommendedJobsModal();
+            closeEditInfoModal();
+            closeChangePasswordModal();
+        }
+    });
+    </script>
+    <svg class="bg-illustration-bottom" viewBox="0 0 1600 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Clouds (day only) -->
+    <ellipse class="cloud floating" cx="350" cy="80" rx="70" ry="28" fill="#fff"/>
+    <ellipse class="cloud floating2" cx="1200" cy="100" rx="50" ry="20" fill="#fff"/>
+    <ellipse class="cloud floating3" cx="900" cy="60" rx="40" ry="16" fill="#fff"/>
+    <!-- Abstract shapes -->
+    <ellipse cx="300" cy="120" rx="180" ry="60" fill="#fff" fill-opacity="0.18"/>
+    <ellipse cx="1400" cy="100" rx="120" ry="50" fill="#fff" fill-opacity="0.13"/>
+    <ellipse cx="1200" cy="220" rx="200" ry="60" fill="#fff" fill-opacity="0.10"/>
+    <ellipse cx="200" cy="260" rx="120" ry="40" fill="#fff" fill-opacity="0.10"/>
+    <!-- Floating boxes -->
+    <rect class="floating" x="400" y="120" width="48" height="48" rx="8" fill="#ffd166"/>
+    <rect class="floating floating2" x="900" y="60" width="32" height="32" rx="6" fill="#f6c90e"/>
+    <rect class="floating floating3" x="1300" y="160" width="40" height="40" rx="7" fill="#f9d923"/>
+    <rect class="floating" x="600" y="200" width="36" height="36" rx="7" fill="#f7b267"/>
+    <rect class="floating floating2" x="1100" y="120" width="28" height="28" rx="6" fill="#f6c90e"/>
+    <rect class="floating floating3" x="200" y="180" width="30" height="30" rx="6" fill="#ffd166"/>
+    <!-- Truck (left) -->
+    <g class="floating" style="animation-delay:1s;">
+        <rect x="250" y="180" width="120" height="36" rx="8" fill="#ffb703"/>
+        <rect x="370" y="190" width="40" height="26" rx="6" fill="#2193b0"/>
+        <circle cx="270" cy="220" r="12" fill="#222"/>
+        <circle cx="390" cy="220" r="12" fill="#222"/>
+    </g>
+    <!-- Truck (right) -->
+    <g class="floating floating2" style="animation-delay:2.5s;">
+        <rect x="1100" y="220" width="120" height="36" rx="8" fill="#ffb703"/>
+        <rect x="1220" y="230" width="40" height="26" rx="6" fill="#2193b0"/>
+        <circle cx="1120" cy="260" r="12" fill="#222"/>
+        <circle cx="1240" cy="260" r="12" fill="#222"/>
+    </g>
+    <!-- Big box center -->
+    <rect class="floating floating3" x="750" y="140" width="80" height="80" rx="14" fill="#f72585"/>
+    <!-- Dotted road -->
+    <path d="M 300 220 Q 800 80 1300 220" stroke="#fff" stroke-width="6" stroke-dasharray="30 18" fill="none" opacity="0.5"/>
+    <!-- Stars (night only) -->
+    <circle class="star floating" cx="200" cy="40" r="3" fill="#fff"/>
+    <circle class="star floating2" cx="600" cy="20" r="2.5" fill="#ffe066"/>
+    <circle class="star floating3" cx="1000" cy="10" r="2.8" fill="#fff"/>
+    <circle class="star floating" cx="1400" cy="60" r="2.2" fill="#ffe066"/>
+    <circle class="star floating2" cx="1200" cy="40" r="2.7" fill="#fff"/>
+    <circle class="star floating3" cx="300" cy="100" r="2.3" fill="#ffe066"/>
+</svg>
 </body>
 </html> 
