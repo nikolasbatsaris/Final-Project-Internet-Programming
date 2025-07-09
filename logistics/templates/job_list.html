@@ -428,23 +428,41 @@
         .dark-mode #jobDetailModal .modal-content button {
             color: #fff !important;
         }
+  .dark-toggle.theme-outline {
+    border: 2.5px solid #ffe066;
+    color: #ffe066;
+    background: none;
+    border-radius: 24px;
+    font-weight: bold;
+    font-size: 1.25rem;
+    padding: 10px 24px;
+    transition: background 0.18s, color 0.18s, border 0.18s;
+    box-shadow: 0 2px 8px rgba(52,152,219,0.10);
+    outline: none;
+  }
+  .dark-toggle.theme-outline:hover, .dark-toggle.theme-outline:focus {
+    background: #ffe066;
+    color: #232946;
+    border-color: #ffe066;
+    outline: 2px solid #ffe066;
+  }
+  .dark-mode .dark-toggle.theme-outline {
+    border: 2.5px solid #ffe066;
+    color: #ffe066;
+    background: none;
+  }
+  .dark-mode .dark-toggle.theme-outline:hover, .dark-mode .dark-toggle.theme-outline:focus {
+    background: #ffe066;
+    color: #232946;
+    border-color: #ffe066;
+    outline: 2px solid #ffe066;
+  }
     </style>
 </head>
 <body>
-    <div class="nav">
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-        <a href="/contact">Contact</a>
-        {% if user.is_authenticated %}
-            <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
-        {% endif %}
-        {% if user.is_authenticated %}
-            <a href="{% url 'logistics:logout' %}">Logout</a>
-        {% else %}
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
-        {% endif %}
-        <button class="dark-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
+    <!-- Back to Dashboard and Dark Mode Toggle at top right -->
+    <div style="position: absolute; top: 24px; right: 48px; z-index: 20; display: flex; align-items: center;">
+        <button class="dark-toggle theme-outline" id="darkModeToggle" title="Toggle dark mode">🌙</button>
     </div>
     <div class="header">
         <div class="header-icon">🔎</div>
@@ -516,7 +534,8 @@
     <div class="main-content" style="max-width:1200px;margin:0 auto;padding:0 32px 48px 32px; position:relative;">
         <!-- Removed Request a Job button -->
         <!-- Filter/search bar and job grid go here -->
-        <button onclick="window.history.back()" class="back-btn">← Back</button>
+        <!-- Add a Back button above the filter/search form -->
+        <button onclick="window.history.back()" class="back-btn" style="margin-bottom: 18px;">← Back</button>
         <!-- Filter/Search Form -->
         <form method="get" style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; margin-bottom:30px; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.07);">
             <div style="flex:1; min-width:180px;">
@@ -655,6 +674,7 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+// Ensure theme is preserved from previous page
 function setDarkMode(on) {
     if(on) {
         document.documentElement.classList.add('dark-mode');
@@ -676,7 +696,6 @@ document.getElementById('darkModeToggle').onclick = function() {
     setDarkMode(on);
     this.textContent = on ? '☀️' : '🌙';
 };
-// On page load
 setDarkMode(getDarkMode());
 document.getElementById('darkModeToggle').textContent = getDarkMode() ? '☀️' : '🌙';
 // On logout, clear darkMode preference

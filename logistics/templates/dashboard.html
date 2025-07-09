@@ -329,6 +329,7 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
 </head>
 <body>
     <header class="sticky-header">
+        <div class="header-logo">ShipLink</div>
         <nav class="nav">
         <a href="/">Home</a>
         <a href="/about">About</a>
@@ -344,7 +345,6 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
         </nav>
     </header>
     <div class="main-content" style="position:relative;">
-      <div class="container-fluid px-2 px-md-4">
         <!-- Floating SVG background -->
         <svg class="bg-illustration" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:1;">
           <circle cx="200" cy="180" r="48" fill="#4fc3f7" fill-opacity="0.18">
@@ -410,8 +410,8 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
             <a href="{% url 'logistics:job_list' %}" class="btn btn-lg btn-outline-info fw-bold shadow-sm dashboard-action-btn" style="border-radius: 22px; min-width: 160px; font-size: 1.13rem;">Browse Jobs</a>
                             </div>
           <!-- Dashboard Grid -->
-          <div class="dashboard-grid row w-100" style="gap: 32px 0; min-height: 480px; width: 100vw; max-width: 1600px; margin: 0 auto;">
-            <div class="dashboard-card col-12 col-md-6 col-lg-6 h-100 d-flex flex-column mb-4">
+          <div class="dashboard-grid w-100 d-grid" style="grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 48px 48px; min-height: 480px; width: 100vw; max-width: 1600px; margin: 0 auto;">
+            <div class="dashboard-card h-100 d-flex flex-column">
               <div class="fw-bold mb-2" style="color:#4fc3f7;font-size:1.25rem;">My Job Requests</div>
               <div class="dashboard-list flex-grow-1" style="overflow-y:auto;max-height:260px;">
                 {% for request in job_requests %}
@@ -432,7 +432,7 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
                         {% endfor %}
                             </div>
                     </div>
-            <div class="dashboard-card col-12 col-md-6 col-lg-6 h-100 d-flex flex-column mb-4">
+            <div class="dashboard-card h-100 d-flex flex-column">
               <div class="fw-bold mb-2" style="color:#2193b0;font-size:1.25rem;">Booked Jobs</div>
               <div class="dashboard-list flex-grow-1" style="overflow-y:auto;max-height:260px;">
                 {% for booked in booked_jobs %}
@@ -446,7 +446,7 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
                     {% endfor %}
                     </div>
             </div>
-            <div class="dashboard-card col-12 col-md-6 col-lg-6 h-100 d-flex flex-column mb-4">
+            <div class="dashboard-card h-100 d-flex flex-column">
               <div class="fw-bold mb-2" style="color:#ffe066;font-size:1.25rem;">Liked Jobs</div>
               <div class="dashboard-list flex-grow-1" style="overflow-y:auto;max-height:260px;">
                     {% for job in liked_jobs %}
@@ -460,7 +460,7 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
                     {% endfor %}
                     </div>
             </div>
-            <div class="dashboard-card col-12 col-md-6 col-lg-6 h-100 d-flex flex-column mb-4">
+            <div class="dashboard-card h-100 d-flex flex-column">
               <div class="fw-bold mb-2 d-flex align-items-center" style="color:#ffe066;font-size:1.25rem;"><span style="font-size:1.2rem;">&#128161;</span><span class="ms-2">Recommended Jobs</span></div>
               <div class="dashboard-list flex-grow-1" style="overflow-y:auto;max-height:260px;">
                     {% for job in recommended_jobs %}
@@ -559,13 +559,12 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
     </div>
         </div>
       </div>
-    </div>
     <footer class="footer mt-auto">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-auto">
                     &copy; 2025 ShipLink. All rights reserved.
-                </div>
+    </div>
             </div>
         </div>
     </footer>
