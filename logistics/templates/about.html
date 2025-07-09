@@ -9,9 +9,10 @@
         .dark-mode body { background:linear-gradient(135deg,#232946 0%,#1a1a2e 100%) !important; }
         .nav {
             display: flex;
-            justify-content: flex-end;
             align-items: center;
-            padding: 32px 48px 0 48px;
+            padding: 0;
+            margin: 0;
+            margin-left: auto;
         }
         .nav a, .nav button {
             margin-left: 24px;
@@ -28,11 +29,11 @@
             background: #fff;
             color: #2193b0;
         }
-        .dark-mode .nav a, .dark-mode .nav button {
+        .dark-mode .nav a, .dark-mode .nav button, body.dark-mode .nav a, body.dark-mode .nav button {
             border: 2px solid #ffe066;
             color: #ffe066;
         }
-        .dark-mode .nav a:hover, .dark-mode .nav button:hover {
+        .dark-mode .nav a:hover, .dark-mode .nav button:hover, body.dark-mode .nav a:hover, body.dark-mode .nav button:hover {
             background: #ffe066;
             color: #232946;
         }
@@ -46,7 +47,7 @@
             transition: color 0.2s;
         }
         .dark-mode .dark-toggle { color: #ffe066; }
-        .container { max-width:800px; margin:60px auto; background:#fff; border-radius:16px; box-shadow:0 2px 16px rgba(33,147,176,0.10); padding:48px 36px; }
+        .container { max-width:800px; margin:24px auto 0 auto; background:#fff; border-radius:16px; box-shadow:0 2px 16px rgba(33,147,176,0.10); padding:48px 36px; }
         .dark-mode .container { background:#232946; color:#ffe066; box-shadow:0 2px 16px rgba(255,224,102,0.08); }
         h1 { color:#2193b0; font-size:2.5rem; margin-bottom:18px; }
         .dark-mode h1 { color:#ffe066; }
@@ -63,7 +64,7 @@
         .dark-mode .value-card h3 { color:#ffe066; }
         .value-card p { color:#2563a6; }
         .dark-mode .value-card p { color:#ffe066; }
-        @media (max-width:900px) { .container{padding:24px 8vw;} .values{flex-direction:column;gap:18px;} }
+        @media (max-width:900px) { .container{padding:24px 8vw; margin:16px auto 0 auto;} .values{flex-direction:column;gap:18px;} }
         .truck-anim-container {
             position: relative;
             width: 100vw;
@@ -101,47 +102,131 @@
         }
         .floating-cloud { pointer-events:none; animation: float-cloud 12s ease-in-out infinite; }
         @keyframes float-cloud { 0% { transform: translateY(0px); } 50% { transform: translateY(-18px); } 100% { transform: translateY(0px); } }
+        .floating-objects {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .float-circle, .float-square {
+            position: absolute;
+            opacity: 0.18;
+            animation: float-anim 8s ease-in-out infinite;
+        }
+        .float-circle {
+            border-radius: 50%;
+            background: #fff;
+            width: 80px; height: 80px;
+        }
+        .float-square {
+            background: #ffe066;
+            width: 60px; height: 60px;
+        }
+        .float1 { top: 10%; left: 8%; animation-delay: 0s; }
+        .float2 { top: 60%; left: 80%; animation-delay: 2s; }
+        .float3 { top: 30%; left: 60%; animation-delay: 4s; }
+        .float4 { top: 70%; left: 20%; animation-delay: 1.5s; }
+        @keyframes float-anim {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px) scale(1.08); }
+        }
+        .sticky-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 1000;
+            background: rgba(33, 147, 176, 0.98);
+            box-shadow: 0 2px 8px rgba(33,147,176,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+            padding: 0 32px;
+        }
+        .dark-mode .sticky-header, body.dark-mode .sticky-header {
+            background: rgba(35, 41, 70, 0.98);
+        }
+        .main-content {
+            padding-top: 90px;
+        }
+        .simple-footer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #2193b0;
+            color: #fff;
+            text-align: center;
+            padding: 12px 0 10px 0;
+            z-index: 1002;
+            font-size: 1rem;
+        }
+        .dark-mode .simple-footer {
+            background: #232946;
+            color: #ffe066;
+        }
+        .header-logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 2px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .dark-mode .header-logo, body.dark-mode .header-logo {
+            color: #ffe066;
+        }
     </style>
 </head>
 <body>
-    <div style="position: absolute; left: 32px; top: 24px; z-index: 10; font-size: 2rem; font-weight: bold; color: #2193b0; letter-spacing: 2px; font-family: 'Segoe UI', Arial, sans-serif;">
-        ShipLink
+    <div class="floating-objects">
+        <div class="float-circle float1"></div>
+        <div class="float-circle float2"></div>
+        <div class="float-square float3"></div>
+        <div class="float-square float4"></div>
     </div>
-    <div class="nav">
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-        <a href="/contact">Contact</a>
-        {% if user.is_authenticated %}
-            <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
-            <a href="{% url 'logistics:logout' %}">Logout</a>
-        {% else %}
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
-        {% endif %}
-        <button class="dark-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
-    </div>
-    <div class="container">
-        <h1>About ShipLink</h1>
-        <div class="desc">ShipLink is dedicated to connecting logistics professionals and companies with the best job opportunities and delivery solutions. Our mission is to simplify freight management and empower users with smart, efficient tools.</div>
-        <div class="section-title">Who We Are</div>
-        <div class="section-text">We are a passionate team of logistics experts, software engineers, and innovators who believe in making freight and job matching simple, transparent, and accessible for everyone. Our platform is built on trust, reliability, and a drive to help our users succeed.</div>
-        <div class="section-title">What We Do</div>
-        <div class="section-text">We provide a modern, easy-to-use platform where companies and professionals can find, post, and manage logistics jobs. Whether you're looking to move cargo or find your next opportunity, ShipLink is here to connect you with the right people and solutions.</div>
-        <div class="values">
-            <div class="value-card">
-                <h3>Efficiency</h3>
-                <p>We streamline the process of finding and posting jobs, saving you time and effort.</p>
-            </div>
-            <div class="value-card">
-                <h3>Reliability</h3>
-                <p>Our platform is built for trust, security, and consistent performance.</p>
-            </div>
-            <div class="value-card">
-                <h3>Innovation</h3>
-                <p>We use modern technology to deliver the best experience for logistics professionals.</p>
+    <header class="sticky-header">
+        <div class="header-logo">ShipLink</div>
+        <nav class="nav">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
+                <a href="{% url 'logistics:logout' %}">Logout</a>
+            {% else %}
+                <a href="/login">Login</a>
+                <a href="/register">Register</a>
+            {% endif %}
+            <button class="dark-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
+        </nav>
+    </header>
+    <div class="main-content">
+        <div class="container">
+            <h1>About ShipLink</h1>
+            <div class="desc">ShipLink is dedicated to connecting logistics professionals and companies with the best job opportunities and delivery solutions. Our mission is to simplify freight management and empower users with smart, efficient tools.</div>
+            <div class="section-title">Who We Are</div>
+            <div class="section-text">We are a passionate team of logistics experts, software engineers, and innovators who believe in making freight and job matching simple, transparent, and accessible for everyone. Our platform is built on trust, reliability, and a drive to help our users succeed.</div>
+            <div class="section-title">What We Do</div>
+            <div class="section-text">We provide a modern, easy-to-use platform where companies and professionals can find, post, and manage logistics jobs. Whether you're looking to move cargo or find your next opportunity, ShipLink is here to connect you with the right people and solutions.</div>
+            <div class="values">
+                <div class="value-card">
+                    <h3>Efficiency</h3>
+                    <p>We streamline the process of finding and posting jobs, saving you time and effort.</p>
+                </div>
+                <div class="value-card">
+                    <h3>Reliability</h3>
+                    <p>Our platform is built for trust, security, and consistent performance.</p>
+                </div>
+                <div class="value-card">
+                    <h3>Innovation</h3>
+                    <p>We use modern technology to deliver the best experience for logistics professionals.</p>
+                </div>
             </div>
         </div>
     </div>
+    <div class="simple-footer">© 2025 ShipLink. All rights reserved.</div>
 <script>
 function setDarkMode(on) {
     if(on) {

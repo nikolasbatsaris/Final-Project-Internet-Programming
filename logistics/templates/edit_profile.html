@@ -4,58 +4,221 @@
     <meta charset="UTF-8">
     <title>Edit Profile</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 40px; }
-        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
-        form { margin-top: 20px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 6px; color: #2c3e50; font-weight: bold; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #232946 0%, #2193b0 100%);
+            margin: 0;
+            min-height: 100vh;
+            color: #fff;
+        }
+        .edit-profile-container {
+            max-width: 480px;
+            margin: 64px auto 0 auto;
+            background: rgba(35,41,70,0.97);
+            border-radius: 28px;
+            box-shadow: 0 8px 40px rgba(33,147,176,0.18);
+            padding: 40px 36px 32px 36px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            color: #ffe066;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #4fc3f7;
+            font-weight: bold;
+        }
         input[type="text"], input[type="email"], input[type="password"] {
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #4fc3f7;
+            border-radius: 8px;
+            font-size: 16px;
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+            transition: border 0.18s;
+        }
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+            border: 1.5px solid #ffe066;
+            outline: none;
         }
         .submit-btn {
-            width: 100%; background-color: #3498db; color: white; padding: 15px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.3s;
+            width: 100%;
+            background: #232946;
+            color: #ffe066;
+            padding: 15px;
+            border: 2px solid #ffe066;
+            border-radius: 22px;
+            font-size: 1.13rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s, border 0.18s;
+            margin-top: 18px;
         }
-        .submit-btn:hover { background-color: #2980b9; }
-        .back-link { color: #3498db; text-decoration: none; font-weight: bold; display: inline-block; margin-bottom: 20px; }
-        .back-link:hover { text-decoration: underline; }
-        .errorlist { color: #e74c3c; margin-bottom: 10px; list-style: none; padding: 0; }
-        .success-message { background-color: #27ae60; color: white; padding: 10px; border-radius: 5px; margin-bottom: 20px; text-align: center; }
+        .submit-btn:hover {
+            background: #ffe066;
+            color: #232946;
+        }
+        .back-link {
+            color: #4fc3f7;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+            border-radius: 18px;
+            padding: 8px 18px;
+            background: rgba(79,195,247,0.10);
+            transition: background 0.18s, color 0.18s;
+        }
+        .back-link:hover {
+            background: #4fc3f7;
+            color: #232946;
+        }
+        .errorlist {
+            color: #e74c3c;
+            margin-bottom: 10px;
+            list-style: none;
+            padding: 0;
+        }
+        .success-message {
+            background-color: #27ae60;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
         .cta-button {
-            background-color: #e67e22; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.3s;
+            background: none;
+            color: #4fc3f7;
+            border: 2px solid #4fc3f7;
+            padding: 10px 20px;
+            border-radius: 22px;
+            font-size: 1.13rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s, border 0.18s;
+            margin-top: 18px;
+            display: inline-block;
         }
-        .cta-button:hover { background-color: #d35400; }
-        /* Dark mode styles */
-        .dark-mode body { background: #181a20 !important; }
-        .dark-mode .container {
-            background: #23272f !important; color: #e3e6ed !important;
+        .cta-button:hover {
+            background: #4fc3f7;
+            color: #232946;
         }
-        .dark-mode h1 {
-            color: #8ab4f8 !important;
+        /* Light mode overrides - match dashboard */
+        body.light-mode {
+            background: linear-gradient(135deg, #fafdff 0%, #d6f0fa 100%) !important;
+            color: #232946;
         }
-        .dark-mode label {
-            color: #8ab4f8 !important;
+        body.light-mode .edit-profile-container {
+            background: #fff !important;
+            color: #232946 !important;
+            box-shadow: 0 4px 24px rgba(33,147,176,0.08);
         }
-        .dark-mode input[type="text"], .dark-mode input[type="email"], .dark-mode input[type="password"] {
-            background: #232b36 !important; color: #e3e6ed !important; border: 1px solid #2d3748 !important;
+        body.light-mode h1 {
+            color: #2193b0 !important;
         }
-        .dark-mode .submit-btn {
-            background: #2563a6 !important; color: #e3e6ed !important;
+        body.light-mode label {
+            color: #2193b0 !important;
         }
-        .dark-mode .submit-btn:hover {
-            background: #1c4a6e !important; color: #8ab4f8 !important;
+        body.light-mode input[type="text"],
+        body.light-mode input[type="email"],
+        body.light-mode input[type="password"] {
+            background: #fafdff !important;
+            color: #232946 !important;
+            border: 1.5px solid #b0e0e6 !important;
         }
-        .dark-mode .success-message {
-            background: #2d6a4f !important; color: #e3e6ed !important;
+        body.light-mode input[type="text"]:focus,
+        body.light-mode input[type="email"]:focus,
+        body.light-mode input[type="password"]:focus {
+            border: 1.5px solid #2193b0 !important;
         }
-        .dark-mode .errorlist {
-            color: #e57373 !important;
+        body.light-mode .submit-btn {
+            background: #fff !important;
+            color: #2193b0 !important;
+            border: 2px solid #2193b0 !important;
         }
-        .dark-mode .cta-button {
-            background: #6d5c2c !important; color: #e3e6ed !important;
+        body.light-mode .submit-btn:hover {
+            background: #2193b0 !important;
+            color: #fff !important;
         }
-        .dark-mode .cta-button:hover {
-            background: #a65c17 !important; color: #fff !important;
+        body.light-mode .back-link {
+            background: #e3f6fc !important;
+            color: #2193b0 !important;
+        }
+        body.light-mode .back-link:hover {
+            background: #2193b0 !important;
+            color: #fff !important;
+        }
+        body.light-mode .cta-button {
+            background: #fff !important;
+            color: #2193b0 !important;
+            border: 2px solid #2193b0 !important;
+        }
+        body.light-mode .cta-button:hover {
+            background: #2193b0 !important;
+            color: #fff !important;
+        }
+        /* Dark mode overrides - match dashboard */
+        body.dark-mode {
+            background: linear-gradient(135deg, #232946 0%, #2193b0 100%) !important;
+            color: #fff;
+        }
+        body.dark-mode .edit-profile-container {
+            background: rgba(35,41,70,0.97) !important;
+            color: #fff !important;
+            box-shadow: 0 8px 40px rgba(33,147,176,0.18);
+        }
+        body.dark-mode h1 {
+            color: #ffe066 !important;
+        }
+        body.dark-mode label {
+            color: #4fc3f7 !important;
+        }
+        body.dark-mode input[type="text"],
+        body.dark-mode input[type="email"],
+        body.dark-mode input[type="password"] {
+            background: rgba(255,255,255,0.08) !important;
+            color: #fff !important;
+            border: 1.5px solid #4fc3f7 !important;
+        }
+        body.dark-mode input[type="text"]:focus,
+        body.dark-mode input[type="email"]:focus,
+        body.dark-mode input[type="password"]:focus {
+            border: 1.5px solid #ffe066 !important;
+        }
+        body.dark-mode .submit-btn {
+            background: #232946 !important;
+            color: #ffe066 !important;
+            border: 2px solid #ffe066 !important;
+        }
+        body.dark-mode .submit-btn:hover {
+            background: #ffe066 !important;
+            color: #232946 !important;
+        }
+        body.dark-mode .back-link {
+            background: rgba(79,195,247,0.10) !important;
+            color: #4fc3f7 !important;
+        }
+        body.dark-mode .back-link:hover {
+            background: #4fc3f7 !important;
+            color: #232946 !important;
+        }
+        body.dark-mode .cta-button {
+            background: none !important;
+            color: #4fc3f7 !important;
+            border: 2px solid #4fc3f7 !important;
+        }
+        body.dark-mode .cta-button:hover {
+            background: #4fc3f7 !important;
+            color: #232946 !important;
         }
     </style>
 </head>
@@ -63,8 +226,10 @@
     <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
         <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
     </div>
-    <div class="container">
-        <a href="{% url 'logistics:dashboard' %}" class="back-link" style="background:#bdc3c7; color:#2c3e50; border:none; border-radius:5px; padding:8px 16px; font-weight:bold; margin-bottom:10px; cursor:pointer; text-decoration:none; display:inline-block;">← Back to Dashboard</a>
+    <div class="edit-profile-container">
+        {% if user.is_authenticated %}
+        <a href="{% url 'logistics:dashboard' %}" class="back-link">← Back to Dashboard</a>
+        {% endif %}
         <h1>Edit Profile</h1>
         <p><strong>Date Joined:</strong> {{ date_joined|date:'F j, Y' }}</p>
         <form method="post">
@@ -79,7 +244,7 @@
             {% endfor %}
             <button type="submit" class="submit-btn">Save Changes</button>
         </form>
-        <a href="{% url 'logistics:change_password' %}" class="cta-button" style="background-color:#e67e22; margin-top: 10px; display: inline-block;">Change Password</a>
+        <a href="{% url 'logistics:change_password' %}" class="cta-button">Change Password</a>
     </div>
 </body>
 <script>

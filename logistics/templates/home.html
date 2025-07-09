@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>ShipLink - Logistics + Job Matching</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -16,11 +18,39 @@
         .dark-mode body {
             background: linear-gradient(135deg, #232946 0%, #1a1a2e 100%) !important;
         }
+        .sticky-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 1000;
+            background: rgba(33, 147, 176, 0.98);
+            box-shadow: 0 2px 8px rgba(33,147,176,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+            padding: 0 32px;
+        }
+        .dark-mode .sticky-header {
+            background: rgba(35, 41, 70, 0.98);
+        }
+        .header-logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 2px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .dark-mode .header-logo, body.dark-mode .header-logo {
+            color: #ffe066;
+        }
         .nav {
             display: flex;
-            justify-content: flex-end;
             align-items: center;
-            padding: 32px 48px 0 48px;
+            padding: 0;
+            margin: 0;
         }
         .nav a, .nav button {
             margin-left: 24px;
@@ -55,6 +85,29 @@
             transition: color 0.2s;
         }
         .dark-mode .dark-toggle {
+            color: #ffe066;
+        }
+        .main-content {
+            padding-top: 90px; /* Height of sticky header + some space */
+            padding-bottom: 60px; /* Height of footer + some space */
+        }
+        @media (max-width: 900px) {
+            .nav { padding: 12px 8px 0 8px; }
+            .main-content { padding-top: 110px; }
+        }
+        .footer {
+            width: 100vw;
+            background: #2193b0;
+            color: #fff;
+            text-align: center;
+            padding: 18px 0 12px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 1001;
+        }
+        .dark-mode .footer {
+            background: #232946;
             color: #ffe066;
         }
         .hero {
@@ -170,101 +223,109 @@
             0%, 100% { opacity: 0.7; }
             50% { opacity: 1; }
         }
-        @media (max-width: 900px) {
-            .hero { max-width: 95vw; margin: 40px 2vw 0 2vw; }
-            .nav { padding: 24px 10px 0 10px; }
-        }
     </style>
 </head>
 <body>
-    <div style="position: absolute; left: 32px; top: 24px; z-index: 10; font-size: 2rem; font-weight: bold; color: #2193b0; letter-spacing: 2px; font-family: 'Segoe UI', Arial, sans-serif;">
-        ShipLink
-    </div>
-    <div class="nav">
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-        <a href="/contact">Contact</a>
-        {% if user.is_authenticated %}
-            <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
-            <a href="{% url 'logistics:logout' %}">Logout</a>
-        {% else %}
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
-        {% endif %}
-        <button class="dark-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
-    </div>
-    <div class="hero">
-        <h1>Logistics + Job Matching</h1>
-        <p>Find the perfect job or delivery with our smart matching platform. Fast, reliable, and designed for modern logistics professionals and companies.</p>
-        <button class="cta-btn" onclick="window.location.href='{% url 'logistics:job_list' %}'">Get Started</button>
-    </div>
-    <div class="features" style="display:flex;justify-content:space-around;margin:48px auto 0 auto;max-width:900px;flex-wrap:wrap;gap:24px;z-index:2;position:relative;">
-        <div class="feature" style="flex:1;min-width:220px;margin:10px;padding:24px 20px;background:#ecf0f1;border-radius:12px;box-shadow:0 2px 10px rgba(20,30,40,0.08);">
-            <h3 style="color:#2c3e50;margin-bottom:10px;">Find Jobs</h3>
-            <p style="color:#2563a6;">Browse through available freight jobs from various locations and cargo types.</p>
+    <header class="sticky-header">
+        <div class="header-logo">ShipLink</div>
+        <nav class="nav">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
+                <a href="{% url 'logistics:logout' %}">Logout</a>
+            {% else %}
+                <a href="/login">Login</a>
+                <a href="/register">Register</a>
+            {% endif %}
+            <button class="dark-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
+        </nav>
+    </header>
+    <div class="main-content">
+        <div class="hero">
+            <h1>Logistics + Job Matching</h1>
+            <p>Find the perfect job or delivery with our smart matching platform. Fast, reliable, and designed for modern logistics professionals and companies.</p>
+            <button class="cta-btn" onclick="window.location.href='{% url 'logistics:job_list' %}'">Get Started</button>
         </div>
-        <div class="feature" style="flex:1;min-width:220px;margin:10px;padding:24px 20px;background:#ecf0f1;border-radius:12px;box-shadow:0 2px 10px rgba(20,30,40,0.08);">
-            <h3 style="color:#2c3e50;margin-bottom:10px;">Post Jobs</h3>
-            <p style="color:#2563a6;">Create job postings to find the right carrier for your shipping needs.</p>
+        <div class="features" style="display:flex;justify-content:space-around;margin:48px auto 0 auto;max-width:900px;flex-wrap:wrap;gap:24px;z-index:2;position:relative;">
+            <div class="feature" style="flex:1;min-width:220px;margin:10px;padding:24px 20px;background:#ecf0f1;border-radius:12px;box-shadow:0 2px 10px rgba(20,30,40,0.08);">
+                <h3 style="color:#2c3e50;margin-bottom:10px;">Find Jobs</h3>
+                <p style="color:#2563a6;">Browse through available freight jobs from various locations and cargo types.</p>
+            </div>
+            <div class="feature" style="flex:1;min-width:220px;margin:10px;padding:24px 20px;background:#ecf0f1;border-radius:12px;box-shadow:0 2px 10px rgba(20,30,40,0.08);">
+                <h3 style="color:#2c3e50;margin-bottom:10px;">Post Jobs</h3>
+                <p style="color:#2563a6;">Create job postings to find the right carrier for your shipping needs.</p>
+            </div>
+            <div class="feature" style="flex:1;min-width:220px;margin:10px;padding:24px 20px;background:#ecf0f1;border-radius:12px;box-shadow:0 2px 10px rgba(20,30,40,0.08);">
+                <h3 style="color:#2c3e50;margin-bottom:10px;">Like Jobs</h3>
+                <p style="color:#2563a6;">Like interesting jobs to keep track of your favorites and get recommendations.</p>
+            </div>
         </div>
-        <div class="feature" style="flex:1;min-width:220px;margin:10px;padding:24px 20px;background:#ecf0f1;border-radius:12px;box-shadow:0 2px 10px rgba(20,30,40,0.08);">
-            <h3 style="color:#2c3e50;margin-bottom:10px;">Like Jobs</h3>
-            <p style="color:#2563a6;">Like interesting jobs to keep track of your favorites and get recommendations.</p>
-        </div>
+        <!-- SVG/PNG Illustrations for trucks, boxes, and abstract shapes -->
+        <svg class="bg-illustration" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Sun (day mode) -->
+            <circle class="sun" cx="1450" cy="120" r="70" fill="#ffe066"/>
+            <!-- Moon (night mode) -->
+            <g class="moon">
+                <circle cx="1450" cy="120" r="60" fill="#f4f6fb"/>
+                <circle cx="1470" cy="110" r="12" fill="#e0e3ef"/>
+                <circle cx="1430" cy="140" r="8" fill="#e0e3ef"/>
+                <circle cx="1460" cy="150" r="6" fill="#e0e3ef"/>
+            </g>
+            <!-- Clouds (day only) -->
+            <ellipse class="cloud floating" cx="350" cy="120" rx="70" ry="28" fill="#fff"/>
+            <ellipse class="cloud floating2" cx="1200" cy="180" rx="50" ry="20" fill="#fff"/>
+            <ellipse class="cloud floating3" cx="900" cy="90" rx="40" ry="16" fill="#fff"/>
+            <!-- Abstract shapes -->
+            <ellipse cx="300" cy="200" rx="180" ry="90" fill="#fff" fill-opacity="0.18"/>
+            <ellipse cx="1400" cy="150" rx="120" ry="80" fill="#fff" fill-opacity="0.13"/>
+            <ellipse cx="1200" cy="700" rx="200" ry="100" fill="#fff" fill-opacity="0.10"/>
+            <ellipse cx="200" cy="800" rx="120" ry="60" fill="#fff" fill-opacity="0.10"/>
+            <!-- Floating boxes (more added) -->
+            <rect class="floating" x="400" y="300" width="48" height="48" rx="8" fill="#ffd166"/>
+            <rect class="floating floating2" x="900" y="200" width="32" height="32" rx="6" fill="#f6c90e"/>
+            <rect class="floating floating3" x="1300" y="400" width="40" height="40" rx="7" fill="#f9d923"/>
+            <rect class="floating" x="600" y="500" width="36" height="36" rx="7" fill="#f7b267"/>
+            <rect class="floating floating2" x="1100" y="300" width="28" height="28" rx="6" fill="#f6c90e"/>
+            <rect class="floating floating3" x="200" y="600" width="30" height="30" rx="6" fill="#ffd166"/>
+            <!-- Truck (left) -->
+            <g class="floating" style="animation-delay:1s;">
+                <rect x="250" y="600" width="120" height="36" rx="8" fill="#ffb703"/>
+                <rect x="370" y="610" width="40" height="26" rx="6" fill="#2193b0"/>
+                <circle cx="270" cy="640" r="12" fill="#222"/>
+                <circle cx="390" cy="640" r="12" fill="#222"/>
+            </g>
+            <!-- Truck (right) -->
+            <g class="floating floating2" style="animation-delay:2.5s;">
+                <rect x="1100" y="700" width="120" height="36" rx="8" fill="#ffb703"/>
+                <rect x="1220" y="710" width="40" height="26" rx="6" fill="#2193b0"/>
+                <circle cx="1120" cy="740" r="12" fill="#222"/>
+                <circle cx="1240" cy="740" r="12" fill="#222"/>
+            </g>
+            <!-- Big box center -->
+            <rect class="floating floating3" x="750" y="500" width="80" height="80" rx="14" fill="#f72585"/>
+            <!-- Dotted road -->
+            <path d="M 300 700 Q 800 400 1300 700" stroke="#fff" stroke-width="6" stroke-dasharray="30 18" fill="none" opacity="0.5"/>
+            <!-- Stars (night only) -->
+            <circle class="star floating" cx="200" cy="100" r="3" fill="#fff"/>
+            <circle class="star floating2" cx="600" cy="80" r="2.5" fill="#ffe066"/>
+            <circle class="star floating3" cx="1000" cy="60" r="2.8" fill="#fff"/>
+            <circle class="star floating" cx="1400" cy="200" r="2.2" fill="#ffe066"/>
+            <circle class="star floating2" cx="1200" cy="100" r="2.7" fill="#fff"/>
+            <circle class="star floating3" cx="300" cy="300" r="2.3" fill="#ffe066"/>
+        </svg>
     </div>
-    <!-- SVG/PNG Illustrations for trucks, boxes, and abstract shapes -->
-    <svg class="bg-illustration" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Sun (day mode) -->
-        <circle class="sun" cx="1450" cy="120" r="70" fill="#ffe066"/>
-        <!-- Moon (night mode) -->
-        <g class="moon">
-            <circle cx="1450" cy="120" r="60" fill="#f4f6fb"/>
-            <circle cx="1470" cy="110" r="12" fill="#e0e3ef"/>
-            <circle cx="1430" cy="140" r="8" fill="#e0e3ef"/>
-            <circle cx="1460" cy="150" r="6" fill="#e0e3ef"/>
-        </g>
-        <!-- Clouds (day only) -->
-        <ellipse class="cloud floating" cx="350" cy="120" rx="70" ry="28" fill="#fff"/>
-        <ellipse class="cloud floating2" cx="1200" cy="180" rx="50" ry="20" fill="#fff"/>
-        <ellipse class="cloud floating3" cx="900" cy="90" rx="40" ry="16" fill="#fff"/>
-        <!-- Abstract shapes -->
-        <ellipse cx="300" cy="200" rx="180" ry="90" fill="#fff" fill-opacity="0.18"/>
-        <ellipse cx="1400" cy="150" rx="120" ry="80" fill="#fff" fill-opacity="0.13"/>
-        <ellipse cx="1200" cy="700" rx="200" ry="100" fill="#fff" fill-opacity="0.10"/>
-        <ellipse cx="200" cy="800" rx="120" ry="60" fill="#fff" fill-opacity="0.10"/>
-        <!-- Floating boxes (more added) -->
-        <rect class="floating" x="400" y="300" width="48" height="48" rx="8" fill="#ffd166"/>
-        <rect class="floating floating2" x="900" y="200" width="32" height="32" rx="6" fill="#f6c90e"/>
-        <rect class="floating floating3" x="1300" y="400" width="40" height="40" rx="7" fill="#f9d923"/>
-        <rect class="floating" x="600" y="500" width="36" height="36" rx="7" fill="#f7b267"/>
-        <rect class="floating floating2" x="1100" y="300" width="28" height="28" rx="6" fill="#f6c90e"/>
-        <rect class="floating floating3" x="200" y="600" width="30" height="30" rx="6" fill="#ffd166"/>
-        <!-- Truck (left) -->
-        <g class="floating" style="animation-delay:1s;">
-            <rect x="250" y="600" width="120" height="36" rx="8" fill="#ffb703"/>
-            <rect x="370" y="610" width="40" height="26" rx="6" fill="#2193b0"/>
-            <circle cx="270" cy="640" r="12" fill="#222"/>
-            <circle cx="390" cy="640" r="12" fill="#222"/>
-        </g>
-        <!-- Truck (right) -->
-        <g class="floating floating2" style="animation-delay:2.5s;">
-            <rect x="1100" y="700" width="120" height="36" rx="8" fill="#ffb703"/>
-            <rect x="1220" y="710" width="40" height="26" rx="6" fill="#2193b0"/>
-            <circle cx="1120" cy="740" r="12" fill="#222"/>
-            <circle cx="1240" cy="740" r="12" fill="#222"/>
-        </g>
-        <!-- Big box center -->
-        <rect class="floating floating3" x="750" y="500" width="80" height="80" rx="14" fill="#f72585"/>
-        <!-- Dotted road -->
-        <path d="M 300 700 Q 800 400 1300 700" stroke="#fff" stroke-width="6" stroke-dasharray="30 18" fill="none" opacity="0.5"/>
-        <!-- Stars (night only) -->
-        <circle class="star floating" cx="200" cy="100" r="3" fill="#fff"/>
-        <circle class="star floating2" cx="600" cy="80" r="2.5" fill="#ffe066"/>
-        <circle class="star floating3" cx="1000" cy="60" r="2.8" fill="#fff"/>
-        <circle class="star floating" cx="1400" cy="200" r="2.2" fill="#ffe066"/>
-        <circle class="star floating2" cx="1200" cy="100" r="2.7" fill="#fff"/>
-        <circle class="star floating3" cx="300" cy="300" r="2.3" fill="#ffe066"/>
-    </svg>
+    <footer class="footer mt-auto">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-auto">
+                    &copy; 2025 ShipLink. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     function setDarkMode(on) {
         if(on) {

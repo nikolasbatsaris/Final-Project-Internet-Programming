@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm, SetPasswordForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponse, Http404
 from django.views.decorators.http import require_POST
 from .models import JobPost, JobLike, JobRequest, JobFlag, RecentActivity, JobCategory, BookedJob, ContactMessage
 from django import forms
@@ -417,10 +417,40 @@ class UserProfileForm(forms.ModelForm):
 def edit_profile(request):
     if request.method == 'POST':
         form = UserProfileForm(request.POST, instance=request.user)
+        # Check for AJAX
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+        # Check for unique username/email
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        if User.objects.exclude(pk=request.user.pk).filter(username=username).exists():
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': 'Username already exists.'})
+            else:
+                messages.error(request, 'Username already exists.')
+                return redirect('logistics:edit_profile')
+        if User.objects.exclude(pk=request.user.pk).filter(email=email).exists():
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': 'Email already exists.'})
+            else:
+                messages.error(request, 'Email already exists.')
+                return redirect('logistics:edit_profile')
         if form.is_valid():
             form.save()
-            messages.success(request, 'Profile updated successfully!')
-            return redirect('logistics:admin_dashboard')
+            if is_ajax:
+                return JsonResponse({'success': True})
+            else:
+                messages.success(request, 'Profile updated successfully!')
+                if request.user.is_staff:
+                    return redirect('logistics:admin_dashboard')
+                else:
+                    return redirect('logistics:dashboard')
+        else:
+            if is_ajax:
+                error = next(iter(form.errors.values()))[0] if form.errors else 'Invalid input.'
+                return JsonResponse({'success': False, 'error': error})
+            else:
+                messages.error(request, 'Invalid input.')
+                return redirect('logistics:edit_profile')
     else:
         form = UserProfileForm(instance=request.user)
     date_joined = request.user.date_joined
@@ -429,31 +459,42 @@ def edit_profile(request):
 @login_required
 def change_password(request):
     if request.method == 'POST':
-        # Check current password first
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
         old_password = request.POST.get('old_password')
-        if not request.user.check_password(old_password):
-            messages.error(request, 'Your current password is incorrect.')
-            return redirect('logistics:dashboard')
-        
-        # Validate new passwords match
         new_password1 = request.POST.get('new_password1')
         new_password2 = request.POST.get('new_password2')
-        
+        if not request.user.check_password(old_password):
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': 'Your current password is incorrect.'})
+            else:
+                messages.error(request, 'Your current password is incorrect.')
+                return redirect('logistics:dashboard')
         if new_password1 != new_password2:
-            messages.error(request, 'New passwords do not match.')
-            return redirect('logistics:dashboard')
-        
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': 'New passwords do not match.'})
+            else:
+                messages.error(request, 'New passwords do not match.')
+                return redirect('logistics:dashboard')
         if len(new_password1) < 8:
-            messages.error(request, 'Password must be at least 8 characters long.')
-            return redirect('logistics:dashboard')
-        
-        # Set new password
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': 'Password must be at least 8 characters long.'})
+            else:
+                messages.error(request, 'Password must be at least 8 characters long.')
+                return redirect('logistics:dashboard')
+        if request.user.check_password(new_password1):
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': 'New password cannot be the same as the current password.'})
+            else:
+                messages.error(request, 'New password cannot be the same as the current password.')
+                return redirect('logistics:dashboard')
         request.user.set_password(new_password1)
         request.user.save()
         update_session_auth_hash(request, request.user)
-        messages.success(request, 'Your password was successfully updated!')
-        return redirect('logistics:dashboard')
-    
+        if is_ajax:
+            return JsonResponse({'success': True})
+        else:
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('logistics:dashboard')
     return redirect('logistics:dashboard')
 
 class JobRequestForm(forms.ModelForm):
@@ -1071,10 +1112,52 @@ def dashboard(request):
             id__in=all_booked_job_ids
         ).select_related('cargo_type', 'created_by').order_by('-created_at')[:6]
     
+    total_jobs_count = JobPost.objects.count()
+    active_requests_count = JobRequest.objects.filter(requested_by=request.user, status='pending').count()
+    jobs_booked_count = BookedJob.objects.filter(user=request.user).count()
+    liked_jobs_count = JobLike.objects.filter(user=request.user).count()
     context = {
         'job_requests': job_requests,
         'booked_jobs': booked_jobs,
         'liked_jobs': liked_jobs,
         'recommended_jobs': recommended_jobs,
+        'total_jobs_count': total_jobs_count,
+        'active_requests_count': active_requests_count,
+        'jobs_booked_count': jobs_booked_count,
+        'liked_jobs_count': liked_jobs_count,
     }
     return render(request, 'dashboard.html', context)
+
+@login_required
+def job_request_detail_json(request, request_id):
+    try:
+        req = JobRequest.objects.get(id=request_id, requested_by=request.user)
+    except JobRequest.DoesNotExist:
+        raise Http404
+    data = {
+        'id': req.id,
+        'title': req.title,
+        'description': req.description,
+        'origin': req.origin,
+        'origin_address': req.origin_address,
+        'origin_zip': req.origin_zip,
+        'destination': req.destination,
+        'destination_address': req.destination_address,
+        'destination_zip': req.destination_zip,
+        'pickup_date': req.pickup_date.strftime('%Y-%m-%d') if req.pickup_date else '',
+        'pickup_time_from': req.pickup_time_from,
+        'pickup_time_to': req.pickup_time_to,
+        'delivery_deadline': req.delivery_deadline.strftime('%Y-%m-%d') if req.delivery_deadline else '',
+        'cargo_type': req.cargo_type.name if req.cargo_type else '',
+        'weight_kg': req.weight_kg,
+        'length_cm': req.length_cm,
+        'width_cm': req.width_cm,
+        'height_cm': req.height_cm,
+        'special_requirements': req.special_requirements,
+        'declared_value': req.declared_value,
+        'reference_code': req.reference_code,
+        'status': req.status,
+        'staff_note': req.staff_note,
+        'created_at': req.created_at.strftime('%Y-%m-%d %H:%M'),
+    }
+    return JsonResponse(data)

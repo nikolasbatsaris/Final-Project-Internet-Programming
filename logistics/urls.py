@@ -43,4 +43,5 @@ urlpatterns = [
     path('staff/contact-messages/', views.staff_contact_messages, name='staff_contact_messages'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('my-bookings/', views.my_bookings, name='my_bookings'),
+    path('requests/<int:request_id>/json/', views.job_request_detail_json, name='job_request_detail_json'),
 ] 

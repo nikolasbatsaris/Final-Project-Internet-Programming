@@ -205,7 +205,9 @@
         <div class="progress-bar-container">
             <div class="progress-bar" id="progressBar"></div>
         </div>
+        {% if user.is_authenticated %}
         <a href="{% url 'logistics:dashboard' %}" class="back-link styled-back-btn">← Back to Dashboard</a>
+        {% endif %}
         <h1>Request a Job</h1>
         <form method="post" id="requestJobForm">
             {% csrf_token %}
