@@ -127,6 +127,63 @@
             color: #ffe066 !important;
             box-shadow: 0 4px 16px rgba(255,224,102,0.18);
         }
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+            border-radius: 6px;
+            transition: width 0.4s cubic-bezier(.4,2,.6,1);
+        }
+        .card-section {
+            background: #f9f9fb;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(52,152,219,0.07);
+            padding: 28px 24px 18px 24px;
+            margin-bottom: 28px;
+            animation: fadeInUp 0.5s;
+        }
+        .section-icon {
+            font-size: 1.3em;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .sticky-submit {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 2;
+            margin-top: 18px;
+            box-shadow: 0 2px 8px rgba(52,152,219,0.08);
+        }
+        @media (max-width: 900px) {
+            .container { padding: 20px 4vw; }
+            .form-row { flex-direction: column; gap: 0; }
+            .sticky-submit { width: 100%; left: 0; right: 0; }
+        }
+        .dark-mode .card-section {
+            background: #23272f !important;
+            color: #e3e6ed !important;
+            box-shadow: 0 2px 12px rgba(138,180,248,0.07);
+        }
+        .dark-mode .progress-bar-container {
+            background: #232b36 !important;
+        }
+        .dark-mode .progress-bar {
+            background: linear-gradient(90deg, #8ab4f8 0%, #2563a6 100%) !important;
+        }
     </style>
     <script>
     (function() {
@@ -145,13 +202,16 @@
 <body>
     <div class="shiplink-logo">ShipLink</div>
     <div class="container">
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
         <a href="{% url 'logistics:dashboard' %}" class="back-link styled-back-btn">← Back to Dashboard</a>
         <h1>Request a Job</h1>
-        <form method="post">
+        <form method="post" id="requestJobForm">
             {% csrf_token %}
             {{ form.non_field_errors }}
-            <div class="form-section">
-                <div class="section-title">Basic Information</div>
+            <div class="form-section card-section" data-step="1">
+                <div class="section-title"><span class="section-icon">📝</span> Basic Information</div>
                 <div class="form-row">
                     <div class="form-group">{{ form.title.label_tag }}{{ form.title }}{{ form.title.errors }}</div>
                     <div class="form-group">{{ form.cargo_type.label_tag }}{{ form.cargo_type }}{{ form.cargo_type.errors }}</div>
@@ -160,8 +220,17 @@
                     <div class="form-group" style="flex:2;">{{ form.description.label_tag }}{{ form.description }}{{ form.description.errors }}</div>
                 </div>
             </div>
-            <div class="form-section">
-                <div class="section-title">Pickup Information</div>
+            <div class="form-section card-section" data-step="2">
+                <div class="section-title"><span class="section-icon">📦</span> Cargo Details</div>
+                <div class="form-row">
+                    <div class="form-group">{{ form.weight_kg.label_tag }}{{ form.weight_kg }}{{ form.weight_kg.errors }}</div>
+                    <div class="form-group">{{ form.length_cm.label_tag }}{{ form.length_cm }}{{ form.length_cm.errors }}</div>
+                    <div class="form-group">{{ form.width_cm.label_tag }}{{ form.width_cm }}{{ form.width_cm.errors }}</div>
+                    <div class="form-group">{{ form.height_cm.label_tag }}{{ form.height_cm }}{{ form.height_cm.errors }}</div>
+                </div>
+            </div>
+            <div class="form-section card-section" data-step="3">
+                <div class="section-title"><span class="section-icon">🚚</span> Pickup Information</div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="id_origin">City</label>
@@ -174,8 +243,8 @@
                     <div class="form-group">{{ form.pickup_time_from.label_tag }}{{ form.pickup_time_from }}{{ form.pickup_time_from.errors }}</div>
                 </div>
             </div>
-            <div class="form-section">
-                <div class="section-title">Dropoff Information</div>
+            <div class="form-section card-section" data-step="4">
+                <div class="section-title"><span class="section-icon">🏁</span> Dropoff Information</div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="id_destination">City</label>
@@ -188,23 +257,30 @@
                     <div class="form-group">{{ form.pickup_time_to.label_tag }}{{ form.pickup_time_to }}{{ form.pickup_time_to.errors }}</div>
                 </div>
             </div>
-            <div class="form-section">
-                <div class="section-title">Cargo Details</div>
-                <div class="form-row">
-                    <div class="form-group">{{ form.weight_kg.label_tag }}{{ form.weight_kg }}{{ form.weight_kg.errors }}</div>
-                    <div class="form-group">{{ form.length_cm.label_tag }}{{ form.length_cm }}{{ form.length_cm.errors }}</div>
-                    <div class="form-group">{{ form.width_cm.label_tag }}{{ form.width_cm }}{{ form.width_cm.errors }}</div>
-                    <div class="form-group">{{ form.height_cm.label_tag }}{{ form.height_cm }}{{ form.height_cm.errors }}</div>
-                </div>
-            </div>
-            <div class="form-section">
-                <div class="section-title">Special Requirements</div>
+            <div class="form-section card-section" data-step="5">
+                <div class="section-title"><span class="section-icon">⚠️</span> Special Requirements</div>
                 <div class="form-row">
                     <div class="form-group" style="flex:2;">{{ form.special_requirements.label_tag }}{{ form.special_requirements }}{{ form.special_requirements.errors }}</div>
                 </div>
             </div>
-            <button type="submit" class="submit-btn">Submit Request</button>
+            <button type="submit" class="submit-btn sticky-submit">Submit Request</button>
         </form>
     </div>
+    <script>
+    // Progress bar logic
+    const formSections = document.querySelectorAll('.card-section');
+    const progressBar = document.getElementById('progressBar');
+    if (formSections.length && progressBar) {
+        let filled = 0;
+        formSections.forEach((section, idx) => {
+            section.addEventListener('focusin', () => {
+                filled = ((idx+1)/formSections.length)*100;
+                progressBar.style.width = filled + '%';
+            });
+        });
+        // On page load, set to first section
+        progressBar.style.width = (1/formSections.length)*100 + '%';
+    }
+    </script>
 </body>
 </html> 

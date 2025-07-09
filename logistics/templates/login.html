@@ -168,14 +168,13 @@
     </div>
     <div class="nav">
         <a href="/">Home</a>
-        <a href="/about/">About</a>
-        <a href="/contact/">Contact</a>
-        <a href="{% url 'logistics:dashboard' %}">Dashboard</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
         {% if user.is_authenticated %}
             <a href="{% url 'logistics:logout' %}">Logout</a>
         {% else %}
-            <a href="{% url 'logistics:login' %}">Login</a>
-            <a href="{% url 'logistics:register' %}">Register</a>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
         {% endif %}
         <button class="dark-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
     </div>

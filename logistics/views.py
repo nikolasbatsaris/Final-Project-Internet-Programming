@@ -64,13 +64,12 @@ def job_list(request):
     if request.user.is_authenticated:
         user_booked_job_ids = set(BookedJob.objects.filter(user=request.user, job__in=jobs).values_list('job_id', flat=True))
 
-    # PAGINATION: 10 jobs per page
-    paginator = Paginator(jobs, 10)
+    # PAGINATION: 6 jobs per page
+    paginator = Paginator(jobs, 6)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'job_list.html', {
-        'jobs': page_obj.object_list,
         'categories': categories,
         'q': q,
         'cargo_type': cargo_type,
@@ -537,7 +536,7 @@ def my_job_requests(request):
 
 @login_required
 def my_bookings(request):
-    bookings = BookedJob.objects.filter(user=request.user).select_related('job').order_by('-booked_at')
+    bookings = BookedJob.objects.filter(user=request.user, job__hidden=False).select_related('job').order_by('-booked_at')
     return render(request, 'my_bookings.html', {'bookings': bookings})
 
 @login_required

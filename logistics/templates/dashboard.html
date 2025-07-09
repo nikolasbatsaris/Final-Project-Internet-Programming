@@ -389,6 +389,16 @@
 .dark-mode .dashboard-card div[style*="overflow-y: auto"] {
     scrollbar-color: #4fc3f7 transparent;
 }
+        .dark-mode #jobDetailModal .modal-content {
+            background: #232946 !important;
+            color: #fff !important;
+        }
+        .dark-mode #jobDetailModal .modal-content button {
+            color: #fff !important;
+        }
+        .dark-mode #jobDetailModal {
+            background: rgba(30,34,40,0.92) !important;
+        }
     </style>
 </head>
 <body>
@@ -490,7 +500,7 @@
                                     {{ job.origin }} → {{ job.destination }}
                                 </div>
                                 <div style="font-size: 0.8rem; color: #95a5a6; margin-top: 2px;">
-                                    <a href="{% url 'logistics:job_detail' job.id %}" style="color: #3498db; text-decoration: none;">View Details →</a>
+                                    <a href="javascript:openJobDetailModal({{ job.id }})" style="color: #3498db; text-decoration: none;">View Details →</a>
                                 </div>
                             </div>
                         {% endfor %}
@@ -516,7 +526,7 @@
                                 </div>
                                 <div style="font-size: 0.8rem; color: #95a5a6; margin-top: 2px;">
                                     <span style="color: #f39c12; font-weight: bold;">{{ job.cargo_type.name }}</span> • 
-                                    <a href="{% url 'logistics:job_detail' job.id %}" style="color: #3498db; text-decoration: none;">View Details →</a>
+                                    <a href="javascript:openJobDetailModal({{ job.id }})" style="color: #3498db; text-decoration: none;">View Details →</a>
                                 </div>
                             </div>
                         {% endfor %}
@@ -623,7 +633,7 @@
                                 <p>{{ job.description|truncatewords:30 }}</p>
                             </div>
                             <div style="text-align: right; margin-top: 12px;">
-                                <a href="{% url 'logistics:job_detail' job.id %}" style="background: #3498db; color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: bold;">View Full Details →</a>
+                                <a href="javascript:openJobDetailModal({{ job.id }})" style="background: #3498db; color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: bold;">View Full Details →</a>
                             </div>
                         </div>
                     {% endfor %}
@@ -672,7 +682,7 @@
                                 <p>{{ job.description|truncatewords:30 }}</p>
                             </div>
                             <div style="text-align: right; margin-top: 12px;">
-                                <a href="{% url 'logistics:job_detail' job.id %}" style="background: #3498db; color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: bold;">View Full Details →</a>
+                                <a href="javascript:openJobDetailModal({{ job.id }})" style="background: #3498db; color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: bold;">View Full Details →</a>
                             </div>
                         </div>
                     {% endfor %}
@@ -755,6 +765,15 @@
         </div>
     </div>
     
+    <!-- Job Detail Modal (reused from job_list.html) -->
+    <div id="jobDetailModal" class="modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(30,34,40,0.82); align-items:center; justify-content:center;">
+      <div class="modal-content" style="background:#fff; color:#232946; border-radius:18px; max-width:520px; width:95vw; padding:36px 32px 28px 32px; box-shadow:0 8px 40px rgba(52,152,219,0.18); position:relative;">
+        <button onclick="closeJobDetailModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; font-size:2rem; color:#888; cursor:pointer;">&times;</button>
+        <div id="jobDetailContent">
+          <!-- Job details will be loaded here -->
+        </div>
+      </div>
+    </div>
     <script>
     // --- DARK MODE SCRIPT: toggles .dark-mode on <html> for full-page background ---
     function setDarkMode(on) {
@@ -842,6 +861,7 @@
         const recommendedJobsModal = document.getElementById('recommendedJobsModal');
         const editInfoModal = document.getElementById('editInfoModal');
         const changePasswordModal = document.getElementById('changePasswordModal');
+        const jobDetailModal = document.getElementById('jobDetailModal');
         
         if (event.target === requestsModal) {
             closeRequestsModal();
@@ -857,6 +877,9 @@
         }
         if (event.target === changePasswordModal) {
             closeChangePasswordModal();
+        }
+        if (event.target === jobDetailModal) {
+            closeJobDetailModal();
         }
     }
     
@@ -890,8 +913,101 @@
             closeRecommendedJobsModal();
             closeEditInfoModal();
             closeChangePasswordModal();
+            closeJobDetailModal();
         }
     });
+
+function openJobDetailModal(jobId) {
+    // Show modal
+    document.getElementById('jobDetailModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    // Fetch job details via AJAX
+    fetch(`/jobs/${jobId}/json/`)
+        .then(response => response.json())
+        .then(data => {
+            // Render job details (copied from job_list.html)
+            let html = `<div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;">
+                <span style="font-size:2.2rem;">🚚</span>
+                <div style="font-size:1.5rem;font-weight:bold;">${data.title}</div>
+            </div>
+            <div style="margin-bottom:10px;"><b>Route:</b> ${data.origin} → ${data.destination}</div>
+            <div style="margin-bottom:10px;"><b>Pickup:</b> ${data.origin_address || '—'}, ${data.origin_zip || '—'}<br>Date: ${data.pickup_date || '—'}<br>Time: ${data.pickup_time_from || '—'}</div>
+            <div style="margin-bottom:10px;"><b>Dropoff:</b> ${data.destination_address || '—'}, ${data.destination_zip || '—'}<br>Time: ${data.pickup_time_to || '—'}<br>Deadline: ${data.delivery_deadline || '—'}</div>
+            <div style="margin-bottom:10px;"><b>Cargo:</b> ${data.cargo_type}<br>Weight: ${data.weight_kg || '—'} kg<br>Dimensions: ${data.length_cm || '—'} × ${data.width_cm || '—'} × ${data.height_cm || '—'} cm<br>Special: ${data.special_requirements || '—'}<br>Declared Value: ${data.declared_value || '—'}<br>Reference Code: ${data.reference_code || '—'}</div>
+            <div style="margin-bottom:10px;"><b>Description:</b> ${data.description || '—'}</div>
+            <div style="margin-bottom:10px;"><b>Posted:</b> ${data.created_at}</div>`;
+            if (data.is_authenticated) {
+                html += `<div style="display:flex;gap:16px;margin-top:18px;">
+                    <button class="like-btn-modal${data.liked ? ' liked' : ''}" onclick="likeJobFromModal(${data.id}, this)" style="background:#e74c3c;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:bold;cursor:pointer;">${data.liked ? '❤ Liked' : '🤍 Like'}</button>
+                    <button class="book-btn-modal" onclick="bookJobFromModal(${data.id}, this)" style="background:#27ae60;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:bold;cursor:pointer;">🚚 Book</button>
+                </div>`;
+            } else {
+                html += `<div style="margin-top:18px;color:#e74c3c;font-weight:bold;">Login to like or book this job.</div>`;
+            }
+            document.getElementById('jobDetailContent').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error fetching job details:', error);
+            document.getElementById('jobDetailContent').innerHTML = '<div style="color:#e74c3c;">Error loading job details. Please try again.</div>';
+        });
+}
+function closeJobDetailModal() {
+    document.getElementById('jobDetailModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function likeJobFromModal(jobId, btn) {
+    btn.disabled = true;
+    fetch(`/jobs/${jobId}/like/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            btn.classList.toggle('liked', data.action === 'liked');
+            btn.textContent = data.action === 'liked' ? '❤ Liked' : '🤍 Like';
+            // Update like count on main card if present
+            const likeCountSpan = document.getElementById('like-count-' + jobId);
+            if (likeCountSpan) likeCountSpan.textContent = '👍 ' + data.likes;
+        }
+        btn.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error liking job:', error);
+        btn.disabled = false;
+        alert('Error liking job.');
+    });
+}
+function bookJobFromModal(jobId, btn) {
+    btn.disabled = true;
+    fetch(`/jobs/${jobId}/book/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            btn.textContent = 'Booked!';
+            btn.disabled = true;
+        } else {
+            btn.textContent = 'Book';
+            btn.disabled = false;
+            alert(data.message || 'Error booking job.');
+        }
+    })
+    .catch(error => {
+        console.error('Error booking job:', error);
+        btn.disabled = false;
+        alert('Error booking job.');
+    });
+}
     </script>
     <svg class="bg-illustration-bottom" viewBox="0 0 1600 320" fill="none" xmlns="http://www.w3.org/2000/svg">
     <!-- Clouds (day only) -->

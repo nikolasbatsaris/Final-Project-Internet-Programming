@@ -49,47 +49,126 @@
     <div class="container">
         <a href="{% url 'logistics:dashboard' %}" class="back-btn" style="text-decoration:none;">← Back to Dashboard</a>
         <h1>My Bookings</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Pickup</th>
-                    <th>Dropoff</th>
-                    <th>Cargo</th>
-                    <th>Booked At</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for booking in bookings %}
-                <tr>
-                    <td>{{ booking.job.title }}</td>
-                    <td>
-                        <b>City:</b> {{ booking.job.origin }}<br>
-                        <b>Address:</b> {{ booking.job.origin_address|default:'—' }}<br>
-                        <b>ZIP:</b> {{ booking.job.origin_zip|default:'—' }}<br>
-                        <b>Date:</b> {{ booking.job.pickup_date|default:'—' }}<br>
-                        <b>Time:</b> {{ booking.job.pickup_time_from|default:'—' }}
-                    </td>
-                    <td>
-                        <b>City:</b> {{ booking.job.destination }}<br>
-                        <b>Address:</b> {{ booking.job.destination_address|default:'—' }}<br>
-                        <b>ZIP:</b> {{ booking.job.destination_zip|default:'—' }}<br>
-                        <b>Time:</b> {{ booking.job.pickup_time_to|default:'—' }}<br>
-                        <b>Deadline:</b> {{ booking.job.delivery_deadline|default:'—' }}
-                    </td>
-                    <td>
-                        <b>Type:</b> {{ booking.job.cargo_type.name }}<br>
-                        <b>Weight:</b> {{ booking.job.weight_kg|default:'—' }} kg<br>
-                        <b>Dimensions:</b> {{ booking.job.length_cm|default:'—' }}×{{ booking.job.width_cm|default:'—' }}×{{ booking.job.height_cm|default:'—' }} cm<br>
-                        <b>Special:</b> {{ booking.job.special_requirements|default:'—' }}
-                    </td>
-                    <td>{{ booking.booked_at|date:"Y-m-d H:i" }}</td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="5" style="text-align:center; color:#888;">No bookings yet.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% if bookings %}
+        <div class="bookings-grid">
+            {% for booking in bookings %}
+            <div class="booking-card">
+                <div class="booking-header">
+                    <span class="booking-icon">🚚</span>
+                    <span class="booking-title">{{ booking.job.title }}</span>
+                </div>
+                <div class="booking-info-row">
+                    <div>
+                        <b>Pickup:</b> {{ booking.job.origin }}<br>
+                        <span class="booking-detail">{{ booking.job.origin_address|default:'—' }}, {{ booking.job.origin_zip|default:'—' }}</span><br>
+                        <span class="booking-detail">Date: {{ booking.job.pickup_date|default:'—' }}</span><br>
+                        <span class="booking-detail">Time: {{ booking.job.pickup_time_from|default:'—' }}</span>
+                    </div>
+                    <div>
+                        <b>Dropoff:</b> {{ booking.job.destination }}<br>
+                        <span class="booking-detail">{{ booking.job.destination_address|default:'—' }}, {{ booking.job.destination_zip|default:'—' }}</span><br>
+                        <span class="booking-detail">Time: {{ booking.job.pickup_time_to|default:'—' }}</span><br>
+                        <span class="booking-detail">Deadline: {{ booking.job.delivery_deadline|default:'—' }}</span>
+                    </div>
+                </div>
+                <div class="booking-cargo-row">
+                    <span><b>Type:</b> {{ booking.job.cargo_type.name }}</span>
+                    <span><b>Weight:</b> {{ booking.job.weight_kg|default:'—' }} kg</span>
+                    <span><b>Dimensions:</b> {{ booking.job.length_cm|default:'—' }}×{{ booking.job.width_cm|default:'—' }}×{{ booking.job.height_cm|default:'—' }} cm</span>
+                    <span><b>Special:</b> {{ booking.job.special_requirements|default:'—' }}</span>
+                </div>
+                <div class="booking-meta-row">
+                    <span class="booking-date">Booked: {{ booking.booked_at|date:"Y-m-d H:i" }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center; color:#888; margin-top:40px; font-size:1.2rem;">No bookings yet.</div>
+        {% endif %}
     </div>
+    <style>
+    .bookings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 28px;
+        margin-top: 32px;
+    }
+    .booking-card {
+        background: #f9f9fb;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(52,152,219,0.07);
+        padding: 28px 24px 18px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: box-shadow 0.2s;
+        border-left: 6px solid #3498db;
+        position: relative;
+    }
+    .booking-card:hover {
+        box-shadow: 0 6px 24px rgba(52,152,219,0.13);
+    }
+    .booking-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 6px;
+    }
+    .booking-icon {
+        font-size: 2.1rem;
+    }
+    .booking-title {
+        color: #232946;
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+    .booking-info-row {
+        display: flex;
+        gap: 32px;
+        font-size: 1rem;
+        justify-content: space-between;
+    }
+    .booking-detail {
+        color: #888;
+        font-size: 0.97rem;
+    }
+    .booking-cargo-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        font-size: 0.98rem;
+        margin-top: 6px;
+    }
+    .booking-meta-row {
+        margin-top: 8px;
+        font-size: 0.95rem;
+        color: #888;
+        display: flex;
+        justify-content: flex-end;
+    }
+    @media (max-width: 700px) {
+        .bookings-grid {
+            grid-template-columns: 1fr;
+        }
+        .booking-info-row {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+    .dark-mode .booking-card {
+        background: #23272f !important;
+        color: #e3e6ed !important;
+        border-left: 6px solid #8ab4f8;
+    }
+    .dark-mode .booking-title {
+        color: #8ab4f8 !important;
+    }
+    .dark-mode .booking-detail, .dark-mode .booking-meta-row {
+        color: #b0b8c1 !important;
+    }
+    </style>
 </body>
 </html> 

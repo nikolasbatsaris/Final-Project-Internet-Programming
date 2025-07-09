@@ -45,18 +45,6 @@
             background: #ffe066;
             color: #232946;
         }
-        .dark-toggle {
-            font-size: 1.5rem;
-            background: none;
-            border: none;
-            cursor: pointer;
-            margin-left: 16px;
-            color: #fff;
-            transition: color 0.2s;
-        }
-        .dark-mode .dark-toggle {
-            color: #ffe066;
-        }
         .header {
             display: flex;
             align-items: center;
@@ -103,9 +91,12 @@
         }
         .dark-mode .job-card {
             background: #232946;
-            color: #ffe066;
+            color: #fff;
             border-left: 8px solid #ffe066;
             box-shadow: 0 4px 18px rgba(255,224,102,0.08);
+        }
+        .dark-mode .job-card .job-title {
+            color: #ffe066;
         }
         .cargo-icon {
             font-size: 2.1rem;
@@ -343,70 +334,100 @@
             color: #232946;
             border-color: #ffe066;
         }
+        .heart-icon {
+  display: block;
+  margin: 0 auto;
+  width: 36px;
+  height: 36px;
+  transition: transform 0.18s, filter 0.18s;
+}
+.like-btn {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 6px 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto;
+  border-radius: 50%;
+  transition: background 0.18s;
+}
+.like-btn.liked .heart-shape {
+  fill: #e74c3c !important;
+  stroke: #e74c3c;
+  filter: drop-shadow(0 0 8px #e74c3c88);
+  animation: heart-pop 0.25s;
+}
+.like-btn .heart-shape {
+  fill: none;
+  stroke: #e74c3c;
+  stroke-width: 2.5;
+  transition: fill 0.22s, filter 0.22s;
+}
+.like-btn:active .heart-icon {
+  transform: scale(1.18);
+}
+@keyframes heart-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
     </style>
     <style>
-.dark-mode body { background: #181a20 !important; }
-.dark-mode .container, .dark-mode .header {
-    background: #23272f !important; color: #e3e6ed !important;
+.dark-toggle {
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 16px;
+    color: #fff;
+    transition: color 0.2s;
 }
-.dark-mode .job-card {
-    background: #232b36 !important;
-    color: #e3e6ed !important;
-    border-left: 4px solid #7ed6a7 !important;
-    border: 1px solid #2d3748 !important;
-    box-shadow: 0 4px 16px rgba(20,30,40,0.18);
+.dark-mode .dark-toggle {
+    color: #ffe066;
 }
-.dark-mode .job-title, .dark-mode .route-info, .dark-mode .weight-info {
-    color: #bfc7d5 !important;
-}
-.dark-mode .route-arrow {
-    color: #8ab4f8 !important;
-}
-.dark-mode .cargo-type {
-    background: #3a4256 !important;
-    color: #bfc7d5 !important;
-}
-.dark-mode .no-jobs {
-    background: #20232a !important;
-    color: #bfc7d5 !important;
-    border: 2px dashed #3a4256 !important;
-}
-.dark-mode .back-link, .dark-mode .job-likes {
-    color: #8ab4f8 !important;
-}
-.dark-mode .like-btn.liked, .dark-mode .like-btn:hover {
-    background: #e74c3c !important;
-    color: #fff !important;
-    border-color: #e74c3c !important;
-}
-.dark-mode .job-card:hover {
-    box-shadow: 0 6px 24px rgba(20,30,40,0.22);
-}
-.dark-mode button, .dark-mode input[type="submit"] {
-    background: #23272f !important; color: #e3e6ed !important; border: none !important;
-}
-.dark-mode button:hover, .dark-mode input[type="submit"]:hover {
-    filter: brightness(1.15);
-    color: #8ab4f8 !important;
-}
-.dark-mode .header h1 {
-    color: #8ab4f8 !important;
-}
-.dark-mode form[method="get"] {
-    background: #232b36 !important;
-    color: #e3e6ed !important;
-    box-shadow: 0 2px 10px rgba(20,30,40,0.18) !important;
-    border: 1px solid #2d3748 !important;
-}
-.dark-mode form[method="get"] label {
-    color: #8ab4f8 !important;
-}
-.dark-mode form[method="get"] input,
-.dark-mode form[method="get"] select {
-    background: #23272f !important;
-    color: #e3e6ed !important;
-    border: 1px solid #3a4256 !important;
-}
+        /* Add dark mode for filter/search form - only filter boxes white, with dark font and outline */
+        .dark-mode form[method="get"] {
+            background: #232946 !important;
+            box-shadow: 0 2px 10px rgba(255,224,102,0.07);
+        }
+        .dark-mode form[method="get"] label {
+            color: #fff !important;
+        }
+        .dark-mode form[method="get"] input,
+        .dark-mode form[method="get"] select {
+            background: #fff !important;
+            color: #232946 !important;
+            border: 1.5px solid #232946 !important;
+        }
+        .dark-mode form[method="get"] input::placeholder {
+            color: #888 !important;
+        }
+        /* Light mode filter/search form for clarity */
+        form[method="get"] {
+            background: #fff !important;
+        }
+        form[method="get"] input,
+        form[method="get"] select {
+            background: #fff !important;
+            color: #232946 !important;
+            border: 1px solid #ccc !important;
+        }
+        form[method="get"] input::placeholder {
+            color: #888 !important;
+        }
+        /* Dark mode for job detail modal */
+        .dark-mode #jobDetailModal .modal-content {
+            background: #232946 !important;
+            color: #fff !important;
+        }
+        .dark-mode #jobDetailModal .modal-content button {
+            color: #fff !important;
+        }
     </style>
 </head>
 <body>
@@ -530,9 +551,9 @@
         </form>
         <!-- End Filter/Search Form -->
 
-        {% if jobs %}
+        {% if page_obj.object_list %}
             <div class="job-list-row" style="display:flex; gap:24px; justify-content:center; margin-top:32px;">
-                {% for job in jobs %}
+                {% for job in page_obj.object_list %}
                 <div class="job-card" data-job-id="{{ job.id }}" onclick="openJobDetailModal({{ job.id }})" style="min-width:340px; max-width:340px; flex:0 0 340px; cursor:pointer;">
                     <div class="job-title">
                         {% if job.cargo_type.name == 'General Cargo' %}
@@ -598,17 +619,23 @@
                         <span class="job-date">Posted: {{ job.created_at|date:"Y-m-d H:i" }}</span>
                         <span class="job-likes" id="like-count-{{ job.id }}">👍 {{ job.like_count }}</span>
                     </div>
-                    <button class="like-btn{% if job.id in liked_job_ids %} liked{% endif %}" data-job-id="{{ job.id }}" title="Like this job">{% if job.id in liked_job_ids %}❤{% else %}🤍{% endif %}</button>
                 </div>
                 {% endfor %}
             </div>
-            <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:16px; width:100%; max-width:100%; margin-top:0; margin-bottom:24px;">
+            <div style="height: 48px;"></div>
+            <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:8px; width:100%; max-width:100%; margin-top:0; margin-bottom:64px;">
                 {% if page_obj.has_previous %}
-                    <a href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if cargo_type %}cargo_type={{ cargo_type }}&{% endif %}{% if origin %}origin={{ origin|urlencode }}&{% endif %}{% if destination %}destination={{ destination|urlencode }}&{% endif %}{% if pickup_date %}pickup_date={{ pickup_date }}&{% endif %}page={{ page_obj.previous_page_number }}" class="styled-btn pagination-btn">← Previous</a>
+                    <a href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if cargo_type %}cargo_type={{ cargo_type }}&{% endif %}{% if origin %}origin={{ origin|urlencode }}&{% endif %}{% if destination %}destination={{ destination|urlencode }}&{% endif %}{% if pickup_date %}pickup_date={{ pickup_date }}&{% endif %}page={{ page_obj.previous_page_number }}" class="styled-btn pagination-btn">« Prev</a>
                 {% endif %}
-                <span class="pagination-info">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+                {% for page in page_obj.paginator.page_range %}
+                    {% if page == page_obj.number %}
+                        <strong style="padding:6px 14px; border-radius:8px; background:#ffe066; color:#232946;">{{ page }}</strong>
+                    {% else %}
+                        <a href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if cargo_type %}cargo_type={{ cargo_type }}&{% endif %}{% if origin %}origin={{ origin|urlencode }}&{% endif %}{% if destination %}destination={{ destination|urlencode }}&{% endif %}{% if pickup_date %}pickup_date={{ pickup_date }}&{% endif %}page={{ page }}" class="styled-btn pagination-btn">{{ page }}</a>
+                    {% endif %}
+                {% endfor %}
                 {% if page_obj.has_next %}
-                    <a href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if cargo_type %}cargo_type={{ cargo_type }}&{% endif %}{% if origin %}origin={{ origin|urlencode }}&{% endif %}{% if destination %}destination={{ destination|urlencode }}&{% endif %}{% if pickup_date %}pickup_date={{ pickup_date }}&{% endif %}page={{ page_obj.next_page_number }}" class="styled-btn pagination-btn">Next →</a>
+                    <a href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if cargo_type %}cargo_type={{ cargo_type }}&{% endif %}{% if origin %}origin={{ origin|urlencode }}&{% endif %}{% if destination %}destination={{ destination|urlencode }}&{% endif %}{% if pickup_date %}pickup_date={{ pickup_date }}&{% endif %}page={{ page_obj.next_page_number }}" class="styled-btn pagination-btn">Next »</a>
                 {% endif %}
             </div>
         {% else %}
@@ -676,13 +703,12 @@ $('.like-btn').click(function(e) {
         success: function(data) {
             if (data.success) {
                 likeCountSpan.text('👍 ' + data.likes);
-                if (data.action === 'liked') {
-                    btn.addClass('liked');
-                    btn.text('❤');
-                } else {
-                    btn.removeClass('liked');
-                    btn.text('🤍');
-                }
+                btn.toggleClass('liked', data.action === 'liked');
+                btn.attr('aria-pressed', data.action === 'liked');
+                // Animate heart
+                var heart = btn.find('.heart-icon');
+                heart.css('transform', 'scale(1.3)');
+                setTimeout(function() { heart.css('transform', 'scale(1)'); }, 180);
             }
             btn.prop('disabled', false);
         },
@@ -762,7 +788,7 @@ function openJobDetailModal(jobId) {
             
             if (data.is_authenticated) {
                 html += `<div style="display:flex;gap:16px;margin-top:18px;">
-                    <button class="like-btn-modal${data.liked ? ' liked' : ''}" onclick="likeJobFromModal(${data.id}, this)" style="background:#e74c3c;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:bold;cursor:pointer;">${data.liked ? '❤' : '🤍'} Like</button>
+                    <button class="like-btn-modal${data.liked ? ' liked' : ''}" onclick="likeJobFromModal(${data.id}, this)" style="background:#e74c3c;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:bold;cursor:pointer;">${data.liked ? '❤ Liked' : '🤍 Like'}</button>
                     <button class="book-btn-modal" onclick="bookJobFromModal(${data.id}, this)" style="background:#27ae60;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:bold;cursor:pointer;">🚚 Book</button>
                 </div>`;
             } else {
@@ -805,7 +831,7 @@ function likeJobFromModal(jobId, btn) {
     .then(data => {
         if (data.success) {
             btn.classList.toggle('liked', data.action === 'liked');
-            btn.textContent = data.action === 'liked' ? '❤ Like' : '🤍 Like';
+            btn.textContent = data.action === 'liked' ? '❤ Liked' : '🤍 Like';
             // Update like count on main card if present
             const likeCountSpan = document.getElementById('like-count-' + jobId);
             if (likeCountSpan) likeCountSpan.textContent = '👍 ' + data.likes;
