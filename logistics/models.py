@@ -18,7 +18,7 @@ class JobPost(models.Model):
     origin = models.CharField(max_length=200)
     destination = models.CharField(max_length=200)
     cargo_type = models.ForeignKey(JobCategory, on_delete=models.CASCADE)
-    weight_kg = models.FloatField()
+    weight_kg = models.FloatField(null=True, blank=True)
     pickup_date = models.DateField()
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -87,7 +87,7 @@ class JobRequest(models.Model):
     origin = models.CharField(max_length=200)
     destination = models.CharField(max_length=200)
     cargo_type = models.ForeignKey(JobCategory, on_delete=models.CASCADE)
-    weight_kg = models.FloatField()
+    weight_kg = models.FloatField(null=True, blank=True)
     pickup_date = models.DateField()
     requested_by = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
@@ -107,6 +107,11 @@ class JobRequest(models.Model):
     reference_code = models.CharField(max_length=100, blank=True)
     origin_address = models.CharField(max_length=255, blank=True)
     destination_address = models.CharField(max_length=255, blank=True)
+    num_boxes = models.PositiveIntegerField(default=1)
+    weight_per_box_kg = models.FloatField(null=True, blank=True)
+    length_per_box_cm = models.FloatField(null=True, blank=True)
+    width_per_box_cm = models.FloatField(null=True, blank=True)
+    height_per_box_cm = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.title} (requested by {self.requested_by.username})"
