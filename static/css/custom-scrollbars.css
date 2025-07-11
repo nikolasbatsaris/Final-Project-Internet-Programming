@@ -1,0 +1,310 @@
+/* Custom Scrollbar Styles for ShipLink App */
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    border-radius: 8px;
+    border: 2px solid #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #1f5f8b 100%);
+    transform: scale(1.05);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(135deg, #1f5f8b 0%, #154360 100%);
+}
+
+::-webkit-scrollbar-corner {
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+/* Dark mode scrollbars */
+.dark-mode ::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    border: 1px solid #4a5568;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #ffe066 0%, #f6c90e 100%);
+    border: 2px solid #2c3e50;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #f6c90e 0%, #e1b900 100%);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(135deg, #e1b900 0%, #b3a125 100%);
+}
+
+.dark-mode ::-webkit-scrollbar-corner {
+    background: #2c3e50;
+}
+
+/* Firefox scrollbar styles */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #3498db #f8f9fa;
+}
+
+.dark-mode * {
+    scrollbar-color: #ffe066 #2c3e50;
+}
+
+/* Smooth scrolling for better UX */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for specific elements */
+.job-grid {
+    scrollbar-width: thin;
+    scrollbar-color: #3498db #f8f9fa;
+}
+
+.dark-mode .job-grid {
+    scrollbar-color: #ffe066 #2c3e50;
+}
+
+/* Modal scrollbar customization */
+#jobDetailContent::-webkit-scrollbar {
+    width: 10px;
+}
+
+#jobDetailContent::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 6px;
+}
+
+#jobDetailContent::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    border-radius: 6px;
+    border: 1px solid #f8f9fa;
+}
+
+#jobDetailContent::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+}
+
+.dark-mode #jobDetailContent::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+}
+
+.dark-mode #jobDetailContent::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    border: 1px solid #2c3e50;
+}
+
+/* Form scrollbar customization */
+form::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+form::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-radius: 4px;
+}
+
+form::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    border-radius: 4px;
+}
+
+form::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+}
+
+.dark-mode form::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #232946 0%, #2c3e50 100%);
+}
+
+.dark-mode form::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+}
+
+/* Custom scrollbar for pagination area */
+.pagination::-webkit-scrollbar {
+    height: 6px;
+}
+
+.pagination::-webkit-scrollbar-track {
+    background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 3px;
+}
+
+.pagination::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #ffe066 0%, #f6c90e 100%);
+    border-radius: 3px;
+}
+
+.dark-mode .pagination::-webkit-scrollbar-track {
+    background: linear-gradient(90deg, #2c3e50 0%, #34495e 100%);
+}
+
+.dark-mode .pagination::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
+}
+
+/* Custom scrollbar for filter form */
+form[method="get"]::-webkit-scrollbar {
+    height: 8px;
+}
+
+form[method="get"]::-webkit-scrollbar-track {
+    background: linear-gradient(90deg, #fff 0%, #f8f9fa 100%);
+    border-radius: 4px;
+}
+
+form[method="get"]::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
+    border-radius: 4px;
+}
+
+.dark-mode form[method="get"]::-webkit-scrollbar-track {
+    background: linear-gradient(90deg, #232946 0%, #2c3e50 100%);
+}
+
+.dark-mode form[method="get"]::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #ffe066 0%, #f6c90e 100%);
+}
+
+/* Dashboard specific scrollbars */
+.dashboard-grid::-webkit-scrollbar {
+    width: 10px;
+}
+
+.dashboard-grid::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 6px;
+}
+
+.dashboard-grid::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    border-radius: 6px;
+    border: 1px solid #f8f9fa;
+}
+
+.dark-mode .dashboard-grid::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+}
+
+.dark-mode .dashboard-grid::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    border: 1px solid #2c3e50;
+}
+
+/* Hero section scrollbars */
+.hero-section::-webkit-scrollbar {
+    width: 10px;
+}
+
+.hero-section::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 6px;
+}
+
+.hero-section::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    border-radius: 6px;
+    border: 1px solid #f8f9fa;
+}
+
+.hero-section::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+}
+
+.dark-mode .hero-section::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+}
+
+.dark-mode .hero-section::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    border: 1px solid #2c3e50;
+}
+
+/* Admin dashboard scrollbars */
+.admin-dashboard::-webkit-scrollbar {
+    width: 12px;
+}
+
+.admin-dashboard::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+}
+
+.admin-dashboard::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    border-radius: 8px;
+    border: 2px solid #f8f9fa;
+}
+
+.dark-mode .admin-dashboard::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+}
+
+.dark-mode .admin-dashboard::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    border: 2px solid #2c3e50;
+}
+
+/* Contact form scrollbars */
+.contact-form::-webkit-scrollbar {
+    width: 8px;
+}
+
+.contact-form::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-radius: 4px;
+}
+
+.contact-form::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    border-radius: 4px;
+}
+
+.dark-mode .contact-form::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #232946 0%, #2c3e50 100%);
+}
+
+.dark-mode .contact-form::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+/* Login/Register form scrollbars */
+.auth-form::-webkit-scrollbar {
+    width: 8px;
+}
+
+.auth-form::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-radius: 4px;
+}
+
+.auth-form::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    border-radius: 4px;
+}
+
+.dark-mode .auth-form::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #232946 0%, #2c3e50 100%);
+}
+
+.dark-mode .auth-form::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #ffe066 0%, #f6c90e 100%);
+} 

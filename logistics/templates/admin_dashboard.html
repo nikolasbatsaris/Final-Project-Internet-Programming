@@ -137,6 +137,47 @@
         .dark-mode .pagination-info {
             color: #fff;
         }
+        /* Dark mode hero card */
+        .dark-mode .hero-card {
+            background: linear-gradient(90deg, #232323 0%, #181a1b 100%) !important;
+            box-shadow: 0 4px 24px rgba(255,224,102,0.15) !important;
+        }
+        /* Dark mode for inline buttons and forms */
+        .dark-mode input[type="text"], 
+        .dark-mode input[type="number"], 
+        .dark-mode select {
+            background: #232323 !important;
+            border-color: #444 !important;
+            color: #fff !important;
+        }
+        .dark-mode input[type="text"]::placeholder, 
+        .dark-mode input[type="number"]::placeholder {
+            color: #aaa !important;
+        }
+        .dark-mode .expand-activity-btn {
+            background: #232323 !important;
+            color: #fff !important;
+        }
+        .dark-mode .expand-activity-btn:hover {
+            background: #181a1b !important;
+        }
+        /* Dark mode for notification badges */
+        .dark-mode .notification-badge {
+            background: #232323 !important;
+            color: #fff !important;
+        }
+        /* Dark mode for recent activity */
+        .dark-mode #recentActivityList li {
+            color: #fff !important;
+        }
+        .dark-mode #recentActivityList li span {
+            color: #aaa !important;
+        }
+        /* Dark mode for export container */
+        .dark-mode .export-container {
+            background: #232323 !important;
+            border-color: #444 !important;
+        }
         .styled-btn.pagination-btn {
             background: #e0e7ef;
             color: #232323;
@@ -156,57 +197,134 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+        /* Dark mode toggle button */
+        .dark-mode-toggle {
+            background: #fff;
+            color: #232323;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(33,147,176,0.10);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s, border 0.2s, transform 0.15s;
+            outline: none;
+        }
+        .dark-mode-toggle:hover, .dark-mode-toggle:focus {
+            background: #f5f5f5;
+            color: #2193b0;
+            box-shadow: 0 4px 16px rgba(33,147,176,0.18);
+            border-color: #2193b0;
+            transform: scale(1.08);
+        }
+        .dark-mode .dark-mode-toggle {
+            background: #232323;
+            color: #ffe066;
+            border: 2px solid #444;
+            box-shadow: 0 2px 8px rgba(255,224,102,0.10);
+        }
+        .dark-mode .dark-mode-toggle:hover, .dark-mode .dark-mode-toggle:focus {
+            background: #181a1b;
+            color: #ffe066;
+            border-color: #ffe066;
+            box-shadow: 0 4px 16px rgba(255,224,102,0.18);
+            transform: scale(1.08);
+        }
+        /* Vibrant button gradients for dark mode */
+        .dark-mode .styled-btn, .dark-mode button.styled-btn, .dark-mode input[type="submit"].styled-btn {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 2px 8px rgba(33,147,176,0.10);
+            border: none;
+        }
+        .dark-mode .styled-btn.orange, .dark-mode button.styled-btn.orange {
+            background: linear-gradient(90deg, #e67e22 0%, #f39c12 100%) !important;
+            color: #fff !important;
+        }
+        .dark-mode .styled-btn.red, .dark-mode button.styled-btn.red {
+            background: linear-gradient(90deg, #e74c3c 0%, #ec7063 100%) !important;
+            color: #fff !important;
+        }
+        .dark-mode .styled-btn.purple, .dark-mode button.styled-btn.purple {
+            background: linear-gradient(90deg, #9b59b6 0%, #8e44ad 100%) !important;
+            color: #fff !important;
+        }
+        .dark-mode .styled-btn:hover, .dark-mode button.styled-btn:hover {
+            filter: brightness(1.15);
+            box-shadow: 0 4px 16px rgba(255,224,102,0.18);
+        }
+        /* Table header color in dark mode */
+        .dark-mode th {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%) !important;
+            color: #fff !important;
+        }
+        /* Notification badge, cards, etc. */
+        .dark-mode .notification-badge {
+            background: linear-gradient(90deg, #e67e22 0%, #f39c12 100%) !important;
+            color: #fff !important;
+        }
+        .dark-mode .stat {
+            background: linear-gradient(90deg, #3498db 0%, #8fd3f4 100%) !important;
+            color: #fff !important;
+        }
     </style>
     <script>
-    (function() {
-        // Set initial dark mode on <html> based on localStorage or system preference
+    // Dark mode functionality
+    function initializeDarkMode() {
         const pref = localStorage.getItem('darkMode');
-        if (
-            (pref === 'on') ||
-            (pref === null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        ) {
+        const isDark = (pref === 'on') || (pref === null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        
+        if (isDark) {
             document.documentElement.classList.add('dark-mode');
         } else {
             document.documentElement.classList.remove('dark-mode');
         }
-        // Set the correct icon on page load
-        var btn = document.getElementById('darkModeToggle');
-        if (btn) {
-            btn.textContent = document.documentElement.classList.contains('dark-mode') ? '\u2600\ufe0f' : '\ud83c\udf19';
-        }
-    })();
-    // Persistent dark mode toggle for all pages, fallback to system preference on logout
-    function setDarkMode(on) {
-        if(on) {
-            document.documentElement.classList.add('dark-mode');
-        } else {
-            document.documentElement.classList.remove('dark-mode');
-        }
+        
         // Update button icon
-        var btn = document.getElementById('darkModeToggle');
+        const btn = document.getElementById('darkModeToggle');
         if (btn) {
-            btn.textContent = on ? '\u2600\ufe0f' : '\ud83c\udf19';
+            btn.textContent = isDark ? '☀️' : '🌙';
         }
     }
-    function getDarkMode() {
-        const pref = localStorage.getItem('darkMode');
-        if (pref === null) {
-            // No preference, use system
-            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    function toggleDarkMode() {
+        const isDark = document.documentElement.classList.contains('dark-mode');
+        const newMode = !isDark;
+        
+        if (newMode) {
+            document.documentElement.classList.add('dark-mode');
+            localStorage.setItem('darkMode', 'on');
+        } else {
+            document.documentElement.classList.remove('dark-mode');
+            localStorage.setItem('darkMode', 'off');
         }
-        return pref === 'on';
+        
+        // Update button icon
+        const btn = document.getElementById('darkModeToggle');
+        if (btn) {
+            btn.textContent = newMode ? '☀️' : '🌙';
+        }
     }
-    document.getElementById('darkModeToggle').onclick = function() {
-        const on = !getDarkMode();
-        localStorage.setItem('darkMode', on ? 'on' : 'off');
-        setDarkMode(on);
-    };
-    // On page load, ensure correct mode and icon
-    setDarkMode(getDarkMode());
-    // On logout, clear darkMode preference
-    document.querySelectorAll('.logout').forEach(function(logoutLink) {
-        logoutLink.addEventListener('click', function() {
-            localStorage.removeItem('darkMode');
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDarkMode();
+        
+        // Add click event to dark mode toggle
+        const darkModeBtn = document.getElementById('darkModeToggle');
+        if (darkModeBtn) {
+            darkModeBtn.addEventListener('click', toggleDarkMode);
+        }
+        
+        // Clear dark mode preference on logout
+        document.querySelectorAll('.logout').forEach(function(logoutLink) {
+            logoutLink.addEventListener('click', function() {
+                localStorage.removeItem('darkMode');
+            });
         });
     });
     function toggleAll(type) {
@@ -254,7 +372,7 @@
     <div class="shiplink-logo">ShipLink</div>
     <div class="dashboard-flex">
         <nav class="sidebar">
-            <h2>Menu</h2>
+            <h2>Staff Menu</h2>
             <a href="#pending-requests">Pending Job Requests</a>
             <a href="#live-jobs">Live Jobs</a>
             <a href="#hidden-jobs">Hidden Jobs</a>
@@ -265,16 +383,16 @@
             <a href="{% url 'logistics:logout' %}" class="styled-btn" style="background:#e74c3c; color:#fff; border-radius:5px; margin: 30px 16px 0 16px; text-align:center;">Logout</a>
         </nav>
         <div style="position:fixed; top:24px; right:32px; z-index:1000;">
-            <button id="darkModeToggle" class="styled-btn" title="Toggle dark mode">🌙</button>
+            <button id="darkModeToggle" class="dark-mode-toggle" title="Toggle dark mode">🌙</button>
         </div>
         <div class="main-content">
             <!-- Hero/Header Card -->
-            <div style="display:flex; align-items:center; gap:24px; background: linear-gradient(90deg,#3498db 0%,#8fd3f4 100%); color:#fff; border-radius:18px; padding:32px 36px; margin-bottom:36px; box-shadow:0 4px 24px rgba(52,152,219,0.10);">
+            <div class="hero-card" style="display:flex; align-items:center; gap:24px; background: linear-gradient(90deg,#3498db 0%,#8fd3f4 100%); color:#fff; border-radius:18px; padding:32px 36px; margin-bottom:36px; box-shadow:0 4px 24px rgba(52,152,219,0.10);">
                 <div style="width:80px; height:80px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:2.7rem; font-weight:bold; color:#3498db; box-shadow:0 2px 8px rgba(52,152,219,0.10);">
                     🛡️
                 </div>
                 <div style="flex:1;">
-                    <div style="font-size:2rem; font-weight:bold; letter-spacing:1px;">Admin Dashboard</div>
+                    <div style="font-size:2rem; font-weight:bold; letter-spacing:1px;">{% if is_superuser %}Admin Dashboard{% else %}Staff Dashboard{% endif %}</div>
                     <div style="margin-top:8px; font-size:1.1rem;">Manage jobs, users, and requests with a modern, unified interface.</div>
                 </div>
             </div>
@@ -292,8 +410,8 @@
             </div>
             <!-- Notification Badge -->
             <div style="margin-bottom:20px;">
-                <span style="background:#e74c3c; color:#fff; border-radius:12px; padding:4px 12px; font-weight:bold;">{{ stats.pending_requests }} Pending Requests</span>
-                <span style="background:#f39c12; color:#fff; border-radius:12px; padding:4px 12px; font-weight:bold; margin-left:10px;">{{ stats.flagged_jobs }} Open Flags</span>
+                <span class="notification-badge" style="background:#e74c3c; color:#fff; border-radius:12px; padding:4px 12px; font-weight:bold;">{{ stats.pending_requests }} Pending Requests</span>
+                <span class="notification-badge" style="background:#f39c12; color:#fff; border-radius:12px; padding:4px 12px; font-weight:bold; margin-left:10px;">{{ stats.flagged_jobs }} Open Flags</span>
             </div>
             <!-- Recent Activity Feed -->
             <div style="margin-bottom:30px;">
@@ -324,15 +442,15 @@
                         {% endif %}
                     {% endfor %}
                 </ul>
-                <button id="expandActivityBtn" style="margin-top:10px; background:#3498db; color:#fff; border:none; border-radius:5px; padding:6px 16px; font-weight:bold; cursor:pointer;">Show All Activity</button>
+                <button id="expandActivityBtn" class="expand-activity-btn" style="margin-top:10px; background:#3498db; color:#fff; border:none; border-radius:5px; padding:6px 16px; font-weight:bold; cursor:pointer;">Show All Activity</button>
             </div>
             <!-- Search/Filter, Bulk Actions, Export, User Management Shortcuts (UI only) -->
-            <form method="get" action="" style="margin-bottom:30px; display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
+            <form method="get" action="" class="search-filter-form" style="margin-bottom:30px; display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
                 <input type="text" name="q" value="{{ q }}" placeholder="Search jobs/requests/users..." style="padding:8px; border-radius:5px; border:1px solid #ccc; min-width:200px;">
-                <button type="submit" style="background:#3498db; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;">🔍 Filter</button>
-                <button type="button" style="background:#27ae60; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;" onclick="bulkApprove()">✔️ Bulk Approve</button>
-                <button type="button" style="background:#e74c3c; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;" onclick="bulkRemove()">🗑️ Bulk Remove</button>
-                <div style="display:flex; align-items:center; gap:8px; background:#f8f9fa; border:1px solid #ccc; border-radius:8px; padding:8px 12px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                <button type="submit" class="styled-btn" style="background:#3498db; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;">🔍 Filter</button>
+                <button type="button" class="styled-btn" style="background:#27ae60; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;" onclick="bulkApprove()">✔️ Bulk Approve</button>
+                <button type="button" class="styled-btn" style="background:#e74c3c; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;" onclick="bulkRemove()">🗑️ Bulk Remove</button>
+                <div class="export-container" style="display:flex; align-items:center; gap:8px; background:#f8f9fa; border:1px solid #ccc; border-radius:8px; padding:8px 12px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                     <select id="exportType" style="padding:8px; border-radius:5px; border:1px solid #ccc;">
                         <option value="all">All</option>
                         <option value="pending">Pending Requests</option>
@@ -340,7 +458,7 @@
                         <option value="hidden">Hidden Jobs</option>
                         <option value="flagged">Flagged Jobs</option>
                     </select>
-                    <button type="button" style="background:#f39c12; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;" onclick="exportCSV()">⬇️ Export CSV</button>
+                    <button type="button" class="styled-btn" style="background:#f39c12; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;" onclick="exportCSV()">⬇️ Export CSV</button>
                 </div>
             </form>
             <!-- Admin Dashboard Search Bar -->
@@ -418,11 +536,11 @@
                             {% if req.status == 'pending' %}
                             <form method="post" action="{% url 'logistics:approve_job_request' req.id %}" style="display:inline;">
                                 {% csrf_token %}
-                                <button type="submit" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">Approve</button>
+                                <button type="submit" class="styled-btn" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">Approve</button>
                             </form>
                             <form method="post" action="{% url 'logistics:reject_job_request' req.id %}" style="display:inline;">
                                 {% csrf_token %}
-                                <button type="submit" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">Reject</button>
+                                <button type="submit" class="styled-btn" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">Reject</button>
                             </form>
                             {% endif %}
                         </td>
@@ -667,40 +785,6 @@
         </div>
     </div>
     <script>
-    // Persistent dark mode toggle for all pages, fallback to system preference on logout
-    function setDarkMode(on) {
-        if(on) {
-            document.documentElement.classList.add('dark-mode');
-        } else {
-            document.documentElement.classList.remove('dark-mode');
-        }
-        // Update button icon
-        var btn = document.getElementById('darkModeToggle');
-        if (btn) {
-            btn.textContent = on ? '\u2600\ufe0f' : '\ud83c\udf19';
-        }
-    }
-    function getDarkMode() {
-        const pref = localStorage.getItem('darkMode');
-        if (pref === null) {
-            // No preference, use system
-            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        }
-        return pref === 'on';
-    }
-    document.getElementById('darkModeToggle').onclick = function() {
-        const on = !getDarkMode();
-        localStorage.setItem('darkMode', on ? 'on' : 'off');
-        setDarkMode(on);
-    };
-    // On page load, ensure correct mode and icon
-    setDarkMode(getDarkMode());
-    // On logout, clear darkMode preference
-    document.querySelectorAll('.logout').forEach(function(logoutLink) {
-        logoutLink.addEventListener('click', function() {
-            localStorage.removeItem('darkMode');
-        });
-    });
     function toggleAll(type) {
         let checkboxes = document.querySelectorAll('.' + type + '-checkbox');
         let selectAll = document.getElementById('selectAll' + (type === 'jobrequest' ? 'JobRequests' : 'LiveJobs'));

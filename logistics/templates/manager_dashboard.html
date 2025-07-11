@@ -5,11 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manager Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: #f5f5f5; 
+            margin: 0; 
+            padding: 0; 
+        }
         .dashboard-flex { display: flex; min-height: 100vh; }
         .sidebar {
-            width: 300px;
-            background: #2c3e50;
+            width: 250px;
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
             color: #fff;
             display: flex;
             flex-direction: column;
@@ -17,90 +22,423 @@
             box-shadow: 2px 0 8px rgba(0,0,0,0.04);
         }
         .sidebar h2 {
-            color: #ecf0f1;
+            color: #ffe066;
             text-align: center;
             margin-bottom: 30px;
             font-size: 1.3em;
+            letter-spacing: 1px;
         }
         .sidebar a {
-            color: #ecf0f1;
+            color: #fff;
             text-decoration: none;
             padding: 16px 32px;
             display: block;
             font-size: 1.1em;
-            transition: background 0.2s;
+            border-radius: 18px 0 0 18px;
+            margin: 0 0 6px 0;
+            transition: background 0.2s, color 0.2s;
         }
         .sidebar a:hover, .sidebar a.active {
-            background: #34495e;
+            background: #ffe066;
+            color: #2193b0;
         }
-        .sidebar a.logout {
-            background: #e74c3c;
+        .dark-mode .sidebar {
+            background: linear-gradient(135deg, #181a1b 0%, #232323 100%) !important;
             color: #fff;
-            border-radius: 5px;
-            margin: 30px 16px 0 16px;
-            text-align: center;
+        }
+        .dark-mode .sidebar h2 { color: #fff; }
+        .dark-mode .sidebar a { color: #fff; }
+        .dark-mode .sidebar a:hover, .dark-mode .sidebar a.active {
+            background: #ffe066;
+            color: #232323;
         }
         .main-content {
             flex: 1;
             padding: 40px 60px;
             background: #fff;
             min-width: 0;
+            border-radius: 0 18px 18px 0;
         }
-        h1 { color: #2c3e50; text-align: left; }
-        h2 { color: #e67e22; margin-bottom: 30px; }
+        .dark-mode .main-content {
+            background: #181a1b;
+            color: #fff;
+        }
+        h1 { 
+            color: #2193b0; 
+            text-align: left; 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+        }
+        .dark-mode h1 { color: #fff; }
+        h2 { 
+            color: #e67e22; 
+            margin-bottom: 30px; 
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .dark-mode h2 { color: #ffe066; }
         .info { color: #555; margin-bottom: 18px; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { padding: 12px 10px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background: #3498db; color: #fff; }
-        tr:hover { background-color: #f1f1f1; }
-        .dark-mode tr:hover { background-color: #333 !important; }
-        .section-title { margin-top: 0; padding-top: 40px; border-top: 1px solid #eee; }
-        .actions-form { display: flex; gap: 10px; }
-        .btn { background: #2980b9; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; font-weight: bold; text-decoration: none; }
-        .btn.edit { background: #2980b9; }
-        .btn.remove { background: #e74c3c; }
-        .btn.promote { background: #27ae60; }
-        .btn.manager { background: #e67e22; }
+        .dark-mode .info { color: #ccc; }
+        
+        /* Summary Cards */
+        .summary-cards {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .summary-card {
+            background: linear-gradient(135deg, #3498db 0%, #8fd3f4 100%);
+            color: #fff;
+            border-radius: 10px;
+            padding: 16px;
+            min-width: 100px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(52,152,219,0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52,152,219,0.2);
+        }
+        .dark-mode .summary-card {
+            background: linear-gradient(135deg, #232323 0%, #181a1b 100%);
+            box-shadow: 0 4px 16px rgba(255,224,102,0.15);
+        }
+        .summary-icon {
+            font-size: 1.6rem;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .summary-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-bottom: 3px;
+        }
+        .summary-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        /* User Cards */
+        .user-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .user-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        .dark-mode .user-card {
+            background: #232323;
+            border-color: #444;
+            box-shadow: 0 2px 8px rgba(255,224,102,0.08);
+        }
+        .user-card-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        .user-icon {
+            font-size: 1.1rem;
+        }
+        .user-id {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            color: #666;
+        }
+        .dark-mode .user-id { color: #aaa; }
+        .user-card-body {
+            margin-bottom: 12px;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        .dark-mode .user-card-body { color: #ccc; }
+        .user-card-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        /* Modern Button Styling */
+        .styled-btn {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+            color: #fff;
+            border: none;
+            border-radius: 24px;
+            padding: 10px 28px;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            margin-top: 0;
+            box-shadow: 0 2px 8px rgba(33,147,176,0.10);
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            position: relative;
+            cursor: pointer;
+        }
+        .styled-btn:hover {
+            background: linear-gradient(90deg, #6dd5ed 0%, #2193b0 100%);
+            color: #232946;
+            box-shadow: 0 4px 16px rgba(33,147,176,0.18);
+        }
+        .dark-mode .styled-btn {
+            background: linear-gradient(90deg, #232323 0%, #181a1b 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 2px 8px rgba(255,224,102,0.10);
+        }
+        .dark-mode .styled-btn:hover {
+            background: linear-gradient(90deg, #181a1b 0%, #232323 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 4px 16px rgba(255,224,102,0.18);
+        }
+        
+        .btn { 
+            background: #2980b9; 
+            color: #fff; 
+            border: none; 
+            border-radius: 6px; 
+            padding: 8px 16px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            text-decoration: none;
+            transition: background 0.2s, transform 0.2s;
+            font-size: 0.9rem;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        .btn.edit { background: linear-gradient(90deg, #3498db 0%, #5dade2 100%); }
+        .btn.remove { background: linear-gradient(90deg, #e74c3c 0%, #ec7063 100%); }
+        .btn.promote { background: linear-gradient(90deg, #27ae60 0%, #58d68d 100%); }
+        .btn.manager { background: linear-gradient(90deg, #e67e22 0%, #f39c12 100%); }
         .btn:disabled, .btn[disabled] { opacity: 0.6; cursor: not-allowed; }
-        .search-form { display: flex; gap: 10px; margin: 20px 0; }
-        .search-form input { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+        
+        /* Form Styling */
+        .search-form, .actions-form { 
+            display: flex; 
+            gap: 10px; 
+            margin: 20px 0; 
+            align-items: center;
+        }
+        .search-form input, .actions-form input { 
+            padding: 12px 16px; 
+            border-radius: 8px; 
+            border: 1px solid #ddd; 
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-form input:focus, .actions-form input:focus {
+            outline: none;
+            border-color: #2193b0;
+            box-shadow: 0 0 0 3px rgba(33,147,176,0.1);
+        }
+        .dark-mode .search-form input, .dark-mode .actions-form input {
+            background: #232323;
+            border-color: #444;
+            color: #fff;
+        }
+        
+        /* Messages */
         .messages { list-style: none; padding: 0; margin-bottom: 20px; }
-        .messages li { padding: 10px; border-radius: 5px; margin-bottom: 8px; color: #222; }
-        .messages .success { background: #d4efdf; }
-        .messages .error { background: #f9d6d5; }
-        .messages .info { background: #d6eaf8; }
-        .messages .default { background: #f0f0f0; }
+        .messages li { 
+            padding: 12px 16px; 
+            border-radius: 8px; 
+            margin-bottom: 8px; 
+            color: #222; 
+            font-weight: 500;
+        }
+        .messages .success { background: linear-gradient(90deg, #d4efdf 0%, #a9dfbf 100%); }
+        .messages .error { background: linear-gradient(90deg, #f9d6d5 0%, #f5b7b1 100%); }
+        .messages .info { background: linear-gradient(90deg, #d6eaf8 0%, #aed6f1 100%); }
+        .messages .default { background: linear-gradient(90deg, #f0f0f0 0%, #e8e8e8 100%); }
+        .dark-mode .messages .success { background: linear-gradient(90deg, #1e4d2b 0%, #145a32 100%); color: #fff; }
+        .dark-mode .messages .error { background: linear-gradient(90deg, #4d1e1e 0%, #5a1414 100%); color: #fff; }
+        .dark-mode .messages .info { background: linear-gradient(90deg, #1e3a4d 0%, #144a5a 100%); color: #fff; }
+        .dark-mode .messages .default { background: linear-gradient(90deg, #2a2a2a 0%, #1a1a1a 100%); color: #fff; }
+        
+        /* Section Titles */
+        .section-title { 
+            margin-top: 0; 
+            padding-top: 40px; 
+            border-top: 1px solid #eee; 
+            color: #2193b0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .dark-mode .section-title { 
+            border-top: 1px solid #444; 
+            color: #ffe066;
+        }
+        
+        /* Responsive Design */
         @media (max-width: 900px) {
             .dashboard-flex { flex-direction: column; }
             .sidebar { width: 100%; flex-direction: row; padding: 0; }
             .sidebar a { flex: 1; text-align: center; padding: 16px 0; }
             .main-content { padding: 20px 5vw; }
+            .user-cards-grid {
+                grid-template-columns: 1fr;
+            }
+            .summary-cards {
+                justify-content: center;
+            }
+        }
+        
+        /* ShipLink Logo */
+        .shiplink-logo {
+            position: absolute;
+            left: 32px;
+            top: 24px;
+            z-index: 10;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #232323;
+            letter-spacing: 2px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .dark-mode .shiplink-logo { color: #fff; }
+        /* Dark Mode Toggle Button */
+        .dark-mode-toggle {
+            background: #fff;
+            color: #232323;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(33,147,176,0.10);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s, border 0.2s, transform 0.15s;
+            outline: none;
+        }
+        .dark-mode-toggle:hover, .dark-mode-toggle:focus {
+            background: #f5f5f5;
+            color: #2193b0;
+            box-shadow: 0 4px 16px rgba(33,147,176,0.18);
+            border-color: #2193b0;
+            transform: scale(1.08);
+        }
+        .dark-mode .dark-mode-toggle {
+            background: #232323;
+            color: #ffe066;
+            border: 2px solid #444;
+            box-shadow: 0 2px 8px rgba(255,224,102,0.10);
+        }
+        .dark-mode .dark-mode-toggle:hover, .dark-mode .dark-mode-toggle:focus {
+            background: #181a1b;
+            color: #ffe066;
+            border-color: #ffe066;
+            box-shadow: 0 4px 16px rgba(255,224,102,0.18);
+            transform: scale(1.08);
         }
     </style>
+    <script>
+    // Dark mode functionality
+    function initializeDarkMode() {
+        const pref = localStorage.getItem('darkMode');
+        const isDark = (pref === 'on') || (pref === null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        
+        if (isDark) {
+            document.documentElement.classList.add('dark-mode');
+        } else {
+            document.documentElement.classList.remove('dark-mode');
+        }
+        
+        // Update button icon
+        const btn = document.getElementById('darkModeToggle');
+        if (btn) {
+            btn.textContent = isDark ? '☀️' : '🌙';
+        }
+    }
+    
+    function toggleDarkMode() {
+        const isDark = document.documentElement.classList.contains('dark-mode');
+        const newMode = !isDark;
+        
+        if (newMode) {
+            document.documentElement.classList.add('dark-mode');
+            localStorage.setItem('darkMode', 'on');
+        } else {
+            document.documentElement.classList.remove('dark-mode');
+            localStorage.setItem('darkMode', 'off');
+        }
+        
+        // Update button icon
+        const btn = document.getElementById('darkModeToggle');
+        if (btn) {
+            btn.textContent = newMode ? '☀️' : '🌙';
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDarkMode();
+        
+        // Add click event to dark mode toggle
+        const darkModeBtn = document.getElementById('darkModeToggle');
+        if (darkModeBtn) {
+            darkModeBtn.addEventListener('click', toggleDarkMode);
+        }
+        
+        // Clear dark mode preference on logout
+        document.querySelectorAll('.logout').forEach(function(logoutLink) {
+            logoutLink.addEventListener('click', function() {
+                localStorage.removeItem('darkMode');
+            });
+        });
+    });
+    </script>
 </head>
 <body>
+    <div class="shiplink-logo">ShipLink</div>
     <div class="dashboard-flex">
         <nav class="sidebar" id="sidebar">
             <h2>Management Menu</h2>
             <a href="{% url 'logistics:manager_dashboard' %}" class="active">Management</a>
             <a href="{% url 'logistics:manager_logs_staff' %}">Staff Logs</a>
             <a href="{% url 'logistics:manager_logs_users' %}">User Logs</a>
-            <div style="display:flex; flex-direction:column; gap:14px; margin: 36px 0 0 0; align-items:center;">
-                <a href="{% url 'logistics:admin_dashboard' %}" style="display:block; width:88%; background:#e67e22; color:#fff; border-radius:7px; padding:20px 0; text-align:center; font-weight:bold; font-size:1.13em; box-shadow:0 2px 8px rgba(0,0,0,0.08);">Staff Dashboard</a>
-                <a href="{% url 'logistics:logout' %}" class="logout" style="display:block; width:88%; background:#e74c3c; color:#fff; border-radius:7px; padding:20px 0; text-align:center; font-weight:bold; font-size:1.13em; box-shadow:0 2px 8px rgba(0,0,0,0.08);">Logout</a>
-                <!-- Removed sidebar dark mode toggle button -->
+            <div style="display:flex; flex-direction:column; gap:10px; margin: 28px 0 0 0; align-items:stretch; width:100%;">
+                <a href="{% url 'logistics:admin_dashboard' %}" class="styled-btn" style="background:linear-gradient(90deg, #e67e22 0%, #f39c12 100%); color:#fff; border-radius:8px; padding:10px 0; text-align:center; font-weight:bold; font-size:0.98em; box-shadow:0 2px 8px rgba(230,126,34,0.12); width:100%; min-width:0;">Staff Dashboard</a>
+                <a href="{% url 'logistics:logout' %}" class="styled-btn logout" style="background:linear-gradient(90deg, #e74c3c 0%, #ec7063 100%); color:#fff; border-radius:8px; padding:10px 0; text-align:center; font-weight:bold; font-size:0.98em; box-shadow:0 2px 8px rgba(231,76,60,0.12); width:100%; min-width:0;">Logout</a>
             </div>
-            <button class="sidebar-toggle" id="sidebarToggle" style="display:none; margin:24px auto 0 auto; background:#3498db; color:#fff; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; cursor:pointer;">☰ Menu</button>
+            <button class="sidebar-toggle" id="sidebarToggle" style="display:none; margin:24px auto 0 auto; background:linear-gradient(90deg, #3498db 0%, #5dade2 100%); color:#fff; border:none; border-radius:12px; padding:12px 24px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow:0 2px 8px rgba(52,152,219,0.15);">☰ Menu</button>
         </nav>
         <div style="position:fixed; top:24px; right:32px; z-index:1000;">
-            <button id="darkModeToggle" class="styled-btn" title="Toggle dark mode">🌙</button>
+            <button id="darkModeToggle" class="dark-mode-toggle" title="Toggle dark mode">🌙</button>
         </div>
         <div class="main-content">
+            <!-- Hero/Header Card -->
+            <div style="display:flex; align-items:center; gap:20px; background: linear-gradient(90deg,#e67e22 0%,#f39c12 100%); color:#fff; border-radius:16px; padding:24px 28px; margin-bottom:28px; box-shadow:0 3px 18px rgba(230,126,34,0.15);">
+                <div style="width:60px; height:60px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:bold; color:#e67e22; box-shadow:0 2px 6px rgba(230,126,34,0.15);">
+                    ⭐
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:1.6rem; font-weight:bold; letter-spacing:1px;">Manager Dashboard</div>
+                    <div style="margin-top:6px; font-size:1rem;">Manage users, staff, and system access with modern controls.</div>
+                </div>
+            </div>
+            
+
+            
             <div class="summary-cards">
                 <div class="summary-card"><span class="summary-icon">👤</span><div class="summary-label">Users</div><div class="summary-value">{{ normal_users|length }}</div></div>
                 <div class="summary-card"><span class="summary-icon">🛡️</span><div class="summary-label">Staff</div><div class="summary-value">{{ staff_users|length }}</div></div>
                 <div class="summary-card"><span class="summary-icon">⭐</span><div class="summary-label">Managers</div><div class="summary-value">{{ manager_users|length }}</div></div>
             </div>
+            
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
                 <h1>Manager Dashboard</h1>
             </div>
@@ -112,25 +450,6 @@
                 </ul>
             {% endif %}
             <h2>Welcome, {{ user.username }}!</h2>
-            <div style="display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 40px; align-items: flex-end;">
-                <form method="get" action="" class="search-form" style="flex:1; min-width:220px; display:flex; align-items:center; gap:8px;">
-                    <label style="font-weight:bold; color:#2c3e50; margin:0 8px 0 0; white-space:nowrap;">Find and Edit User</label>
-                    <input type="text" name="search_user" placeholder="Username or email" value="{{ search_query }}" style="height:40px;">
-                    <button type="submit" class="btn" style="height:40px;">Search</button>
-                </form>
-                <form method="post" action="" class="actions-form" style="flex:1; min-width:220px; display:flex; align-items:center; gap:8px;">
-                    {% csrf_token %}
-                    <label style="font-weight:bold; color:#2c3e50; margin:0 8px 0 0; white-space:nowrap;">Promote User to Staff</label>
-                    <input type="text" name="promote_username" placeholder="Enter username" required style="padding:8px; border-radius:4px; border:1px solid #ccc; height:40px;">
-                    <button type="submit" class="btn promote" style="height:40px;">Promote</button>
-                </form>
-                <form method="post" action="" class="actions-form" style="flex:1; min-width:220px; display:flex; align-items:center; gap:8px;">
-                    {% csrf_token %}
-                    <label style="font-weight:bold; color:#2c3e50; margin:0 8px 0 0; white-space:nowrap;">Promote User to Manager</label>
-                    <input type="text" name="promote_manager_username" placeholder="Enter username" required style="padding:8px; border-radius:4px; border:1px solid #ccc; height:40px;">
-                    <button type="submit" class="btn manager" style="height:40px;">Promote to Manager</button>
-                </form>
-            </div>
             <h3 class="section-title">Current Staff Members</h3>
             <div class="user-cards-grid">
                 {% for staff in staff_users %}
@@ -193,285 +512,5 @@
             {% endif %}
         </div>
     </div>
-    <style>
-    body {
-        background: #f3f4f8;
-    }
-    .main-content {
-        background: #f7f8fa;
-        border-radius: 18px;
-        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-        margin: 32px 0;
-    }
-    .summary-cards {
-        display: flex;
-        gap: 24px;
-        margin-bottom: 32px;
-        justify-content: flex-start;
-    }
-    .summary-card {
-        background: #f0f1f5;
-        border-radius: 14px;
-        box-shadow: 0 2px 12px rgba(52,152,219,0.07);
-        padding: 24px 32px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-width: 120px;
-        min-height: 100px;
-        font-size: 1.1rem;
-        font-weight: bold;
-        position: relative;
-    }
-    .user-cards-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 22px;
-        margin-bottom: 32px;
-    }
-    .user-card {
-        background: #f4f5f8;
-        border-radius: 14px;
-        box-shadow: 0 2px 12px rgba(52,152,219,0.07);
-        padding: 22px 20px 16px 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        position: relative;
-        min-width: 0;
-    }
-    .user-card-header {
-        font-size: 1.1rem;
-        margin-bottom: 4px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .user-icon {
-        font-size: 1.3rem;
-    }
-    .user-id {
-        color: #888;
-        font-size: 0.97rem;
-        margin-left: 6px;
-    }
-    .user-card-body {
-        color: #232946;
-        font-size: 1rem;
-        margin-bottom: 8px;
-    }
-    .user-card-actions {
-        display: flex;
-        gap: 10px;
-    }
-    @media (max-width: 900px) {
-        .summary-cards { flex-direction: column; gap: 16px; }
-        .user-cards-grid { grid-template-columns: 1fr; }
-        .sidebar { display: none; }
-        .sidebar.open { display: flex !important; position: absolute; top:0; left:0; width: 80vw; height: 100vh; background: #2c3e50; z-index: 2000; }
-        #sidebarToggle { display: block !important; }
-    }
-    .dark-mode body {
-        background: #222 !important;
-    }
-    .dark-mode .main-content {
-        background: #181818 !important;
-    }
-    .dark-mode .summary-card, .dark-mode .user-card {
-        background: #23272f !important;
-        color: #e3e6ed !important;
-        box-shadow: 0 2px 12px rgba(138,180,248,0.07);
-    }
-    .dark-mode .summary-value {
-        color: #8ab4f8 !important;
-    }
-    .dark-mode .user-card-body {
-        color: #b0b8c1 !important;
-    }
-    .big-toggle {
-        width: 84px !important;
-        height: 44px !important;
-        background: #e0e0e0;
-        border-radius: 28px !important;
-        box-shadow: 0 4px 16px rgba(52,152,219,0.13);
-        transition: background 0.3s;
-    }
-    .big-toggle .slider {
-        font-size: 1.7rem !important;
-        padding: 0 14px !important;
-    }
-    .big-toggle .slider:before {
-        width: 32px !important;
-        height: 32px !important;
-        left: 8px !important;
-        top: 6px !important;
-    }
-    .big-toggle input:checked + .slider:before {
-        transform: translateX(36px);
-    }
-    .big-toggle .icon {
-        font-size: 1.5rem !important;
-    }
-    .dark-toggle-switch {
-        display: inline-block;
-        position: relative;
-        width: 60px;
-        height: 32px;
-        background: #e0e0e0;
-        border-radius: 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        transition: background 0.3s;
-        cursor: pointer;
-        vertical-align: middle;
-    }
-    .dark-toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    .dark-toggle-switch .slider {
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        border-radius: 20px;
-        transition: background 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 8px;
-        font-size: 1.3rem;
-    }
-    .dark-toggle-switch .icon {
-        pointer-events: none;
-        transition: opacity 0.3s;
-    }
-    .dark-toggle-switch .sun {
-        opacity: 1;
-    }
-    .dark-toggle-switch .moon {
-        opacity: 0.5;
-    }
-    .dark-toggle-switch input:checked + .slider .sun {
-        opacity: 0.5;
-    }
-    .dark-toggle-switch input:checked + .slider .moon {
-        opacity: 1;
-    }
-    .dark-toggle-switch .slider:before {
-        content: '';
-        position: absolute;
-        left: 6px;
-        top: 5px;
-        width: 22px;
-        height: 22px;
-        background: #fff;
-        border-radius: 50%;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.10);
-        transition: transform 0.3s;
-    }
-    .dark-toggle-switch input:checked + .slider:before {
-        transform: translateX(28px);
-        background: #232946;
-    }
-    .dark-mode .dark-toggle-switch {
-        background: #232946;
-    }
-    .dark-mode .dark-toggle-switch .slider:before {
-        background: #ffe066;
-    }
-    .styled-btn {
-        background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
-        color: #fff;
-        border: none;
-        border-radius: 24px;
-        padding: 10px 28px;
-        font-size: 1rem;
-        font-weight: bold;
-        margin-bottom: 8px;
-        margin-top: 0;
-        box-shadow: 0 2px 8px rgba(33,147,176,0.10);
-        text-decoration: none;
-        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-        position: relative;
-        cursor: pointer;
-    }
-    .styled-btn:hover {
-        background: linear-gradient(90deg, #6dd5ed 0%, #2193b0 100%);
-        color: #232946;
-        box-shadow: 0 4px 16px rgba(33,147,176,0.18);
-    }
-    .dark-mode .styled-btn {
-        background: linear-gradient(90deg, #232323 0%, #181a1b 100%) !important;
-        color: #fff !important;
-        box-shadow: 0 2px 8px rgba(255,224,102,0.10);
-    }
-    .dark-mode .styled-btn:hover {
-        background: linear-gradient(90deg, #181a1b 0%, #232323 100%) !important;
-        color: #fff !important;
-        box-shadow: 0 4px 16px rgba(255,224,102,0.18);
-    }
-    </style>
-    <script>
-    (function() {
-        // Set initial dark mode on <html> based on localStorage or system preference
-        const pref = localStorage.getItem('darkMode');
-        if (
-            (pref === 'on') ||
-            (pref === null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        ) {
-            document.documentElement.classList.add('dark-mode');
-        } else {
-            document.documentElement.classList.remove('dark-mode');
-        }
-        // Set the correct icon on page load
-        var btn = document.getElementById('darkModeToggle');
-        if (btn) {
-            btn.textContent = document.documentElement.classList.contains('dark-mode') ? '\u2600\ufe0f' : '\ud83c\udf19';
-        }
-    })();
-    // Persistent dark mode toggle for all pages, fallback to system preference on logout
-    function setDarkMode(on) {
-        if(on) {
-            document.documentElement.classList.add('dark-mode');
-        } else {
-            document.documentElement.classList.remove('dark-mode');
-        }
-        // Update button icon
-        var btn = document.getElementById('darkModeToggle');
-        if (btn) {
-            btn.textContent = on ? '\u2600\ufe0f' : '\ud83c\udf19';
-        }
-    }
-    function getDarkMode() {
-        const pref = localStorage.getItem('darkMode');
-        if (pref === null) {
-            // No preference, use system
-            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        }
-        return pref === 'on';
-    }
-    document.getElementById('darkModeToggle').onclick = function() {
-        const on = !getDarkMode();
-        localStorage.setItem('darkMode', on ? 'on' : 'off');
-        setDarkMode(on);
-    };
-    // On page load, ensure correct mode and icon
-    setDarkMode(getDarkMode());
-    // On logout, clear darkMode preference
-    document.querySelectorAll('.logout').forEach(function(logoutLink) {
-        logoutLink.addEventListener('click', function() {
-            localStorage.removeItem('darkMode');
-        });
-    });
-    // Sidebar toggle for mobile
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        if (sidebar && sidebarToggle) {
-            sidebarToggle.onclick = function() {
-                sidebar.classList.toggle('open');
-            };
-        }
-    });
-    </script>
 </body>
 </html> 

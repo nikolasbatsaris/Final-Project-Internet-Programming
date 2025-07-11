@@ -64,8 +64,17 @@ def job_list(request):
     if request.user.is_authenticated:
         user_booked_job_ids = set(BookedJob.objects.filter(user=request.user, job__in=jobs).values_list('job_id', flat=True))
 
-    # PAGINATION: 6 jobs per page
-    paginator = Paginator(jobs, 6)
+    # PAGINATION: Dynamic page size based on screen size
+    # Default: 6 jobs per page, but can be overridden by 'per_page' parameter
+    per_page = request.GET.get('per_page', 6)
+    try:
+        per_page = int(per_page)
+        # Ensure per_page is within reasonable bounds (1-12)
+        per_page = max(1, min(12, per_page))
+    except (ValueError, TypeError):
+        per_page = 6
+    
+    paginator = Paginator(jobs, per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -79,6 +88,7 @@ def job_list(request):
         'booked_job_ids': user_booked_job_ids,
         'paginator': paginator,
         'page_obj': page_obj,
+        'per_page': per_page,
     })
 
 def job_detail(request, job_id):
@@ -961,6 +971,8 @@ def manager_dashboard(request):
         'found_users': found_users,
         'search_query': search_query
     })
+
+
 
 @user_passes_test(lambda u: u.is_superuser)
 def manager_logs_staff(request):
