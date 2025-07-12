@@ -995,7 +995,17 @@ def manager_edit_user(request, user_id):
         form = ManagerUserEditForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
-            if 'promote_to_staff' in request.POST:
+            if 'promote_to_manager' in request.POST:
+                user.is_superuser = True
+                user.is_staff = True
+                user.save()
+                messages.success(request, f'User {user.username} promoted to manager.')
+            elif 'demote_to_user' in request.POST:
+                user.is_staff = False
+                user.is_superuser = False
+                user.save()
+                messages.success(request, f'User {user.username} demoted to normal user.')
+            elif 'promote_to_staff' in request.POST:
                 user.is_staff = True
                 user.save()
                 messages.success(request, f'User {user.username} updated and promoted to staff.')

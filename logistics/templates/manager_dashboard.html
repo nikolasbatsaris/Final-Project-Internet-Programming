@@ -202,6 +202,18 @@
             color: #fff !important;
             box-shadow: 0 4px 16px rgba(255,224,102,0.18);
         }
+        .dark-mode .styled-btn[style*="#e67e22"], .dark-mode .styled-btn[style*="#f39c12"] {
+            background: linear-gradient(90deg, #ffe066 0%, #ffd700 100%) !important;
+            color: #232323 !important;
+            border: 2px solid #ffe066 !important;
+            box-shadow: 0 0 12px 2px #ffe06655;
+        }
+        .dark-mode .styled-btn[style*="#e74c3c"], .dark-mode .styled-btn[style*="#ec7063"] {
+            background: linear-gradient(90deg, #ff7675 0%, #fd5c63 100%) !important;
+            color: #fff !important;
+            border: 2px solid #ff7675 !important;
+            box-shadow: 0 0 12px 2px #fd5c6355;
+        }
         
         .btn { 
             background: #2980b9; 
@@ -458,11 +470,6 @@
                     <div class="user-card-body">Email: {{ staff.email }}</div>
                     <div class="user-card-actions">
                         <a href="{% url 'logistics:manager_edit_user' staff.id %}" class="btn edit">Edit</a>
-                        <form method="post" action="" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="demote_user_id" value="{{ staff.id }}">
-                            <button type="submit" class="btn remove">Remove Staff</button>
-                        </form>
                     </div>
                 </div>
                 {% empty %}
