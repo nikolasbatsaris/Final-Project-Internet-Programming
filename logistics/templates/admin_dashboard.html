@@ -580,48 +580,49 @@
                 <input type="hidden" name="bulk_action" id="jobRequestBulkAction" value="">
             </form>
             <h2 id="live-jobs" class="section-title">Live Jobs</h2>
-            <form id="bulkLiveJobsForm" method="post" action="{% url 'logistics:bulk_live_job_action' %}">
+            <table>
+                <tr>
+                    <th><input type="checkbox" id="selectAllLiveJobs" onclick="toggleAll('livejob')"></th>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Route</th>
+                    <th>Cargo Type</th>
+                    <th>Created By</th>
+                    <th>Pickup Date</th>
+                    <th>Actions</th>
+                </tr>
+                {% for job in live_jobs %}
+                <tr>
+                    <td><input type="checkbox" name="selected_jobs" value="{{ job.id }}" class="livejob-checkbox" form="bulkLiveJobsForm"></td>
+                    <td>{{ job.id }}</td>
+                    <td>{{ job.title }}</td>
+                    <td>{{ job.origin }} → {{ job.destination }}</td>
+                    <td>{{ job.cargo_type.name }}</td>
+                    <td>{{ job.created_by.username }}</td>
+                    <td>{{ job.pickup_date }}</td>
+                    <td>
+                        <form method="post" action="{% url 'logistics:hide_job' job.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="background:#7f8c8d; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🙈 Hide</button>
+                        </form>
+                        <form method="post" action="{% url 'logistics:flag_job' job.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="text" name="reason" placeholder="Flag reason..." required style="padding:6px; border-radius:4px; border:1px solid #ccc; margin-right:6px;">
+                            <button type="submit" style="background:#f39c12; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🚩 Flag</button>
+                        </form>
+                        <form method="post" action="{% url 'logistics:remove_job' job.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🗑️ Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" style="text-align:center; color:#888;">No live jobs.</td></tr>
+                {% endfor %}
+            </table>
+            <form id="bulkLiveJobsForm" method="post" action="{% url 'logistics:bulk_live_job_action' %}" style="margin-top: 0;">
                 {% csrf_token %}
-                <table>
-                    <tr>
-                        <th><input type="checkbox" id="selectAllLiveJobs" onclick="toggleAll('livejob')"></th>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Route</th>
-                        <th>Cargo Type</th>
-                        <th>Created By</th>
-                        <th>Pickup Date</th>
-                        <th>Actions</th>
-                    </tr>
-                    {% for job in live_jobs %}
-                    <tr>
-                        <td><input type="checkbox" name="selected_jobs" value="{{ job.id }}" class="livejob-checkbox"></td>
-                        <td>{{ job.id }}</td>
-                        <td>{{ job.title }}</td>
-                        <td>{{ job.origin }} → {{ job.destination }}</td>
-                        <td>{{ job.cargo_type.name }}</td>
-                        <td>{{ job.created_by.username }}</td>
-                        <td>{{ job.pickup_date }}</td>
-                        <td>
-                            <form method="post" action="{% url 'logistics:hide_job' job.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" style="background:#7f8c8d; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🙈 Hide</button>
-                            </form>
-                            <form method="post" action="{% url 'logistics:flag_job' job.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <input type="text" name="reason" placeholder="Flag reason..." required style="padding:6px; border-radius:4px; border:1px solid #ccc; margin-right:6px;">
-                                <button type="submit" style="background:#f39c12; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🚩 Flag</button>
-                            </form>
-                            <form method="post" action="{% url 'logistics:remove_job' job.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🗑️ Remove</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="7" style="text-align:center; color:#888;">No live jobs.</td></tr>
-                    {% endfor %}
-                </table>
+                <input type="hidden" name="bulk_action" id="liveJobBulkAction" value="">
                 <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:16px; width:100%; max-width:100%; margin-top:0; margin-bottom:24px;">
                     {% if live_jobs_page_obj.has_previous %}
                         <a href="?live_jobs_page={{ live_jobs_page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" class="styled-btn pagination-btn">← Prev</a>
@@ -635,7 +636,6 @@
                         <span class="styled-btn pagination-btn" disabled aria-disabled="true">Next →</span>
                     {% endif %}
                 </div>
-                <input type="hidden" name="bulk_action" id="liveJobBulkAction" value="">
             </form>
             <h2 id="hidden-jobs" class="section-title">Hidden Jobs</h2>
             <table>
@@ -689,50 +689,54 @@
             <table>
                 <tr>
                     <th>Title</th>
-                    <th>Route</th>
-                    <th>Cargo Type</th>
-                    <th>Created By</th>
-                    <th>Pickup Date</th>
-                    <th>Flags</th>
+                    <th>Flag Reason</th>
+                    <th>Flagged By</th>
+                    <th>Flagged At</th>
                     <th>Actions</th>
                 </tr>
                 {% for job in flagged_jobs %}
                 <tr style="background:#fff3cd;">
                     <td>{{ job.title }}</td>
-                    <td>{{ job.origin }} → {{ job.destination }}</td>
-                    <td>{{ job.cargo_type.name }}</td>
-                    <td>{{ job.created_by.username }}</td>
-                    <td>{{ job.pickup_date }}</td>
                     <td>
                         <ul>
-                            {% for flag in job.flags.all %}
+                        {% for flag in job.flags.all %}
                             {% if flag.status == 'open' %}
-                            <li>{{ flag.created_at|date:"M j, Y H:i" }} by {{ flag.flagged_by.username }}: {{ flag.reason }}</li>
+                                <li>{{ flag.reason }}</li>
                             {% endif %}
-                            {% endfor %}
+                        {% endfor %}
                         </ul>
                     </td>
                     <td>
-                        <form method="post" action="{% url 'logistics:hide_job' job.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" style="background:#7f8c8d; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🙈 Hide</button>
-                        </form>
-                        <form method="post" action="{% url 'logistics:remove_job' job.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">🗑️ Remove</button>
-                        </form>
+                        <ul>
                         {% for flag in job.flags.all %}
-                        {% if flag.status == 'open' %}
-                        <form method="post" action="{% url 'logistics:close_flag' flag.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" style="background:#3498db; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">✔️ Close Flag</button>
-                        </form>
-                        {% endif %}
+                            {% if flag.status == 'open' %}
+                                <li>{{ flag.flagged_by.username }}</li>
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                        {% for flag in job.flags.all %}
+                            {% if flag.status == 'open' %}
+                                <li>{{ flag.created_at|date:"M j, Y H:i" }}</li>
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    </td>
+                    <td>
+                        {% for flag in job.flags.all %}
+                            {% if flag.status == 'open' %}
+                            <form method="post" action="{% url 'logistics:close_flag' flag.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background:#3498db; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">✔️ Close Flag</button>
+                            </form>
+                            {% endif %}
                         {% endfor %}
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="7" style="text-align:center; color:#888;">No flagged jobs.</td></tr>
+                <tr><td colspan="5" style="text-align:center; color:#888;">No flagged jobs.</td></tr>
                 {% endfor %}
             </table>
             <!-- FLAGGED JOBS PAGINATION -->
