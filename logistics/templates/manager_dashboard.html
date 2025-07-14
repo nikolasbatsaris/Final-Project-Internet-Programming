@@ -417,14 +417,11 @@
 <body>
     <div class="shiplink-logo">ShipLink</div>
     <div class="dashboard-flex">
-        <nav class="sidebar" id="sidebar">
+        <nav class="sidebar">
             <h2>Management Menu</h2>
-            <a href="{% url 'logistics:manager_dashboard' %}" class="active">Management</a>
-            <a href="{% url 'logistics:manager_logs_staff' %}">Staff Logs</a>
-            <a href="{% url 'logistics:manager_logs_users' %}">User Logs</a>
             <div style="display:flex; flex-direction:column; gap:10px; margin: 28px 0 0 0; align-items:stretch; width:100%;">
                 <a href="{% url 'logistics:admin_dashboard' %}" class="styled-btn" style="background:linear-gradient(90deg, #e67e22 0%, #f39c12 100%); color:#fff; border-radius:8px; padding:10px 0; text-align:center; font-weight:bold; font-size:0.98em; box-shadow:0 2px 8px rgba(230,126,34,0.12); width:100%; min-width:0;">Staff Dashboard</a>
-                <a href="{% url 'logistics:logout' %}" class="styled-btn logout" style="background:linear-gradient(90deg, #e74c3c 0%, #ec7063 100%); color:#fff; border-radius:8px; padding:10px 0; text-align:center; font-weight:bold; font-size:0.98em; box-shadow:0 2px 8px rgba(231,76,60,0.12); width:100%; min-width:0;">Logout</a>
+                <a href="{% url 'logistics:logout' %}" class="styled-btn logout" style="background:linear-gradient(90deg, #e74c3c 0%, #c0392b 100%); color:#fff; border-radius:8px; padding:10px 0; text-align:center; font-weight:bold; font-size:0.98em; box-shadow:0 2px 8px rgba(231,76,60,0.18); width:100%; min-width:0;">Logout</a>
             </div>
             <button class="sidebar-toggle" id="sidebarToggle" style="display:none; margin:24px auto 0 auto; background:linear-gradient(90deg, #3498db 0%, #5dade2 100%); color:#fff; border:none; border-radius:12px; padding:12px 24px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow:0 2px 8px rgba(52,152,219,0.15);">☰ Menu</button>
         </nav>

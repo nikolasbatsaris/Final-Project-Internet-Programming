@@ -951,11 +951,6 @@ def export_jobs_csv(request):
     return response
 
 @user_passes_test(lambda u: u.is_superuser)
-def manager_home(request):
-    # Deprecated: redirect to manager_dashboard
-    return redirect('logistics:manager_dashboard')
-
-@user_passes_test(lambda u: u.is_superuser)
 def manager_dashboard(request):
     staff_users = User.objects.filter(is_staff=True, is_superuser=False)
     manager_users = User.objects.filter(is_superuser=True)
@@ -973,16 +968,6 @@ def manager_dashboard(request):
     })
 
 
-
-@user_passes_test(lambda u: u.is_superuser)
-def manager_logs_staff(request):
-    staff_activities = RecentActivity.objects.filter(user__is_staff=True).order_by('-timestamp')[:100]
-    return render(request, 'manager_logs_staff.html', {'activities': staff_activities})
-
-@user_passes_test(lambda u: u.is_superuser)
-def manager_logs_users(request):
-    user_activities = RecentActivity.objects.filter(user__is_staff=False).order_by('-timestamp')[:100]
-    return render(request, 'manager_logs_users.html', {'activities': user_activities})
 
 @user_passes_test(lambda u: u.is_superuser)
 def manager_edit_user(request, user_id):

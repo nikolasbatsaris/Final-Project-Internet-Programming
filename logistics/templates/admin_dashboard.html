@@ -285,6 +285,20 @@
             background: linear-gradient(90deg, #3498db 0%, #8fd3f4 100%) !important;
             color: #fff !important;
         }
+        .dark-mode .sidebar a.styled-btn[style*='#e74c3c'],
+        .dark-mode .sidebar a.styled-btn.logout {
+            background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%) !important;
+            color: #fff !important;
+        }
+        .dark-mode .sidebar a.styled-btn[style*='#e67e22'],
+        .dark-mode .sidebar a.styled-btn[style*='#f39c12'],
+        .dark-mode .sidebar a.styled-btn[style*='background:#e67e22'],
+        .dark-mode .sidebar a.styled-btn[style*='background: #e67e22'],
+        .dark-mode .sidebar a.styled-btn[style*='background:#f39c12'],
+        .dark-mode .sidebar a.styled-btn[style*='background: #f39c12'] {
+            background: linear-gradient(90deg, #e67e22 0%, #f39c12 100%) !important;
+            color: #fff !important;
+        }
     </style>
     <script>
     // Dark mode functionality
@@ -394,7 +408,7 @@
             {% if user.is_superuser %}
             <a href="{% url 'logistics:manager_dashboard' %}" class="styled-btn" style="background:#e67e22; color:#fff; border-radius:5px; margin: 30px 16px 0 16px; text-align:center;">Manager Dashboard</a>
             {% endif %}
-            <a href="{% url 'logistics:logout' %}" class="styled-btn" style="background:#e74c3c; color:#fff; border-radius:5px; margin: 30px 16px 0 16px; text-align:center;">Logout</a>
+            <a href="{% url 'logistics:logout' %}" class="styled-btn logout" style="background:linear-gradient(90deg, #e74c3c 0%, #c0392b 100%); color:#fff; border-radius:5px; margin: 30px 16px 0 16px; text-align:center;">Logout</a>
         </nav>
         <div style="position:fixed; top:24px; right:32px; z-index:1000;">
             <button id="darkModeToggle" class="dark-mode-toggle" title="Toggle dark mode">🌙</button>
