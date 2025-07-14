@@ -236,7 +236,7 @@ def admin_dashboard(request):
     q = request.GET.get('q', '').strip()
     job_id = request.GET.get('job_id', '').strip()
     # Jobs
-    live_jobs_qs = JobPost.objects.filter(hidden=False).order_by('-created_at')
+    live_jobs_qs = JobPost.objects.filter(hidden=False).exclude(flags__status='open').order_by('-created_at')
     hidden_jobs_qs = JobPost.objects.filter(hidden=True).order_by('-created_at')
     flagged_jobs_qs = JobPost.objects.filter(flags__status='open').distinct().order_by('-created_at')
     job_requests_qs = JobRequest.objects.filter(status='pending').order_by('-created_at')
@@ -640,7 +640,7 @@ def flag_job(request, job_id):
         return redirect('logistics:job_detail', job_id=job_id)
     JobFlag.objects.create(job=job, flagged_by=request.user, reason=reason)
     messages.success(request, 'Job flagged for review.')
-    return redirect('logistics:job_detail', job_id=job_id)
+    return redirect('logistics:admin_dashboard')
 
 @login_required
 @require_POST
