@@ -156,6 +156,12 @@ class CustomUserCreationForm(UserCreationForm):
         model = User
         fields = ("username", "first_name", "last_name", "email", "password1", "password2")
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('A user with that email already exists.')
+        return email
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.first_name = self.cleaned_data["first_name"]
@@ -1068,8 +1074,8 @@ def dashboard(request):
     # Get user's job requests
     job_requests = JobRequest.objects.filter(requested_by=request.user).order_by('-created_at')
     
-    # Get user's booked jobs
-    booked_jobs = BookedJob.objects.filter(user=request.user).select_related('job', 'job__cargo_type', 'job__created_by')
+    # Get user's booked jobs (only live jobs, i.e., not hidden)
+    booked_jobs = BookedJob.objects.filter(user=request.user, job__hidden=False).select_related('job', 'job__cargo_type', 'job__created_by')
     
     # Get user's liked jobs
     liked_jobs = JobPost.objects.filter(joblike__user=request.user).select_related('cargo_type', 'created_by')
@@ -1124,7 +1130,7 @@ def dashboard(request):
             id__in=all_booked_job_ids
         ).select_related('cargo_type', 'created_by').order_by('-created_at')[:6]
     
-    total_jobs_count = JobPost.objects.count()
+    live_jobs_count = JobPost.objects.filter(hidden=False).count()
     active_requests_count = JobRequest.objects.filter(requested_by=request.user, status='pending').count()
     jobs_booked_count = BookedJob.objects.filter(user=request.user).count()
     liked_jobs_count = JobLike.objects.filter(user=request.user).count()
@@ -1133,7 +1139,7 @@ def dashboard(request):
         'booked_jobs': booked_jobs,
         'liked_jobs': liked_jobs,
         'recommended_jobs': recommended_jobs,
-        'total_jobs_count': total_jobs_count,
+        'live_jobs_count': live_jobs_count,
         'active_requests_count': active_requests_count,
         'jobs_booked_count': jobs_booked_count,
         'liked_jobs_count': liked_jobs_count,
