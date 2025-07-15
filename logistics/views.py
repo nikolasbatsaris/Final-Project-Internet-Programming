@@ -15,6 +15,26 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.dateformat import format as date_format
+from decimal import Decimal, InvalidOperation
+from datetime import time
+
+def convert_time_window_to_time(time_window):
+    """Convert time window string like '06:00-12:00' to time objects"""
+    if not time_window:
+        return None, None
+    
+    try:
+        # Extract start and end times from window like "06:00-12:00"
+        start_time_str, end_time_str = time_window.split('-')
+        start_hour, start_minute = map(int, start_time_str.split(':'))
+        end_hour, end_minute = map(int, end_time_str.split(':'))
+        
+        start_time = time(start_hour, start_minute)
+        end_time = time(end_hour, end_minute)
+        
+        return start_time, end_time
+    except (ValueError, AttributeError):
+        return None, None
 
 # Create your views here.
 
@@ -114,37 +134,64 @@ def job_detail_json(request, job_id):
     is_authenticated = request.user.is_authenticated
     liked = False
     booked = False
+    user_booked = False
     if is_authenticated:
         liked = job.is_liked_by(request.user)
-        booked = BookedJob.objects.filter(user=request.user, job=job).exists()
+        user_booked = BookedJob.objects.filter(user=request.user, job=job).exists()
+    # Check if job is booked by any user
+    booked = BookedJob.objects.filter(job=job).exists()
+    
+    # Get booking information for staff
+    booked_by_username = None
+    booked_by_id = None
+    if booked:
+        booking = BookedJob.objects.filter(job=job).first()
+        if booking:
+            booked_by_username = booking.user.username
+            booked_by_id = booking.user.id
+    
     data = {
         'id': job.id,
         'title': job.title,
         'origin': job.origin,
-        'origin_address': job.origin_address,
-        'origin_zip': job.origin_zip,
+        'origin_address': job.origin_address if job.origin_address else None,
+        'origin_zip': job.origin_zip if job.origin_zip else None,
         'destination': job.destination,
-        'destination_address': job.destination_address,
-        'destination_zip': job.destination_zip,
-        'pickup_date': job.pickup_date.strftime('%Y-%m-%d') if job.pickup_date else '',
-        'pickup_time_from': job.pickup_time_from,
-        'pickup_time_to': job.pickup_time_to,
-        'delivery_deadline': job.delivery_deadline.strftime('%Y-%m-%d') if job.delivery_deadline else '',
-        'cargo_type': job.cargo_type.name if job.cargo_type else '',
-        'weight_kg': job.weight_kg,
-        'length_cm': job.length_cm,
-        'width_cm': job.width_cm,
-        'height_cm': job.height_cm,
-        'special_requirements': job.special_requirements,
-        'declared_value': job.declared_value,
-        'reference_code': job.reference_code,
+        'destination_address': job.destination_address if job.destination_address else None,
+        'destination_zip': job.destination_zip if job.destination_zip else None,
+        'pickup_date': job.pickup_date.strftime('%Y-%m-%d') if job.pickup_date else None,
+        'pickup_time_from': job.pickup_time_from.strftime('%H:%M') if job.pickup_time_from else None,
+        'pickup_time_to': job.pickup_time_to.strftime('%H:%M') if job.pickup_time_to else None,
+        'delivery_deadline': job.delivery_deadline.strftime('%Y-%m-%d') if job.delivery_deadline else None,
+        'cargo_type': job.cargo_type.name if job.cargo_type else None,
+        'weight_kg': job.weight_kg if job.weight_kg is not None else None,
+        'length_cm': job.length_cm if job.length_cm is not None else None,
+        'width_cm': job.width_cm if job.width_cm is not None else None,
+        'height_cm': job.height_cm if job.height_cm is not None else None,
+        'special_requirements': job.special_requirements if job.special_requirements else None,
+        'declared_value': str(job.declared_value) if job.declared_value else None,
+        'reference_code': job.reference_code if job.reference_code else None,
         'description': job.description,
         'created_at': date_format(job.created_at, 'Y-m-d H:i'),
         'like_count': job.like_count(),
         'is_authenticated': is_authenticated,
         'liked': liked,
         'booked': booked,
+        'user_booked': user_booked,
     }
+    
+    # Add staff-only information if user is staff
+    if request.user.is_staff:
+        data.update({
+            'created_by_username': job.created_by.username,
+            'created_by_id': job.created_by.id,
+            'hidden': job.hidden,
+            'booked_by_username': booked_by_username,
+            'booked_by_id': booked_by_id,
+            'flag_count': job.flags.filter(status='open').count(),
+            'view_count': 0,  # Placeholder for future view tracking
+        })
+    
     return JsonResponse(data)
 
 class CustomUserCreationForm(UserCreationForm):
@@ -189,6 +236,9 @@ def register(request):
 
 def login_view(request):
     """User login view"""
+    if request.method == 'GET':
+        # Clear all messages on GET (login page load)
+        list(messages.get_messages(request))
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -206,8 +256,10 @@ def login_view(request):
 def logout_view(request):
     """User logout view"""
     logout(request)
+    # Clear all messages after logout
+    list(messages.get_messages(request))
     messages.success(request, 'You have been logged out successfully.')
-    return redirect('logistics:home')
+    return redirect('logistics:login')
 
 
 
@@ -590,8 +642,16 @@ def my_job_requests(request):
     paginator = Paginator(job_requests_qs, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    job_requests = page_obj.object_list
+
+    # Build a mapping from job request id to declared_value (if approved and job exists)
+    approved_titles = [req.title for req in job_requests if req.status == 'approved']
+    job_posts = JobPost.objects.filter(title__in=approved_titles)
+    jobpost_value_map = {jp.title: jp.declared_value for jp in job_posts}
+
     return render(request, 'my_job_requests.html', {
-        'job_requests': page_obj.object_list,
+        'job_requests': job_requests,
+        'jobpost_value_map': jobpost_value_map,
         'paginator': paginator,
         'page_obj': page_obj,
     })
@@ -604,24 +664,67 @@ def my_bookings(request):
 @login_required
 @require_POST
 def approve_job_request(request, req_id):
+    print(f"DEBUG: Approve job request called for req_id: {req_id}")
+    print(f"DEBUG: POST data: {request.POST}")
     if not request.user.is_staff:
+        print("DEBUG: User is not staff")
         return HttpResponseForbidden()
     job_request = get_object_or_404(JobRequest, id=req_id, status='pending')
+    print(f"DEBUG: Found job request: {job_request.title}")
+    declared_value_raw = request.POST.get('declared_value')
+    print(f"DEBUG: Raw declared_value: {declared_value_raw}")
+    
+    declared_value = None
+    if declared_value_raw and declared_value_raw.strip():
+        try:
+            declared_value = Decimal(declared_value_raw)
+            print(f"DEBUG: Converted declared_value: {declared_value}")
+        except (InvalidOperation, TypeError):
+            print(f"DEBUG: Invalid value error for: {declared_value_raw}")
+            messages.error(request, 'Invalid value. Please enter a valid number for the value.')
+            return redirect('logistics:admin_dashboard')
+    else:
+        print(f"DEBUG: No declared_value provided, setting to None")
+    
     # Create JobPost from JobRequest
-    job_post = JobPost.objects.create(
-        title=job_request.title,
-        description=job_request.description,
-        origin=job_request.origin,
-        destination=job_request.destination,
-        cargo_type=job_request.cargo_type,
-        weight_kg=job_request.weight_kg,
-        pickup_date=job_request.pickup_date,
-        created_by=request.user
-    )
-    job_request.status = 'approved'
-    job_request.save()
-    messages.success(request, 'Job request approved and posted!')
-    return redirect('logistics:admin_dashboard')
+    try:
+        # Convert time windows to actual time objects
+        pickup_time_from, pickup_time_to = convert_time_window_to_time(job_request.pickup_time_from)
+        delivery_time_from, delivery_time_to = convert_time_window_to_time(job_request.pickup_time_to)
+        
+        job_post = JobPost.objects.create(
+            title=job_request.title,
+            description=job_request.description,
+            origin=job_request.origin,
+            destination=job_request.destination,
+            cargo_type=job_request.cargo_type,
+            weight_kg=job_request.weight_kg,
+            pickup_date=job_request.pickup_date,
+            pickup_time_from=pickup_time_from,
+            pickup_time_to=pickup_time_to,
+            delivery_deadline=job_request.delivery_deadline,
+            origin_address=job_request.origin_address,
+            origin_zip=job_request.origin_zip,
+            destination_address=job_request.destination_address,
+            destination_zip=job_request.destination_zip,
+            length_cm=job_request.length_cm,
+            width_cm=job_request.width_cm,
+            height_cm=job_request.height_cm,
+            special_requirements=job_request.special_requirements,
+            reference_code=job_request.reference_code,
+            created_by=request.user,
+            declared_value=declared_value
+        )
+        print(f"DEBUG: Created job post: {job_post.id}")
+        job_request.status = 'approved'
+        job_request.save()
+        print(f"DEBUG: Updated job request status to approved")
+        messages.success(request, 'Job request approved and posted!')
+        return redirect('logistics:admin_dashboard')
+    except Exception as e:
+        print(f"DEBUG: Error creating job post: {e}")
+        messages.error(request, f'Error approving job request: {e}')
+        return redirect('logistics:admin_dashboard')
 
 @login_required
 @require_POST
@@ -729,6 +832,10 @@ def bulk_job_request_action(request):
         for req_id in selected:
             job_request = JobRequest.objects.filter(id=req_id, status='pending').first()
             if job_request:
+                # Convert time windows to actual time objects
+                pickup_time_from, pickup_time_to = convert_time_window_to_time(job_request.pickup_time_from)
+                delivery_time_from, delivery_time_to = convert_time_window_to_time(job_request.pickup_time_to)
+                
                 JobPost.objects.create(
                     title=job_request.title,
                     description=job_request.description,
@@ -737,6 +844,18 @@ def bulk_job_request_action(request):
                     cargo_type=job_request.cargo_type,
                     weight_kg=job_request.weight_kg,
                     pickup_date=job_request.pickup_date,
+                    pickup_time_from=pickup_time_from,
+                    pickup_time_to=pickup_time_to,
+                    delivery_deadline=job_request.delivery_deadline,
+                    origin_address=job_request.origin_address,
+                    origin_zip=job_request.origin_zip,
+                    destination_address=job_request.destination_address,
+                    destination_zip=job_request.destination_zip,
+                    length_cm=job_request.length_cm,
+                    width_cm=job_request.width_cm,
+                    height_cm=job_request.height_cm,
+                    special_requirements=job_request.special_requirements,
+                    reference_code=job_request.reference_code,
                     created_by=request.user
                 )
                 job_request.status = 'approved'
@@ -1080,17 +1199,12 @@ def dashboard(request):
     # Get user's liked jobs
     liked_jobs = JobPost.objects.filter(joblike__user=request.user).select_related('cargo_type', 'created_by')
     
-    # Get recommended jobs based on user's preferences
+    # Restore recommended_jobs logic
     recommended_jobs = []
     if liked_jobs.exists():
-        # Get cargo types from liked jobs
         liked_cargo_types = liked_jobs.values_list('cargo_type', flat=True).distinct()
-        # Get origins and destinations from liked jobs
         liked_origins = liked_jobs.values_list('origin', flat=True).distinct()
         liked_destinations = liked_jobs.values_list('destination', flat=True).distinct()
-        
-        # Find jobs with similar characteristics that user hasn't liked or booked
-        # Also exclude jobs booked by any user
         all_booked_job_ids = set(BookedJob.objects.values_list('job_id', flat=True))
         recommended_jobs = JobPost.objects.filter(
             hidden=False,
@@ -1102,8 +1216,6 @@ def dashboard(request):
         ).exclude(
             id__in=all_booked_job_ids
         ).select_related('cargo_type', 'created_by').order_by('-created_at')[:6]
-        
-        # If not enough recommendations based on cargo type, add jobs from liked origins/destinations
         if recommended_jobs.count() < 6:
             additional_jobs = JobPost.objects.filter(
                 hidden=False,
@@ -1117,10 +1229,8 @@ def dashboard(request):
             ).exclude(
                 id__in=recommended_jobs.values_list('id', flat=True)
             ).select_related('cargo_type', 'created_by').order_by('-created_at')[:6-recommended_jobs.count()]
-            
             recommended_jobs = list(recommended_jobs) + list(additional_jobs)
     else:
-        # If no liked jobs, show recent popular jobs
         all_booked_job_ids = set(BookedJob.objects.values_list('job_id', flat=True))
         recommended_jobs = JobPost.objects.filter(
             hidden=False
@@ -1129,8 +1239,9 @@ def dashboard(request):
         ).exclude(
             id__in=all_booked_job_ids
         ).select_related('cargo_type', 'created_by').order_by('-created_at')[:6]
-    
-    live_jobs_count = JobPost.objects.filter(hidden=False).count()
+    # live_jobs_count should match jobs shown in browse jobs (not hidden and not booked by any user)
+    booked_job_ids = set(BookedJob.objects.values_list('job_id', flat=True))
+    live_jobs_count = JobPost.objects.filter(hidden=False).exclude(id__in=booked_job_ids).count()
     active_requests_count = JobRequest.objects.filter(requested_by=request.user, status='pending').count()
     jobs_booked_count = BookedJob.objects.filter(user=request.user).count()
     liked_jobs_count = JobLike.objects.filter(user=request.user).count()
@@ -1152,6 +1263,9 @@ def job_request_detail_json(request, request_id):
         req = JobRequest.objects.get(id=request_id, requested_by=request.user)
     except JobRequest.DoesNotExist:
         raise Http404
+    # Try to find a related JobPost (approved job)
+    job_post = JobPost.objects.filter(title=req.title, origin=req.origin, destination=req.destination).order_by('-created_at').first()
+    approved_value = job_post.declared_value if job_post else None
     data = {
         'id': req.id,
         'title': req.title,
@@ -1173,6 +1287,7 @@ def job_request_detail_json(request, request_id):
         'height_cm': req.height_cm,
         'special_requirements': req.special_requirements,
         'declared_value': req.declared_value,
+        'approved_value': approved_value,
         'reference_code': req.reference_code,
         'status': req.status,
         'staff_note': req.staff_note,

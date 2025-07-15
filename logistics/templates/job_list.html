@@ -1019,7 +1019,14 @@ body::-webkit-scrollbar-corner, #jobDetailContent::-webkit-scrollbar-corner {
         {% if page_obj.object_list %}
             <div class="job-grid" style="margin-top:32px;">
                 {% for job in page_obj.object_list %}
-                <div class="job-card" data-job-id="{{ job.id }}" onclick="openJobDetailModal('{{ job.id }}')" style="cursor:pointer;">
+                <div class="job-card" data-job-id="{{ job.id }}" onclick="openJobDetailModal('{{ job.id }}')" style="cursor:pointer; position:relative;">
+                    <!-- Booking Status Badge -->
+                    {% if job.id in booked_job_ids %}
+                    <div style="position:absolute; top:8px; right:8px; background:#27ae60; color:white; padding:4px 8px; border-radius:12px; font-size:11px; font-weight:bold; z-index:10;">
+                        ✓ Booked
+                    </div>
+                    {% endif %}
+                    
                     <div class="job-title">
                         {% if job.cargo_type.name == 'General Cargo' %}
                             <svg class="job-icon" viewBox="0 0 32 32"><rect x="4" y="8" width="24" height="16" rx="4" fill="#3498db"/></svg>
@@ -1070,11 +1077,8 @@ body::-webkit-scrollbar-corner, #jobDetailContent::-webkit-scrollbar-corner {
                     <div style="display:flex; flex-direction:column; gap:2px;">
                         <b>Cargo</b>
                         <span>Type: {{ job.cargo_type.name }}</span>
-                        <span>Weight: {{ job.weight_kg|default:'—' }} kg</span>
                         <span>Dimensions: {{ job.length_cm|default:'—' }} × {{ job.width_cm|default:'—' }} × {{ job.height_cm|default:'—' }} cm</span>
                         <span>Special: {{ job.special_requirements|default:'—' }}</span>
-                        <span>Declared Value: {{ job.declared_value|default:'—' }}</span>
-                        <span>Reference Code: {{ job.reference_code|default:'—' }}</span>
                     </div>
                     <div style="border-top:1px solid #e0e0e0; margin:8px 0 4px 0;"></div>
                     <div style="font-size:13px; color:#888; margin-bottom:2px;">
@@ -1283,16 +1287,11 @@ function openJobDetailModal(jobId) {
             let html = `<div style=\"display: flex; gap: 24px; height: 100%;\">
               <!-- Left Column -->
               <div style=\"flex: 1; display: flex; flex-direction: column; gap: 16px;\">
-                <!-- Status Badge -->
-                <div style=\"background: rgba(39, 174, 96, 0.1); padding: 16px; border-radius: 12px; text-align: center;\">
-                  <span class=\"badge bg-success\" style=\"font-size: 1rem; padding: 8px 16px;\">Available</span>
-                </div>
                 <!-- Basic Information Section -->
                 <div style=\"background: rgba(79, 195, 247, 0.1); padding: 20px; border-radius: 12px;\">
                   <h6 style=\"color: #4fc3f7; margin-bottom: 12px; font-size: 1.1rem;\">📝 Basic Information</h6>
                   <div style=\"margin-bottom: 10px;\"><span style=\"font-weight: bold;\">Title:</span> ${data.title || '—'}</div>
                   <div style=\"margin-bottom: 10px;\"><span style=\"font-weight: bold;\">Description:</span> ${data.description || '—'}</div>
-                  <div style=\"margin-bottom: 10px;\"><span style=\"font-weight: bold;\">Reference Code:</span> ${data.reference_code || '—'}</div>
                 </div>
                 <!-- Route Information Section -->
                 <div style=\"background: rgba(255, 224, 102, 0.1); padding: 20px; border-radius: 12px;\">
@@ -1314,14 +1313,8 @@ function openJobDetailModal(jobId) {
                 <div style=\"background: rgba(231, 76, 60, 0.1); padding: 20px; border-radius: 12px;\">
                   <h6 style=\"color: #e74c3c; margin-bottom: 12px; font-size: 1.1rem;\">📦 Cargo Details</h6>
                   <div style=\"margin-bottom: 10px;\"><span style=\"font-weight: bold;\">Cargo Type:</span> ${data.cargo_type || '—'}</div>
-                  <div style=\"margin-bottom: 10px;\"><span style=\"font-weight: bold;\">Weight:</span> ${data.weight_kg || '—'} kg</div>
                   <div style=\"margin-bottom: 10px;\"><span style=\"font-weight: bold;\">Dimensions:</span> ${data.length_cm || '—'} × ${data.width_cm || '—'} × ${data.height_cm || '—'} cm</div>
                   <div style=\"margin-bottom: 10px;\"><span style=\"font-weight: bold;\">Special Requirements:</span> ${data.special_requirements || '—'}</div>
-                </div>
-                <!-- Financial Information Section -->
-                <div style=\"background: rgba(155, 89, 182, 0.1); padding: 20px; border-radius: 12px;\">
-                  <h6 style=\"color: #9b59b6; margin-bottom: 12px; font-size: 1.1rem;\">💰 Financial Information</h6>
-                  <div style=\"margin-bottom: 10px;\"><span style=\"font-weight: bold;\">Declared Value:</span> ${data.declared_value || '—'}</div>
                 </div>
                 <!-- Job Statistics Section -->
                 <div style=\"background: rgba(52, 152, 219, 0.1); padding: 20px; border-radius: 12px;\">
@@ -1347,10 +1340,16 @@ function openJobDetailModal(jobId) {
                       style="background: ${data.liked ? '#e74c3c' : '#fff'}; color: ${data.liked ? '#fff' : '#e74c3c'}; border: 2px solid #e74c3c; border-radius: 12px; padding: 14px 28px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 1.1rem; min-width: 120px;">
                       ${data.liked ? '❤ Liked' : '🤍 Like'}
                     </button>
-                    <button class="book-btn-modal" onclick="bookJobFromModal(${data.id}, this)" 
-                      style="background: #27ae60; color: #fff; border: 2px solid #27ae60; border-radius: 12px; padding: 14px 28px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 1.1rem; min-width: 120px;">
-                      🚚 Book Job
-                    </button>
+                    ${data.booked ? 
+                      (data.user_booked ? 
+                        '<button disabled style="background: #95a5a6; color: #fff; border: 2px solid #95a5a6; border-radius: 12px; padding: 14px 28px; font-weight: bold; cursor: not-allowed; font-size: 1.1rem; min-width: 120px;">🚚 You Booked This</button>' :
+                        '<button disabled style="background: #95a5a6; color: #fff; border: 2px solid #95a5a6; border-radius: 12px; padding: 14px 28px; font-weight: bold; cursor: not-allowed; font-size: 1.1rem; min-width: 120px;">🚚 Already Booked</button>'
+                      ) :
+                      `<button class="book-btn-modal" onclick="bookJobFromModal(${data.id}, this)" 
+                        style="background: #27ae60; color: #fff; border: 2px solid #27ae60; border-radius: 12px; padding: 14px 28px; font-weight: bold; cursor: pointer; transition: all 0.3s; font-size: 1.1rem; min-width: 120px;">
+                        🚚 Book Job
+                      </button>`
+                    }
                   </div>
                 </div>`;
             } else {
@@ -1446,6 +1445,11 @@ function bookJobFromModal(jobId, btn) {
         if (data.success) {
             btn.textContent = 'Booked!';
             btn.disabled = true;
+            // Close modal and refresh page to show booking status
+            setTimeout(() => {
+                closeJobDetailModal();
+                window.location.reload();
+            }, 1000);
         } else {
             btn.textContent = 'Book';
             btn.disabled = false;

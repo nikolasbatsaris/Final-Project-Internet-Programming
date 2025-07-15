@@ -198,6 +198,18 @@
             border: none;
             border-radius: 6px;
             padding: 8px 18px;
+        }
+
+        /* Dark mode styles for modal */
+        .dark-mode #jobDetailModal .modal-content {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .dark-mode #jobDetailModal .modal-content button {
+            color: #ffffff;
+        }
+        .styled-btn.pagination-btn {
             font-weight: bold;
             font-size: 1rem;
             cursor: pointer;
@@ -299,6 +311,19 @@
             background: linear-gradient(90deg, #e67e22 0%, #f39c12 100%) !important;
             color: #fff !important;
         }
+        /* Add dark flag info box style */
+        .flag-info-box {
+            background: #23272f;
+            color: #ffe066;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            padding: 8px;
+        }
+        .dark-mode .flag-info-box {
+            background: #23272f;
+            color: #ffe066;
+        }
+        .flag-info-box strong { color: #fff; }
     </style>
     <script>
     // Dark mode functionality
@@ -521,64 +546,69 @@
             </table>
             {% else %}
             <h2 id="pending-requests" class="section-title">Pending Job Requests</h2>
-            <form id="bulkJobRequestForm" method="post" action="{% url 'logistics:bulk_job_request_action' %}">
+            <form id="bulkJobRequestForm" method="post" action="{% url 'logistics:bulk_job_request_action' %}" style="margin-bottom: 20px;">
                 {% csrf_token %}
-                <table>
-                    <tr>
-                        <th><input type="checkbox" id="selectAllJobRequests" onclick="toggleAll('jobrequest')"></th>
-                        <th>Title</th>
-                        <th>Pickup</th>
-                        <th>Dropoff</th>
-                        <th>Cargo</th>
-                        <th>Requested By</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                    {% for req in job_requests %}
-                    <tr>
-                        <td><input type="checkbox" name="selected_requests" value="{{ req.id }}" class="jobrequest-checkbox"></td>
-                        <td>{{ req.title }}</td>
-                        <td>
-                            <b>City:</b> {{ req.origin }}<br>
-                            <b>Address:</b> {{ req.origin_address }}<br>
-                            <b>ZIP:</b> {{ req.origin_zip }}<br>
-                            <b>Date:</b> {{ req.pickup_date }}<br>
-                            <b>Time:</b> {{ req.pickup_time_from }}
-                        </td>
-                        <td>
-                            <b>City:</b> {{ req.destination }}<br>
-                            <b>Address:</b> {{ req.destination_address }}<br>
-                            <b>ZIP:</b> {{ req.destination_zip }}<br>
-                            <b>Time:</b> {{ req.pickup_time_to }}<br>
-                            <b>Deadline:</b> {{ req.delivery_deadline }}
-                        </td>
-                        <td>
-                            <b>Type:</b> {{ req.cargo_type.name }}<br>
-                            <b>Weight:</b> {{ req.weight_kg }} kg<br>
-                            <b>Dimensions:</b> {{ req.length_cm }}×{{ req.width_cm }}×{{ req.height_cm }} cm<br>
-                            <b>Special:</b> {{ req.special_requirements|default:'—' }}
-                        </td>
-                        <td>{{ req.requested_by.username }} (ID: {{ req.requested_by.id }})</td>
-                        <td>{{ req.get_status_display }}</td>
-                        <td>
-                            {% if req.status == 'pending' %}
-                            <form method="post" action="{% url 'logistics:approve_job_request' req.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="styled-btn" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">Approve</button>
-                            </form>
-                            <form method="post" action="{% url 'logistics:reject_job_request' req.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="styled-btn" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">Reject</button>
-                            </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="8" style="text-align:center; color:#888;">No pending job requests.</td></tr>
-                    {% endfor %}
-                </table>
                 <input type="hidden" name="bulk_action" id="jobRequestBulkAction" value="">
+                <button type="button" class="styled-btn" style="background:#27ae60; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;" onclick="bulkApprove()">✔️ Bulk Approve</button>
+                <button type="button" class="styled-btn" style="background:#e74c3c; color:#fff; border:none; border-radius:5px; padding:8px 16px; font-weight:bold;" onclick="bulkRemove()">🗑️ Bulk Remove</button>
             </form>
+            <table>
+                <tr>
+                    <th><input type="checkbox" id="selectAllJobRequests" onclick="toggleAll('jobrequest')"></th>
+                    <th>Title</th>
+                    <th>Pickup</th>
+                    <th>Dropoff</th>
+                    <th>Cargo</th>
+                    <th>Requested By</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                {% for req in job_requests %}
+                <tr>
+                    <td><input type="checkbox" name="selected_requests" value="{{ req.id }}" class="jobrequest-checkbox" form="bulkJobRequestForm"></td>
+                    <td>{{ req.title }}</td>
+                    <td>
+                        <b>City:</b> {{ req.origin }}<br>
+                        <b>Address:</b> {{ req.origin_address }}<br>
+                        <b>ZIP:</b> {{ req.origin_zip }}<br>
+                        <b>Date:</b> {{ req.pickup_date }}<br>
+                        <b>Time:</b> {{ req.pickup_time_from }}
+                    </td>
+                    <td>
+                        <b>City:</b> {{ req.destination }}<br>
+                        <b>Address:</b> {{ req.destination_address }}<br>
+                        <b>ZIP:</b> {{ req.destination_zip }}<br>
+                        <b>Time:</b> {{ req.pickup_time_to }}<br>
+                        <b>Deadline:</b> {{ req.delivery_deadline }}
+                    </td>
+                    <td>
+                        <b>Type:</b> {{ req.cargo_type.name }}<br>
+                        <b>Weight:</b> {{ req.weight_kg }} kg<br>
+                        <b>Dimensions:</b> {{ req.length_cm }}×{{ req.width_cm }}×{{ req.height_cm }} cm<br>
+                        <b>Boxes:</b> {{ req.num_boxes }}<br>
+                        <b>Box Size:</b> {{ req.length_per_box_cm }}×{{ req.width_per_box_cm }}×{{ req.height_per_box_cm }} cm<br>
+                        <b>Special:</b> {{ req.special_requirements|default:'—' }}
+                    </td>
+                    <td>{{ req.requested_by.username }} (ID: {{ req.requested_by.id }})</td>
+                    <td>{{ req.get_status_display }}</td>
+                    <td>
+                        {% if req.status == 'pending' %}
+                        <form method="post" action="{% url 'logistics:approve_job_request' req.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="number" step="0.01" name="declared_value" placeholder="Set Value" style="width:100px; margin-right:5px;">
+                            <button type="submit" class="styled-btn" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">Approve</button>
+                        </form>
+                        <form method="post" action="{% url 'logistics:reject_job_request' req.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="styled-btn" style="background:#e74c3c; color:white; border:none; border-radius:5px; padding:5px 12px; font-weight:bold;">Reject</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" style="text-align:center; color:#888;">No pending job requests.</td></tr>
+                {% endfor %}
+            </table>
             <h2 id="live-jobs" class="section-title">Live Jobs</h2>
             <table>
                 <tr>
@@ -586,20 +616,44 @@
                     <th>ID</th>
                     <th>Title</th>
                     <th>Route</th>
-                    <th>Cargo Type</th>
+                    <th>Pickup Details</th>
+                    <th>Dropoff Details</th>
+                    <th>Cargo & Dimensions</th>
+                    <th>Timing</th>
                     <th>Created By</th>
-                    <th>Pickup Date</th>
                     <th>Actions</th>
                 </tr>
                 {% for job in live_jobs %}
                 <tr>
                     <td><input type="checkbox" name="selected_jobs" value="{{ job.id }}" class="livejob-checkbox" form="bulkLiveJobsForm"></td>
                     <td>{{ job.id }}</td>
-                    <td>{{ job.title }}</td>
-                    <td>{{ job.origin }} → {{ job.destination }}</td>
-                    <td>{{ job.cargo_type.name }}</td>
-                    <td>{{ job.created_by.username }}</td>
-                    <td>{{ job.pickup_date }}</td>
+                    <td><strong>{{ job.title }}</strong><br><small>{{ job.description|truncatechars:50 }}</small></td>
+                    <td><strong>{{ job.origin }}</strong> → <strong>{{ job.destination }}</strong></td>
+                    <td>
+                        <strong>Address:</strong> {{ job.origin_address|default:'—' }}<br>
+                        <strong>ZIP:</strong> {{ job.origin_zip|default:'—' }}<br>
+                        <strong>Date:</strong> {{ job.pickup_date }}<br>
+                        <strong>Time:</strong> {{ job.pickup_time_from|default:'—' }} - {{ job.pickup_time_to|default:'—' }}
+                    </td>
+                    <td>
+                        <strong>Address:</strong> {{ job.destination_address|default:'—' }}<br>
+                        <strong>ZIP:</strong> {{ job.destination_zip|default:'—' }}<br>
+                        <strong>Deadline:</strong> {{ job.delivery_deadline|default:'—' }}
+                    </td>
+                    <td>
+                        <strong>Type:</strong> {{ job.cargo_type.name }}<br>
+                        <strong>Weight:</strong> {{ job.weight_kg|default:'—' }} kg<br>
+                        <strong>Dimensions:</strong> {{ job.length_cm|default:'—' }}×{{ job.width_cm|default:'—' }}×{{ job.height_cm|default:'—' }} cm<br>
+                        <strong>Volume:</strong> {{ job.volume_m3|default:'—' }} m³<br>
+                        <strong>Special:</strong> {{ job.special_requirements|truncatechars:30|default:'—' }}
+                    </td>
+                    <td>
+                        <strong>Pickup:</strong> {{ job.pickup_date }}<br>
+                        <strong>Time Window:</strong> {{ job.pickup_time_from|default:'—' }} - {{ job.pickup_time_to|default:'—' }}<br>
+                        <strong>Deadline:</strong> {{ job.delivery_deadline|default:'—' }}<br>
+                        <strong>Created:</strong> {{ job.created_at|date:"M j, Y" }}
+                    </td>
+                    <td>{{ job.created_by.username }}<br><small>(ID: {{ job.created_by.id }})</small></td>
                     <td>
                         <form method="post" action="{% url 'logistics:hide_job' job.id %}" style="display:inline;">
                             {% csrf_token %}
@@ -617,7 +671,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="8" style="text-align:center; color:#888;">No live jobs.</td></tr>
+                <tr><td colspan="10" style="text-align:center; color:#888;">No live jobs.</td></tr>
                 {% endfor %}
             </table>
             <form id="bulkLiveJobsForm" method="post" action="{% url 'logistics:bulk_live_job_action' %}" style="margin-top: 0;">
@@ -643,19 +697,43 @@
                     <th>ID</th>
                     <th>Title</th>
                     <th>Route</th>
-                    <th>Cargo Type</th>
+                    <th>Pickup Details</th>
+                    <th>Dropoff Details</th>
+                    <th>Cargo & Dimensions</th>
+                    <th>Timing</th>
                     <th>Created By</th>
-                    <th>Pickup Date</th>
                     <th>Actions</th>
                 </tr>
                 {% for job in hidden_jobs %}
                 <tr{% if forloop.counter0|divisibleby:2 %} class="even-row"{% endif %}>
                     <td>{{ job.id }}</td>
-                    <td>{{ job.title }}</td>
-                    <td>{{ job.origin }} → {{ job.destination }}</td>
-                    <td>{{ job.cargo_type.name }}</td>
-                    <td>{{ job.created_by.username }}</td>
-                    <td>{{ job.pickup_date }}</td>
+                    <td><strong>{{ job.title }}</strong><br><small>{{ job.description|truncatechars:50 }}</small></td>
+                    <td><strong>{{ job.origin }}</strong> → <strong>{{ job.destination }}</strong></td>
+                    <td>
+                        <strong>Address:</strong> {{ job.origin_address|default:'—' }}<br>
+                        <strong>ZIP:</strong> {{ job.origin_zip|default:'—' }}<br>
+                        <strong>Date:</strong> {{ job.pickup_date }}<br>
+                        <strong>Time:</strong> {{ job.pickup_time_from|default:'—' }} - {{ job.pickup_time_to|default:'—' }}
+                    </td>
+                    <td>
+                        <strong>Address:</strong> {{ job.destination_address|default:'—' }}<br>
+                        <strong>ZIP:</strong> {{ job.destination_zip|default:'—' }}<br>
+                        <strong>Deadline:</strong> {{ job.delivery_deadline|default:'—' }}
+                    </td>
+                    <td>
+                        <strong>Type:</strong> {{ job.cargo_type.name }}<br>
+                        <strong>Weight:</strong> {{ job.weight_kg|default:'—' }} kg<br>
+                        <strong>Dimensions:</strong> {{ job.length_cm|default:'—' }}×{{ job.width_cm|default:'—' }}×{{ job.height_cm|default:'—' }} cm<br>
+                        <strong>Volume:</strong> {{ job.volume_m3|default:'—' }} m³<br>
+                        <strong>Special:</strong> {{ job.special_requirements|truncatechars:30|default:'—' }}
+                    </td>
+                    <td>
+                        <strong>Pickup:</strong> {{ job.pickup_date }}<br>
+                        <strong>Time Window:</strong> {{ job.pickup_time_from|default:'—' }} - {{ job.pickup_time_to|default:'—' }}<br>
+                        <strong>Deadline:</strong> {{ job.delivery_deadline|default:'—' }}<br>
+                        <strong>Created:</strong> {{ job.created_at|date:"M j, Y" }}
+                    </td>
+                    <td>{{ job.created_by.username }}<br><small>(ID: {{ job.created_by.id }})</small></td>
                     <td>
                         <form method="post" action="{% url 'logistics:unhide_job' job.id %}" style="display:inline;">
                             {% csrf_token %}
@@ -668,7 +746,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="6" style="text-align:center; color:#888;">No hidden jobs.</td></tr>
+                <tr><td colspan="9" style="text-align:center; color:#888;">No hidden jobs.</td></tr>
                 {% endfor %}
             </table>
             <!-- HIDDEN JOBS PAGINATION -->
@@ -688,41 +766,49 @@
             <h2 id="flagged-jobs" class="section-title">Flagged Jobs</h2>
             <table>
                 <tr>
-                    <th>Title</th>
-                    <th>Flag Reason</th>
-                    <th>Flagged By</th>
-                    <th>Flagged At</th>
+                    <th>Job ID</th>
+                    <th>Title & Route</th>
+                    <th>Pickup Details</th>
+                    <th>Dropoff Details</th>
+                    <th>Cargo & Dimensions</th>
+                    <th>Flag Information</th>
                     <th>Actions</th>
                 </tr>
                 {% for job in flagged_jobs %}
                 <tr style="background:#fff3cd;">
-                    <td>{{ job.title }}</td>
+                    <td>{{ job.id }}</td>
                     <td>
-                        <ul>
-                        {% for flag in job.flags.all %}
-                            {% if flag.status == 'open' %}
-                                <li>{{ flag.reason }}</li>
-                            {% endif %}
-                        {% endfor %}
-                        </ul>
+                        <strong>{{ job.title }}</strong><br>
+                        <small>{{ job.description|truncatechars:50 }}</small><br>
+                        <strong>Route:</strong> {{ job.origin }} → {{ job.destination }}
                     </td>
                     <td>
-                        <ul>
-                        {% for flag in job.flags.all %}
-                            {% if flag.status == 'open' %}
-                                <li>{{ flag.flagged_by.username }}</li>
-                            {% endif %}
-                        {% endfor %}
-                        </ul>
+                        <strong>Address:</strong> {{ job.origin_address|default:'—' }}<br>
+                        <strong>ZIP:</strong> {{ job.origin_zip|default:'—' }}<br>
+                        <strong>Date:</strong> {{ job.pickup_date }}<br>
+                        <strong>Time:</strong> {{ job.pickup_time_from|default:'—' }} - {{ job.pickup_time_to|default:'—' }}
                     </td>
                     <td>
-                        <ul>
+                        <strong>Address:</strong> {{ job.destination_address|default:'—' }}<br>
+                        <strong>ZIP:</strong> {{ job.destination_zip|default:'—' }}<br>
+                        <strong>Deadline:</strong> {{ job.delivery_deadline|default:'—' }}
+                    </td>
+                    <td>
+                        <strong>Type:</strong> {{ job.cargo_type.name }}<br>
+                        <strong>Weight:</strong> {{ job.weight_kg|default:'—' }} kg<br>
+                        <strong>Dimensions:</strong> {{ job.length_cm|default:'—' }}×{{ job.width_cm|default:'—' }}×{{ job.height_cm|default:'—' }} cm<br>
+                        <strong>Special:</strong> {{ job.special_requirements|truncatechars:30|default:'—' }}
+                    </td>
+                    <td>
                         {% for flag in job.flags.all %}
                             {% if flag.status == 'open' %}
-                                <li>{{ flag.created_at|date:"M j, Y H:i" }}</li>
+                                <div class="flag-info-box">
+                                    <strong>Reason:</strong> {{ flag.reason }}<br>
+                                    <strong>By:</strong> {{ flag.flagged_by.username }}<br>
+                                    <strong>At:</strong> {{ flag.created_at|date:"M j, Y H:i" }}
+                                </div>
                             {% endif %}
                         {% endfor %}
-                        </ul>
                     </td>
                     <td>
                         {% for flag in job.flags.all %}
@@ -736,7 +822,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="5" style="text-align:center; color:#888;">No flagged jobs.</td></tr>
+                <tr><td colspan="7" style="text-align:center; color:#888;">No flagged jobs.</td></tr>
                 {% endfor %}
             </table>
             <!-- FLAGGED JOBS PAGINATION -->
@@ -756,26 +842,51 @@
             <h2 id="booked-jobs" class="section-title">Booked Jobs</h2>
             <table>
                 <tr>
-                    <th>Title</th>
-                    <th>Route</th>
-                    <th>Pickup</th>
-                    <th>Dropoff</th>
-                    <th>Cargo</th>
+                    <th>Job ID</th>
+                    <th>Title & Route</th>
+                    <th>Pickup Details</th>
+                    <th>Dropoff Details</th>
+                    <th>Cargo & Dimensions</th>
+                    <th>Timing</th>
                     <th>Booked By</th>
                     <th>Booked At</th>
                 </tr>
                 {% for b in booked_jobs %}
                 <tr>
-                    <td>{{ b.job.title }}</td>
-                    <td>{{ b.job.origin }} → {{ b.job.destination }}</td>
-                    <td>{{ b.job.origin_address|default:'—' }}, {{ b.job.origin_zip|default:'—' }}<br>Date: {{ b.job.pickup_date|default:'—' }}<br>Time: {{ b.job.pickup_time_from|default:'—' }}</td>
-                    <td>{{ b.job.destination_address|default:'—' }}, {{ b.job.destination_zip|default:'—' }}<br>Time: {{ b.job.pickup_time_to|default:'—' }}<br>Deadline: {{ b.job.delivery_deadline|default:'—' }}</td>
-                    <td>{{ b.job.cargo_type.name }}<br>Weight: {{ b.job.weight_kg|default:'—' }} kg<br>Special: {{ b.job.special_requirements|default:'—' }}</td>
-                    <td>{{ b.user.username }} (ID: {{ b.user.id }})</td>
+                    <td>{{ b.job.id }}</td>
+                    <td>
+                        <strong>{{ b.job.title }}</strong><br>
+                        <small>{{ b.job.description|truncatechars:50 }}</small><br>
+                        <strong>Route:</strong> {{ b.job.origin }} → {{ b.job.destination }}
+                    </td>
+                    <td>
+                        <strong>Address:</strong> {{ b.job.origin_address|default:'—' }}<br>
+                        <strong>ZIP:</strong> {{ b.job.origin_zip|default:'—' }}<br>
+                        <strong>Date:</strong> {{ b.job.pickup_date|default:'—' }}<br>
+                        <strong>Time:</strong> {{ b.job.pickup_time_from|default:'—' }} - {{ b.job.pickup_time_to|default:'—' }}
+                    </td>
+                    <td>
+                        <strong>Address:</strong> {{ b.job.destination_address|default:'—' }}<br>
+                        <strong>ZIP:</strong> {{ b.job.destination_zip|default:'—' }}<br>
+                        <strong>Deadline:</strong> {{ b.job.delivery_deadline|default:'—' }}
+                    </td>
+                    <td>
+                        <strong>Type:</strong> {{ b.job.cargo_type.name }}<br>
+                        <strong>Weight:</strong> {{ b.job.weight_kg|default:'—' }} kg<br>
+                        <strong>Dimensions:</strong> {{ b.job.length_cm|default:'—' }}×{{ b.job.width_cm|default:'—' }}×{{ b.job.height_cm|default:'—' }} cm<br>
+                        <strong>Volume:</strong> {{ b.job.volume_m3|default:'—' }} m³<br>
+                        <strong>Special:</strong> {{ b.job.special_requirements|truncatechars:30|default:'—' }}
+                    </td>
+                    <td>
+                        <strong>Pickup:</strong> {{ b.job.pickup_date|default:'—' }}<br>
+                        <strong>Time Window:</strong> {{ b.job.pickup_time_from|default:'—' }} - {{ b.job.pickup_time_to|default:'—' }}<br>
+                        <strong>Deadline:</strong> {{ b.job.delivery_deadline|default:'—' }}
+                    </td>
+                    <td>{{ b.user.username }}<br><small>(ID: {{ b.user.id }})</small></td>
                     <td>{{ b.booked_at|date:"Y-m-d H:i" }}</td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="7" style="text-align:center; color:#888;">No jobs have been booked yet.</td></tr>
+                <tr><td colspan="8" style="text-align:center; color:#888;">No jobs have been booked yet.</td></tr>
                 {% endfor %}
             </table>
             <!-- BOOKED JOBS PAGINATION -->

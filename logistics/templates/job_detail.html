@@ -211,6 +211,13 @@
         {% endif %}
         {% if job %}
         <div class="job-detail-card">
+            <!-- Booking Status Badge -->
+            {% if booked %}
+            <div style="background:#27ae60; color:white; padding:8px 16px; border-radius:12px; font-size:14px; font-weight:bold; text-align:center; margin-bottom:16px;">
+                ✓ This job has been booked by you
+            </div>
+            {% endif %}
+            
             <div class="job-title">{{ job.title }}</div>
             <div class="route-info">{{ job.origin }} <span style="color:#ffe066; font-size:1.2rem;">→</span> {{ job.destination }}</div>
             <div class="meta-info">
@@ -274,15 +281,11 @@
                 </div>
             </div>
             <div class="section">
-                <div class="section-title">Cargo</div>
+                <div class="section-title">Cargo Details</div>
                 <div class="section-content">
                     <b>Type:</b> {{ job.cargo_type.name }}<br>
-                    <b>Weight:</b> {{ job.weight_kg|default:'—' }} kg<br>
-                    <b>Dimensions:</b> {{ job.length_cm|default:'—' }} × {{ job.width_cm|default:'—' }} × {{ job.height_cm|default:'—' }} cm<br>
-                    <b>Volume:</b> {{ job.volume_m3|default:'—' }} m³<br>
-                    <b>Special Requirements:</b> {{ job.special_requirements|default:'—' }}<br>
-                    <b>Declared Value:</b> {{ job.declared_value|default:'—' }}<br>
-                    <b>Reference Code:</b> {{ job.reference_code|default:'—' }}
+                    <b>Dimensions:</b> {{ job.length_cm }}×{{ job.width_cm }}×{{ job.height_cm }} cm<br>
+                    <b>Special:</b> {{ job.special_requirements|default:'—' }}<br>
                 </div>
             </div>
             <div class="section">

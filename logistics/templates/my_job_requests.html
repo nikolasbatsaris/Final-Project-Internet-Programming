@@ -86,6 +86,7 @@
                         <b>Weight:</b> {{ req.weight_kg }} kg<br>
                         <b>Dimensions:</b> {{ req.length_cm }}×{{ req.width_cm }}×{{ req.height_cm }} cm<br>
                         <b>Special:</b> {{ req.special_requirements|default:'—' }}
+                        {% if req.status == 'approved' and jobpost_value_map[req.title] %}<br><b>Approved Value:</b> {{ jobpost_value_map[req.title] }}{% endif %}
                     </td>
                     <td class="status-{{ req.status }}">{{ req.get_status_display }}</td>
                 </tr>
