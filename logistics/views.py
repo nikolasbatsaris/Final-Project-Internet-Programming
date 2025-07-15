@@ -481,6 +481,49 @@ class UserProfileForm(forms.ModelForm):
         model = User
         fields = ['username', 'first_name', 'last_name', 'email']
 
+
+class PasswordChangeForm(forms.Form):
+    old_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label='Current Password'
+    )
+    new_password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label='New Password'
+    )
+    new_password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label='Confirm New Password'
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean_old_password(self):
+        old_password = self.cleaned_data.get('old_password')
+        if not self.user.check_password(old_password):
+            raise forms.ValidationError('Your current password is incorrect.')
+        return old_password
+
+    def clean_new_password2(self):
+        password1 = self.cleaned_data.get('new_password1')
+        password2 = self.cleaned_data.get('new_password2')
+        if password1 and password2:
+            if password1 != password2:
+                raise forms.ValidationError('New passwords do not match.')
+            if len(password1) < 8:
+                raise forms.ValidationError('Password must be at least 8 characters long.')
+            if self.user.check_password(password1):
+                raise forms.ValidationError('New password cannot be the same as the current password.')
+        return password2
+
+    def save(self, commit=True):
+        self.user.set_password(self.cleaned_data['new_password1'])
+        if commit:
+            self.user.save()
+        return self.user
+
 @login_required
 def edit_profile(request):
     if request.method == 'POST':
@@ -529,43 +572,28 @@ def edit_profile(request):
 @login_required
 def change_password(request):
     if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
         is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
-        old_password = request.POST.get('old_password')
-        new_password1 = request.POST.get('new_password1')
-        new_password2 = request.POST.get('new_password2')
-        if not request.user.check_password(old_password):
+        
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, request.user)
             if is_ajax:
-                return JsonResponse({'success': False, 'error': 'Your current password is incorrect.'})
+                return JsonResponse({'success': True})
             else:
-                messages.error(request, 'Your current password is incorrect.')
+                messages.success(request, 'Your password was successfully updated!')
                 return redirect('logistics:dashboard')
-        if new_password1 != new_password2:
-            if is_ajax:
-                return JsonResponse({'success': False, 'error': 'New passwords do not match.'})
-            else:
-                messages.error(request, 'New passwords do not match.')
-                return redirect('logistics:dashboard')
-        if len(new_password1) < 8:
-            if is_ajax:
-                return JsonResponse({'success': False, 'error': 'Password must be at least 8 characters long.'})
-            else:
-                messages.error(request, 'Password must be at least 8 characters long.')
-                return redirect('logistics:dashboard')
-        if request.user.check_password(new_password1):
-            if is_ajax:
-                return JsonResponse({'success': False, 'error': 'New password cannot be the same as the current password.'})
-            else:
-                messages.error(request, 'New password cannot be the same as the current password.')
-                return redirect('logistics:dashboard')
-        request.user.set_password(new_password1)
-        request.user.save()
-        update_session_auth_hash(request, request.user)
-        if is_ajax:
-            return JsonResponse({'success': True})
         else:
-            messages.success(request, 'Your password was successfully updated!')
-            return redirect('logistics:dashboard')
-    return redirect('logistics:dashboard')
+            if is_ajax:
+                error = next(iter(form.errors.values()))[0] if form.errors else 'Invalid input.'
+                return JsonResponse({'success': False, 'error': error})
+            else:
+                # For non-AJAX requests, render the form with errors
+                return render(request, 'change_password.html', {'form': form})
+    else:
+        form = PasswordChangeForm(request.user)
+    
+    return render(request, 'change_password.html', {'form': form})
 
 class JobRequestForm(forms.ModelForm):
     TIME_WINDOWS = [

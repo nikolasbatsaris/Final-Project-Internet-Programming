@@ -835,6 +835,7 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
     <footer class="footer">
   © 2024 ShipLink. All rights reserved.
 </footer>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Job Detail Modal -->
@@ -848,6 +849,78 @@ body.light-mode .dashboard-list::-webkit-scrollbar-thumb {
           <!-- Job details will be loaded here -->
         </div>
         <div id="jobDetailActionBox" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: rgba(35,41,70,0.97); border-radius: 18px; border: 1px solid rgba(79,195,247,0.2);">
+          <div class="modal-header" style="border-bottom: 1px solid rgba(79,195,247,0.2);">
+            <h5 class="modal-title" id="editProfileModalLabel" style="color: #4fc3f7; font-weight: bold;">Edit Profile Information</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editProfileForm" method="post" action="{% url 'logistics:edit_profile' %}">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="id_username" class="form-label" style="color: #4fc3f7; font-weight: bold;">Username</label>
+                <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" required style="background: rgba(255,255,255,0.08); border: 1px solid #4fc3f7; color: #fff; border-radius: 8px;">
+              </div>
+              <div class="mb-3">
+                <label for="id_first_name" class="form-label" style="color: #4fc3f7; font-weight: bold;">First Name</label>
+                <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}" required style="background: rgba(255,255,255,0.08); border: 1px solid #4fc3f7; color: #fff; border-radius: 8px;">
+              </div>
+              <div class="mb-3">
+                <label for="id_last_name" class="form-label" style="color: #4fc3f7; font-weight: bold;">Last Name</label>
+                <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}" required style="background: rgba(255,255,255,0.08); border: 1px solid #4fc3f7; color: #fff; border-radius: 8px;">
+              </div>
+              <div class="mb-3">
+                <label for="id_email" class="form-label" style="color: #4fc3f7; font-weight: bold;">Email</label>
+                <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" required style="background: rgba(255,255,255,0.08); border: 1px solid #4fc3f7; color: #fff; border-radius: 8px;">
+              </div>
+              <div id="editProfileMsg"></div>
+            </form>
+          </div>
+          <div class="modal-footer" style="border-top: 1px solid rgba(79,195,247,0.2);">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+            <button type="submit" form="editProfileForm" class="btn btn-primary" style="background: #4fc3f7; border: none; border-radius: 8px; font-weight: bold;">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: rgba(35,41,70,0.97); border-radius: 18px; border: 1px solid rgba(79,195,247,0.2);">
+          <div class="modal-header" style="border-bottom: 1px solid rgba(79,195,247,0.2);">
+            <h5 class="modal-title" id="changePasswordModalLabel" style="color: #4fc3f7; font-weight: bold;">Change Password</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+          </div>
+          <div class="modal-body">
+            <form id="changePasswordForm" method="post" action="{% url 'logistics:change_password' %}">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="id_old_password" class="form-label" style="color: #4fc3f7; font-weight: bold;">Current Password</label>
+                <input type="password" class="form-control" id="id_old_password" name="old_password" required style="background: rgba(255,255,255,0.08); border: 1px solid #4fc3f7; color: #fff; border-radius: 8px;">
+              </div>
+              <div class="mb-3">
+                <label for="id_new_password1" class="form-label" style="color: #4fc3f7; font-weight: bold;">New Password</label>
+                <input type="password" class="form-control" id="id_new_password1" name="new_password1" required style="background: rgba(255,255,255,0.08); border: 1px solid #4fc3f7; color: #fff; border-radius: 8px;">
+              </div>
+              <div class="mb-3">
+                <label for="id_new_password2" class="form-label" style="color: #4fc3f7; font-weight: bold;">Confirm New Password</label>
+                <input type="password" class="form-control" id="id_new_password2" name="new_password2" required style="background: rgba(255,255,255,0.08); border: 1px solid #4fc3f7; color: #fff; border-radius: 8px;">
+              </div>
+              <div id="changePasswordMsg"></div>
+            </form>
+          </div>
+          <div class="modal-footer" style="border-top: 1px solid rgba(79,195,247,0.2);">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+            <button type="submit" form="changePasswordForm" class="btn btn-primary" style="background: #4fc3f7; border: none; border-radius: 8px; font-weight: bold;">Change Password</button>
+          </div>
+        </div>
       </div>
     </div>
     
