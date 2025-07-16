@@ -1,0 +1,515 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+  overflow-x: hidden;
+  transition: background 0.5s;
+}
+
+.dark-mode body {
+  background: linear-gradient(135deg, #232946 0%, #1a1a2e 100%) !important;
+}
+
+/* Job List 3x3 Grid Layout */
+.job-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 32px;
+}
+
+@media (max-width: 1000px) {
+  .job-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  .job-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.job-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(44, 62, 80, 0.08);
+  padding: 24px 20px 18px 20px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  border: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  min-height: 340px;
+  position: relative;
+}
+.job-card:hover {
+  box-shadow: 0 6px 32px rgba(44, 62, 80, 0.13);
+  transform: translateY(-4px) scale(1.012);
+  border-color: #ffe066;
+}
+
+.job-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.18rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  gap: 10px;
+  color: #232946;
+}
+.job-icon {
+  width: 32px;
+  height: 32px;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.job-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #888;
+}
+.job-likes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Pagination styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  margin-bottom: 32px;
+}
+.pagination-btn {
+  background: #fff;
+  border: 1px solid #ffe066;
+  color: #232946;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 4px rgba(44,62,80,0.04);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pagination-btn:hover, .pagination-btn:focus {
+  background: #ffe066;
+  color: #232946;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+  outline: none;
+}
+.pagination strong {
+  background: #ffe066;
+  color: #232946;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* Minimal arrow icons for pagination */
+.pagination-btn::before {
+  content: '';
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.pagination-btn:first-child::before {
+  content: '\00AB'; /* « */
+  margin-right: 6px;
+}
+.pagination-btn:last-child::after {
+  content: '\00BB'; /* » */
+  margin-left: 6px;
+}
+
+/* No jobs message */
+.no-jobs {
+  text-align: center;
+  margin: 64px 0 80px 0;
+  color: #888;
+}
+.no-jobs h2 {
+  font-size: 2rem;
+  color: #232946;
+  margin-bottom: 10px;
+}
+
+/* Responsive tweaks for job card */
+@media (max-width: 600px) {
+  .job-card {
+    padding: 16px 8px 12px 8px;
+    min-height: 260px;
+  }
+  .job-title {
+    font-size: 1rem;
+  }
+}
+
+.header {
+  background: rgba(33, 147, 176, 0.98);
+  color: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(33,147,176,0.08);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 32px 36px 28px 36px;
+  margin: 48px auto 0 auto;
+  max-width: 900px;
+  position: relative;
+}
+.dark-mode .header {
+  background: rgba(35, 41, 70, 0.98);
+  color: #ffe066;
+}
+.header-icon {
+  font-size: 2.5rem;
+  margin-right: 18px;
+  flex-shrink: 0;
+}
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.header-title {
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #fff;
+}
+.dark-mode .header-title {
+  color: #ffe066;
+}
+.header-desc {
+  font-size: 1.1rem;
+  color: #e3f6fc;
+}
+.dark-mode .header-desc {
+  color: #ffe066;
+}
+@media (max-width: 700px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 12px 18px 12px;
+    gap: 12px;
+  }
+  .header-title {
+    font-size: 1.3rem;
+  }
+  .header-icon {
+    font-size: 2rem;
+    margin-right: 0;
+  }
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #2193b0;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 28px 10px 18px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(33,147,176,0.10);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  margin-bottom: 18px;
+  margin-top: 8px;
+}
+.back-btn:hover, .back-btn:focus {
+  background: #1565c0;
+  color: #ffe066;
+  box-shadow: 0 4px 16px rgba(33,147,176,0.18);
+  text-decoration: none;
+}
+.back-btn::before {
+  content: '\2190'; /* Unicode left arrow */
+  font-size: 1.2em;
+  margin-right: 8px;
+  display: inline-block;
+  vertical-align: middle;
+}
+@media (max-width: 600px) {
+  .back-btn {
+    font-size: 0.98rem;
+    padding: 8px 16px 8px 12px;
+  }
+  .back-btn::before {
+    font-size: 1em;
+    margin-right: 6px;
+  }
+}
+
+.dark-toggle {
+    font-size: 1.5rem;
+    background: none;
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 24px;
+    font-weight: bold;
+    margin-left: 16px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.dark-toggle:hover {
+    background: #fff;
+    color: #2193b0;
+}
+.dark-mode .dark-toggle {
+    border: 2px solid #ffe066;
+    color: #ffe066;
+}
+.dark-mode .dark-toggle:hover {
+    background: #ffe066;
+    color: #232946;
+}
+
+/* ✅ Job Detail Modal CSS (Popup Container) */
+#jobDetailModal {
+  background: rgba(20, 24, 40, 0.92);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding-right: calc(100vw - 100%);
+  box-sizing: content-box;
+}
+
+/* ✅ Modal Inner Box */
+#jobDetailModal .modal-content {
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+  padding: 32px;
+  background: #232946;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ✅ Modal Sections Grid */
+.job-detail-section {
+  background: #f3faff;
+  border-radius: 16px;
+  padding: 36px 56px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 56px;
+  width: 100%;
+  max-width: 1200px;
+}
+.job-detail-section h6 {
+  grid-column: span 2;
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: #2193b0;
+  border-bottom: 1px solid #2193b055;
+  padding-bottom: 4px;
+}
+.job-detail-section div {
+  font-size: 0.95rem;
+}
+.job-detail-section span.label {
+  font-weight: bold;
+  color: #1976d2;
+}
+
+/* ✅ Modal Action Buttons */
+.job-detail-actions {
+  grid-column: span 2;
+  text-align: center;
+  margin-top: 6px;
+}
+.job-detail-actions button {
+  margin: 0 12px;
+  padding: 12px 26px;
+  font-size: 1.05rem;
+  font-weight: bold;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 2px solid;
+  transition: all 0.25s;
+}
+button.book-btn-modal {
+  background: #27ae60;
+  color: #fff;
+  border-color: #27ae60;
+}
+button.book-btn-modal:hover {
+  background: #219150;
+}
+
+button.like-btn-modal {
+  background: #fff;
+  color: #e74c3c;
+  border: 2px solid #e74c3c;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 12px;
+  padding: 12px 26px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border 0.18s, box-shadow 0.18s;
+  box-shadow: 0 2px 8px rgba(231,76,60,0.10);
+}
+button.like-btn-modal:hover, button.like-btn-modal:focus {
+  background: #e74c3c;
+  color: #fff;
+  border-color: #e74c3c;
+  box-shadow: 0 4px 16px rgba(231,76,60,0.18);
+}
+.dark-mode button.like-btn-modal {
+  background: #232946;
+  color: #ff7675;
+  border: 2px solid #ff7675;
+}
+.dark-mode button.like-btn-modal:hover, .dark-mode button.like-btn-modal:focus {
+  background: #ff7675;
+  color: #232946;
+  border-color: #ff7675;
+}
+
+
+
+
+
+
+
+/* ✅ Dark Mode Overrides */
+.dark-mode #jobDetailModal .modal-content {
+  background: #232946;
+  color: #fff;
+}
+.dark-mode .job-detail-section {
+  background: rgba(255, 255, 255, 0.05);
+}
+.dark-mode .job-detail-section h6 {
+  color: #ffe066;
+  border-bottom: 1px solid #ffe06655;
+}
+.dark-mode .job-detail-section span.label {
+  color: #8fd3f4;
+}
+.dark-mode .job-detail-section div {
+  color: #fff;
+}
+
+
+
+
+
+/* Dark mode for job cards */
+.dark-mode .job-card {
+  background: #232946;
+  color: #ffe066;
+  border: 1px solid #353b5c;
+  box-shadow: 0 2px 16px rgba(255,224,102,0.08);
+}
+.dark-mode .job-card:hover {
+  box-shadow: 0 6px 32px rgba(255,224,102,0.13);
+  border-color: #ffe066;
+}
+
+.dark-mode .job-title {
+  color: #ffe066;
+}
+
+.dark-mode .job-meta {
+  color: #b0b8d1;
+}
+
+.dark-mode .job-likes {
+  color: #ffe066;
+}
+
+.dark-mode .pagination {
+  background: none;
+}
+.dark-mode .pagination-btn {
+  background: #232946;
+  color: #ffe066;
+  border: 1px solid #ffe066;
+}
+.dark-mode .pagination-btn:hover, .dark-mode .pagination-btn:focus {
+  background: #ffe066;
+  color: #232946;
+}
+.dark-mode .pagination strong {
+  background: #ffe066;
+  color: #232946;
+}
+
+.dark-mode .no-jobs {
+  color: #b0b8d1;
+}
+.dark-mode .no-jobs h2 {
+  color: #ffe066;
+}
+
+.dark-mode .back-btn {
+  background: #232946;
+  color: #ffe066;
+  box-shadow: 0 2px 8px rgba(255,224,102,0.10);
+}
+.dark-mode .back-btn:hover, .dark-mode .back-btn:focus {
+  background: #ffe066;
+  color: #232946;
+  box-shadow: 0 4px 16px rgba(255,224,102,0.18);
+}
+
+/* Dark mode for filter/search form */
+.dark-mode form[method="get"] {
+  background: #232946 !important;
+  box-shadow: 0 2px 10px rgba(255,224,102,0.07) !important;
+}
+.dark-mode form[method="get"] label {
+  color: #ffe066 !important;
+}
+.dark-mode form[method="get"] input,
+.dark-mode form[method="get"] select {
+  background: #181a2a !important;
+  color: #ffe066 !important;
+  border: 1px solid #ffe066 !important;
+}
+.dark-mode form[method="get"] input::placeholder {
+  color: #b0b8d1 !important;
+}
+.dark-mode form[method="get"] button.filter-btn {
+  background: #ffe066 !important;
+  color: #232946 !important;
+  border: none !important;
+}
+.dark-mode form[method="get"] button.filter-btn:hover {
+  background: #232946 !important;
+  color: #ffe066 !important;
+  border: 1px solid #ffe066 !important;
+}
+
+

@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm, Password
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse, Http404
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from .models import JobPost, JobLike, JobRequest, JobFlag, RecentActivity, JobCategory, BookedJob, ContactMessage
 from django import forms
 from django.utils import timezone
@@ -17,6 +17,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.dateformat import format as date_format
 from decimal import Decimal, InvalidOperation
 from datetime import time
+import re
+from django.core.exceptions import ValidationError
 
 def convert_time_window_to_time(time_window):
     """Convert time window string like '06:00-12:00' to time objects"""
@@ -35,6 +37,20 @@ def convert_time_window_to_time(time_window):
         return start_time, end_time
     except (ValueError, AttributeError):
         return None, None
+
+def word_limit_validator(max_words):
+    def validate(value):
+        if value and len(value.split()) > max_words:
+            raise ValidationError(f'Maximum {max_words} words allowed.')
+    return validate
+
+def zip_code_validator(value):
+    if not re.match(r'^\d{5}$', value):
+        raise ValidationError('ZIP code must be exactly 5 digits.')
+
+def one_word_validator(value):
+    if value and (len(value.split()) > 1 or not value.isalpha()):
+        raise ValidationError('City must be a single word (letters only).')
 
 # Create your views here.
 
@@ -352,7 +368,7 @@ def admin_dashboard(request):
     job_requests_paginator = Paginator(job_requests_qs, 10)
     job_requests_page_number = request.GET.get('job_requests_page')
     job_requests_page_obj = job_requests_paginator.get_page(job_requests_page_number)
-    job_requests = job_requests_page_obj.object_list
+    job_requests = job_requests_page_obj.object_list.select_related('cargo_type', 'requested_by') if hasattr(job_requests_page_obj.object_list, 'select_related') else job_requests_page_obj.object_list
 
     # Paginate booked jobs
     booked_jobs_paginator = Paginator(booked_jobs_qs, 10)
@@ -444,13 +460,17 @@ def post_job(request):
 
 
 class UserProfileForm(forms.ModelForm):
+    username = forms.CharField(required=False, max_length=20, widget=forms.TextInput(attrs={'autocomplete': 'off'}), help_text='Max 20 characters.')
+    first_name = forms.CharField(required=False, max_length=20, help_text='Max 20 characters.')
+    last_name = forms.CharField(required=False, max_length=20, help_text='Max 20 characters.')
+    email = forms.EmailField(required=False, max_length=20, help_text='Max 20 characters.')
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.required = True
 
     def clean_username(self):
         username = self.cleaned_data['username']
+        if username == '':
+            return username
         if len(username) < 2:
             raise forms.ValidationError('Username must be at least 2 characters long.')
         qs = User.objects.exclude(pk=self.instance.pk).filter(username__iexact=username)
@@ -460,6 +480,8 @@ class UserProfileForm(forms.ModelForm):
 
     def clean_email(self):
         email = self.cleaned_data['email']
+        if email == '':
+            return email
         qs = User.objects.exclude(pk=self.instance.pk).filter(email__iexact=email)
         if qs.exists():
             raise forms.ValidationError('This email is already in use.')
@@ -467,12 +489,16 @@ class UserProfileForm(forms.ModelForm):
 
     def clean_first_name(self):
         first_name = self.cleaned_data['first_name']
+        if first_name == '':
+            return first_name
         if len(first_name.strip()) < 2:
             raise forms.ValidationError('First name must be at least 2 characters long.')
         return first_name
 
     def clean_last_name(self):
         last_name = self.cleaned_data['last_name']
+        if last_name == '':
+            return last_name
         if len(last_name.strip()) < 2:
             raise forms.ValidationError('Last name must be at least 2 characters long.')
         return last_name
@@ -484,16 +510,22 @@ class UserProfileForm(forms.ModelForm):
 
 class PasswordChangeForm(forms.Form):
     old_password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        label='Current Password'
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'maxlength': 30}),
+        label='Current Password',
+        max_length=30,
+        help_text='Enter your current password. Max 30 characters.'
     )
     new_password1 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        label='New Password'
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'maxlength': 30}),
+        label='New Password',
+        max_length=30,
+        help_text='8-30 chars, one uppercase, one special character. Must not match your current password.'
     )
     new_password2 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        label='Confirm New Password'
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'maxlength': 30}),
+        label='Confirm New Password',
+        max_length=30,
+        help_text='Re-enter the new password. Max 30 characters.'
     )
 
     def __init__(self, user, *args, **kwargs):
@@ -514,6 +546,10 @@ class PasswordChangeForm(forms.Form):
                 raise forms.ValidationError('New passwords do not match.')
             if len(password1) < 8:
                 raise forms.ValidationError('Password must be at least 8 characters long.')
+            if not re.search(r'[A-Z]', password1):
+                raise forms.ValidationError('Password must contain at least one uppercase letter.')
+            if not re.search(r'[^A-Za-z0-9]', password1):
+                raise forms.ValidationError('Password must contain at least one special character.')
             if self.user.check_password(password1):
                 raise forms.ValidationError('New password cannot be the same as the current password.')
         return password2
@@ -526,48 +562,44 @@ class PasswordChangeForm(forms.Form):
 
 @login_required
 def edit_profile(request):
+    user = request.user
+    profile_form = UserProfileForm(request.POST or None, instance=user)
+    password_form = PasswordChangeForm(user, request.POST or None)
+    date_joined = user.date_joined
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=request.user)
-        # Check for AJAX
-        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
-        # Check for unique username/email
-        username = request.POST.get('username', '').strip()
-        email = request.POST.get('email', '').strip()
-        if User.objects.exclude(pk=request.user.pk).filter(username=username).exists():
-            if is_ajax:
-                return JsonResponse({'success': False, 'error': 'Username already exists.'})
-            else:
-                messages.error(request, 'Username already exists.')
-                # Render dashboard with error message
-                return dashboard(request)
-        if User.objects.exclude(pk=request.user.pk).filter(email=email).exists():
-            if is_ajax:
-                return JsonResponse({'success': False, 'error': 'Email already exists.'})
-            else:
-                messages.error(request, 'Email already exists.')
-                # Render dashboard with error message
-                return dashboard(request)
-        if form.is_valid():
-            form.save()
-            if is_ajax:
-                return JsonResponse({'success': True})
-            else:
+        if 'save_profile' in request.POST:
+            # Merge empty fields with current user values
+            post_data = request.POST.copy()
+            for field in ['username', 'first_name', 'last_name', 'email']:
+                if not post_data.get(field):
+                    post_data[field] = getattr(user, field)
+            # Always ensure username is set to current if blank or missing
+            if not post_data.get('username'):
+                post_data['username'] = user.username
+            profile_form = UserProfileForm(post_data, instance=user)
+            if profile_form.is_valid():
+                profile_form.save()
                 messages.success(request, 'Profile updated successfully!')
-                if request.user.is_staff:
-                    return redirect('logistics:admin_dashboard')
-                else:
-                    return redirect('logistics:dashboard')
-        else:
-            if is_ajax:
-                error = next(iter(form.errors.values()))[0] if form.errors else 'Invalid input.'
-                return JsonResponse({'success': False, 'error': error})
-            else:
-                messages.error(request, 'Invalid input.')
+                # Stay on the edit profile page after saving
                 return redirect('logistics:edit_profile')
+            else:
+                messages.error(request, 'Invalid input in profile form.')
+        elif 'change_password' in request.POST:
+            if password_form.is_valid():
+                password_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Your password was successfully updated!')
+                return redirect('logistics:edit_profile')
+            else:
+                messages.error(request, 'Please correct the errors in the password form.')
     else:
-        form = UserProfileForm(instance=request.user)
-    date_joined = request.user.date_joined
-    return render(request, 'edit_profile.html', {'form': form, 'date_joined': date_joined})
+        profile_form = UserProfileForm()
+        password_form = PasswordChangeForm(user)
+    return render(request, 'edit_profile.html', {
+        'form': profile_form,
+        'password_form': password_form,
+        'date_joined': date_joined
+    })
 
 @login_required
 def change_password(request):
@@ -607,10 +639,29 @@ class JobRequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         tomorrow = (timezone.now() + timezone.timedelta(days=1)).date()
-        self.fields['pickup_date'].widget = forms.DateInput(attrs={
-            'type': 'date',
-            'min': tomorrow.isoformat(),
-        })
+        self.fields['pickup_date'].widget.attrs['min'] = tomorrow
+        self.fields['delivery_deadline'].widget.attrs['min'] = tomorrow
+        # Set required and widget attributes for all fields
+        self.fields['title'].widget.attrs.update({'maxlength': 50, 'required': True})
+        self.fields['description'].widget.attrs.update({'maxlength': 100, 'required': True})
+        self.fields['special_requirements'].widget.attrs.update({'maxlength': 100})
+        self.fields['origin'].widget.attrs.update({'maxlength': 20, 'required': True, 'pattern': r'^[A-Za-z]{1,20}$', 'title': 'One word, letters only'})
+        self.fields['destination'].widget.attrs.update({'maxlength': 20, 'required': True, 'pattern': r'^[A-Za-z]{1,20}$', 'title': 'One word, letters only'})
+        self.fields['origin_address'].widget.attrs.update({'maxlength': 20, 'required': True})
+        self.fields['destination_address'].widget.attrs.update({'maxlength': 20, 'required': True})
+        # Add word limit validators
+        word_limited_fields = [
+            'title', 'description', 'origin', 'origin_address', 'destination', 'destination_address', 'special_requirements', 'reference_code'
+        ]
+        for field in word_limited_fields:
+            if field in self.fields:
+                self.fields[field].validators.append(word_limit_validator(50))
+        # Add ZIP code validator
+        for zip_field in ['origin_zip', 'destination_zip']:
+            if zip_field in self.fields:
+                self.fields[zip_field].validators.append(zip_code_validator)
+        self.fields['origin'].validators.append(one_word_validator)
+        self.fields['destination'].validators.append(one_word_validator)
     def clean_pickup_date(self):
         date = self.cleaned_data['pickup_date']
         tomorrow = (timezone.now() + timezone.timedelta(days=1)).date()
@@ -628,23 +679,35 @@ class JobRequestForm(forms.ModelForm):
     class Meta:
         model = JobRequest
         fields = [
-            'title', 'description', 'origin', 'origin_address', 'origin_zip', 'destination', 'destination_address', 'destination_zip',
-            'cargo_type',
+            'title', 'description', 'cargo_type',
             'num_boxes', 'weight_per_box_kg', 'length_per_box_cm', 'width_per_box_cm', 'height_per_box_cm',
-            'special_requirements',
-            'pickup_date', 'pickup_time_from', 'pickup_time_to',
-            'delivery_deadline',
-            'declared_value', 'reference_code',
+            'origin', 'origin_address', 'origin_zip',
+            'pickup_date', 'pickup_time_from',
+            'destination', 'destination_address', 'destination_zip',
+            'delivery_deadline', 'pickup_time_to',
+            'special_requirements', 'declared_value', 'reference_code',
         ]
         widgets = {
-            'pickup_date': forms.DateInput(attrs={'type': 'date'}),
-            'delivery_deadline': forms.DateInput(attrs={'type': 'date'}),
-            'pickup_time_from': forms.TimeInput(attrs={'type': 'time', 'min': '06:00', 'max': '22:00'}),
-            'pickup_time_to': forms.TimeInput(attrs={'type': 'time', 'min': '06:00', 'max': '22:00'}),
-            'special_requirements': forms.Textarea(attrs={'rows': 2}),
-            'declared_value': forms.NumberInput(attrs={'step': '0.01'}),
-            'origin_address': forms.TextInput(),
-            'destination_address': forms.TextInput(),
+            'title': forms.TextInput(attrs={'maxlength': 50, 'required': True}),
+            'description': forms.Textarea(attrs={'rows': 2, 'maxlength': 100, 'required': True}),
+            'cargo_type': forms.Select(attrs={'required': 'required'}),
+            'num_boxes': forms.NumberInput(attrs={'min': 1, 'max': 999, 'required': 'required'}),
+            'weight_per_box_kg': forms.NumberInput(attrs={'min': 0.1, 'max': 500, 'step': 0.1, 'required': 'required'}),
+            'length_per_box_cm': forms.NumberInput(attrs={'min': 1, 'max': 300, 'required': 'required'}),
+            'width_per_box_cm': forms.NumberInput(attrs={'min': 1, 'max': 200, 'required': 'required'}),
+            'height_per_box_cm': forms.NumberInput(attrs={'min': 1, 'max': 200, 'required': 'required'}),
+            'origin': forms.TextInput(attrs={'maxlength': 20, 'required': True, 'pattern': r'^[A-Za-z]{1,20}$', 'title': 'One word, letters only'}),
+            'origin_address': forms.TextInput(attrs={'maxlength': 20, 'required': 'required'}),
+            'origin_zip': forms.TextInput(attrs={'maxlength': 5, 'pattern': '^\d{5}$', 'required': 'required'}),
+            'pickup_date': forms.DateInput(attrs={'type': 'date', 'required': 'required'}),
+            'pickup_time_from': forms.Select(attrs={'required': 'required'}),
+            'destination': forms.TextInput(attrs={'maxlength': 20, 'required': True, 'pattern': r'^[A-Za-z]{1,20}$', 'title': 'One word, letters only'}),
+            'destination_address': forms.TextInput(attrs={'maxlength': 20, 'required': 'required'}),
+            'destination_zip': forms.TextInput(attrs={'maxlength': 5, 'pattern': '^\d{5}$', 'required': 'required'}),
+            'delivery_deadline': forms.DateInput(attrs={'type': 'date', 'required': 'required'}),
+            'pickup_time_to': forms.Select(attrs={'required': 'required'}),
+            'special_requirements': forms.Textarea(attrs={'rows': 2, 'maxlength': 100}),
+            'reference_code': forms.TextInput(attrs={'maxlength': 100}),
         }
 
 @login_required
@@ -1327,3 +1390,36 @@ def job_request_detail_json(request, request_id):
         'height_per_box_cm': req.height_per_box_cm,
     }
     return JsonResponse(data)
+
+@login_required
+@require_GET
+def ajax_check_username(request):
+    username = request.GET.get('username', '').strip()
+    user_id = request.user.id
+    exists = User.objects.exclude(pk=user_id).filter(username__iexact=username).exists()
+    return JsonResponse({'exists': exists, 'message': 'Username already exists.' if exists else 'Username is available.'})
+
+@login_required
+@require_GET
+def ajax_check_email(request):
+    email = request.GET.get('email', '').strip()
+    user_id = request.user.id
+    exists = User.objects.exclude(pk=user_id).filter(email__iexact=email).exists()
+    return JsonResponse({'exists': exists, 'message': 'Email already in use.' if exists else 'Email is available.'})
+
+@login_required
+@require_POST
+def ajax_check_password(request):
+    password = request.POST.get('password', '')
+    is_correct = request.user.check_password(password)
+    return JsonResponse({'valid': is_correct, 'message': 'Password is correct.' if is_correct else 'Password is incorrect.'})
+
+class ContactMessageForm(forms.ModelForm):
+    class Meta:
+        model = ContactMessage
+        fields = ['name', 'email', 'message']
+        widgets = {
+            'name': forms.TextInput(attrs={'maxlength': 25, 'required': True}),
+            'email': forms.EmailInput(attrs={'maxlength': 25, 'required': True}),
+            'message': forms.Textarea(attrs={'maxlength': 100, 'required': True, 'rows': 4}),
+        }

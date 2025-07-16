@@ -3,188 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Request a Job</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; }
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.10);
-            padding: 40px 48px;
-        }
-        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
-        form { margin-top: 20px; }
-        .form-section {
-            margin-bottom: 36px;
-            padding-bottom: 18px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .form-section:last-child { border-bottom: none; }
-        .section-title {
-            font-size: 1.25em;
-            color: #2563a6;
-            margin-bottom: 18px;
-            font-weight: bold;
-        }
-        .form-row {
-            display: flex;
-            gap: 24px;
-            flex-wrap: wrap;
-        }
-        .form-group {
-            flex: 1 1 260px;
-            min-width: 220px;
-            margin-bottom: 20px;
-        }
-        label { display: block; margin-bottom: 6px; color: #2c3e50; font-weight: bold; }
-        input[type="text"], input[type="number"], input[type="date"], input[type="time"], textarea, select {
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;
-        }
-        textarea { min-height: 80px; resize: vertical; }
-        textarea[name="description"] { resize: vertical; }
-        .submit-btn {
-            width: 100%; background-color: #3498db; color: white; padding: 15px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.3s;
-        }
-        .submit-btn:hover { background-color: #2980b9; }
-        .back-link { color: #3498db; text-decoration: none; font-weight: bold; display: inline-block; margin-bottom: 20px; }
-        .back-link:hover { text-decoration: underline; }
-        .errorlist { color: #e74c3c; margin-bottom: 10px; list-style: none; padding: 0; }
-        .success-message { background-color: #27ae60; color: white; padding: 10px; border-radius: 5px; margin-bottom: 20px; text-align: center; }
-        @media (max-width: 900px) {
-            .container { padding: 20px 4vw; }
-            .form-row { flex-direction: column; gap: 0; }
-        }
-        /* Dark mode styles */
-        .dark-mode body { background: #181a20 !important; }
-        .dark-mode .container {
-            background: #23272f !important; color: #e3e6ed !important;
-        }
-        .dark-mode h1 {
-            color: #8ab4f8 !important;
-        }
-        .dark-mode .section-title {
-            color: #8ab4f8 !important;
-        }
-        .dark-mode label {
-            color: #8ab4f8 !important;
-        }
-        .dark-mode input, .dark-mode select, .dark-mode textarea {
-            background: #232b36 !important; color: #e3e6ed !important; border: 1px solid #2d3748 !important;
-        }
-        .dark-mode .submit-btn {
-            background: #2563a6 !important; color: #e3e6ed !important;
-        }
-        .dark-mode .submit-btn:hover {
-            background: #1c4a6e !important; color: #8ab4f8 !important;
-        }
-        .dark-mode .success-message {
-            background: #2d6a4f !important; color: #e3e6ed !important;
-        }
-        .dark-mode .errorlist {
-            color: #e57373 !important;
-        }
-        /* ShipLink app name style */
-        .shiplink-logo {
-            position: absolute;
-            left: 32px;
-            top: 24px;
-            z-index: 10;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #2193b0;
-            letter-spacing: 2px;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-        .styled-back-btn {
-            display: inline-block;
-            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
-            color: #fff !important;
-            border: none;
-            border-radius: 24px;
-            padding: 10px 28px;
-            font-size: 1rem;
-            font-weight: bold;
-            margin-bottom: 24px;
-            margin-top: 0;
-            box-shadow: 0 2px 8px rgba(33,147,176,0.10);
-            text-decoration: none;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-            position: relative;
-        }
-        .styled-back-btn:hover {
-            background: linear-gradient(90deg, #6dd5ed 0%, #2193b0 100%);
-            color: #232946 !important;
-            box-shadow: 0 4px 16px rgba(33,147,176,0.18);
-        }
-        .dark-mode .styled-back-btn {
-            background: linear-gradient(90deg, #232946 0%, #2563a6 100%) !important;
-            color: #ffe066 !important;
-            box-shadow: 0 2px 8px rgba(255,224,102,0.10);
-        }
-        .dark-mode .styled-back-btn:hover {
-            background: linear-gradient(90deg, #2563a6 0%, #232946 100%) !important;
-            color: #ffe066 !important;
-            box-shadow: 0 4px 16px rgba(255,224,102,0.18);
-        }
-        .progress-bar-container {
-            width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 6px;
-            margin-bottom: 18px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
-            border-radius: 6px;
-            transition: width 0.4s cubic-bezier(.4,2,.6,1);
-        }
-        .card-section {
-            background: #f9f9fb;
-            border-radius: 14px;
-            box-shadow: 0 2px 12px rgba(52,152,219,0.07);
-            padding: 28px 24px 18px 24px;
-            margin-bottom: 28px;
-            animation: fadeInUp 0.5s;
-        }
-        .section-icon {
-            font-size: 1.3em;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .sticky-submit {
-            position: sticky;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 2;
-            margin-top: 18px;
-            box-shadow: 0 2px 8px rgba(52,152,219,0.08);
-        }
-        @media (max-width: 900px) {
-            .container { padding: 20px 4vw; }
-            .form-row { flex-direction: column; gap: 0; }
-            .sticky-submit { width: 100%; left: 0; right: 0; }
-        }
-        .dark-mode .card-section {
-            background: #23272f !important;
-            color: #e3e6ed !important;
-            box-shadow: 0 2px 12px rgba(138,180,248,0.07);
-        }
-        .dark-mode .progress-bar-container {
-            background: #232b36 !important;
-        }
-        .dark-mode .progress-bar {
-            background: linear-gradient(90deg, #8ab4f8 0%, #2563a6 100%) !important;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/request_job.css">
     <script>
     (function() {
         const pref = localStorage.getItem('darkMode');
@@ -215,21 +34,35 @@
             <div class="form-section card-section" data-step="1">
                 <div class="section-title"><span class="section-icon">📝</span> Basic Information</div>
                 <div class="form-row">
-                    <div class="form-group">{{ form.title.label_tag }}{{ form.title }}{{ form.title.errors }}</div>
+                    <div class="form-group">{{ form.title.label_tag }}{{ form.title }}{{ form.title.errors }}
+                      <small class="form-help">Max 50 characters.</small>
+                    </div>
                     <div class="form-group">{{ form.cargo_type.label_tag }}{{ form.cargo_type }}{{ form.cargo_type.errors }}</div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group" style="flex:2;">{{ form.description.label_tag }}{{ form.description }}{{ form.description.errors }}</div>
+                    <div class="form-group" style="flex:2;">{{ form.description.label_tag }}{{ form.description }}{{ form.description.errors }}
+                      <small class="form-help">Max 100 characters.</small>
+                    </div>
                 </div>
             </div>
             <div class="form-section card-section" data-step="2">
                 <div class="section-title"><span class="section-icon">📦</span> Cargo Details</div>
                 <div class="form-row">
-                    <div class="form-group">{{ form.num_boxes.label_tag }}{{ form.num_boxes }}{{ form.num_boxes.errors }}</div>
-                    <div class="form-group">{{ form.weight_per_box_kg.label_tag }}{{ form.weight_per_box_kg }}{{ form.weight_per_box_kg.errors }}</div>
-                    <div class="form-group">{{ form.length_per_box_cm.label_tag }}{{ form.length_per_box_cm }}{{ form.length_per_box_cm.errors }}</div>
-                    <div class="form-group">{{ form.width_per_box_cm.label_tag }}{{ form.width_per_box_cm }}{{ form.width_per_box_cm.errors }}</div>
-                    <div class="form-group">{{ form.height_per_box_cm.label_tag }}{{ form.height_per_box_cm }}{{ form.height_per_box_cm.errors }}</div>
+                    <div class="form-group">{{ form.num_boxes.label_tag }}{{ form.num_boxes }}{{ form.num_boxes.errors }}
+                      <small class="form-help">Number between 1 and 999.</small>
+                    </div>
+                    <div class="form-group">{{ form.weight_per_box_kg.label_tag }}{{ form.weight_per_box_kg }}{{ form.weight_per_box_kg.errors }}
+                      <small class="form-help">Number between 0.1 and 500. Decimals allowed (step 0.1).</small>
+                    </div>
+                    <div class="form-group">{{ form.length_per_box_cm.label_tag }}{{ form.length_per_box_cm }}{{ form.length_per_box_cm.errors }}
+                      <small class="form-help">Number between 1 and 300.</small>
+                    </div>
+                    <div class="form-group">{{ form.width_per_box_cm.label_tag }}{{ form.width_per_box_cm }}{{ form.width_per_box_cm.errors }}
+                      <small class="form-help">Number between 1 and 200.</small>
+                    </div>
+                    <div class="form-group">{{ form.height_per_box_cm.label_tag }}{{ form.height_per_box_cm }}{{ form.height_per_box_cm.errors }}
+                      <small class="form-help">Number between 1 and 200.</small>
+                    </div>
                 </div>
             </div>
             <div class="form-section card-section" data-step="3">
@@ -239,9 +72,14 @@
                         <label for="id_origin">City</label>
                         {{ form.origin.as_widget }}
                         {{ form.origin.errors }}
+                        <small class="form-help">One word, max 20 characters.</small>
                     </div>
-                    <div class="form-group">{{ form.origin_address.label_tag }}{{ form.origin_address }}{{ form.origin_address.errors }}</div>
-                    <div class="form-group">{{ form.origin_zip.label_tag }}{{ form.origin_zip }}{{ form.origin_zip.errors }}</div>
+                    <div class="form-group">{{ form.origin_address.label_tag }}{{ form.origin_address }}{{ form.origin_address.errors }}
+                      <small class="form-help">Max 20 characters.</small>
+                    </div>
+                    <div class="form-group">{{ form.origin_zip.label_tag }}{{ form.origin_zip }}{{ form.origin_zip.errors }}
+                      <small class="form-help">Exactly 5 digits (numbers only).</small>
+                    </div>
                     <div class="form-group">{{ form.pickup_date.label_tag }}{{ form.pickup_date }}{{ form.pickup_date.errors }}</div>
                     <div class="form-group">{{ form.pickup_time_from.label_tag }}{{ form.pickup_time_from }}{{ form.pickup_time_from.errors }}</div>
                 </div>
@@ -253,9 +91,14 @@
                         <label for="id_destination">City</label>
                         {{ form.destination.as_widget }}
                         {{ form.destination.errors }}
+                        <small class="form-help">One word, max 20 characters.</small>
                     </div>
-                    <div class="form-group">{{ form.destination_address.label_tag }}{{ form.destination_address }}{{ form.destination_address.errors }}</div>
-                    <div class="form-group">{{ form.destination_zip.label_tag }}{{ form.destination_zip }}{{ form.destination_zip.errors }}</div>
+                    <div class="form-group">{{ form.destination_address.label_tag }}{{ form.destination_address }}{{ form.destination_address.errors }}
+                      <small class="form-help">Max 20 characters.</small>
+                    </div>
+                    <div class="form-group">{{ form.destination_zip.label_tag }}{{ form.destination_zip }}{{ form.destination_zip.errors }}
+                      <small class="form-help">Exactly 5 digits (numbers only).</small>
+                    </div>
                     <div class="form-group">{{ form.delivery_deadline.label_tag }}{{ form.delivery_deadline }}{{ form.delivery_deadline.errors }}</div>
                     <div class="form-group">{{ form.pickup_time_to.label_tag }}{{ form.pickup_time_to }}{{ form.pickup_time_to.errors }}</div>
                 </div>
@@ -263,27 +106,14 @@
             <div class="form-section card-section" data-step="5">
                 <div class="section-title"><span class="section-icon">⚠️</span> Special Requirements</div>
                 <div class="form-row">
-                    <div class="form-group" style="flex:2;">{{ form.special_requirements.label_tag }}{{ form.special_requirements }}{{ form.special_requirements.errors }}</div>
+                    <div class="form-group" style="flex:2;">{{ form.special_requirements.label_tag }}{{ form.special_requirements }}{{ form.special_requirements.errors }}
+                      <small class="form-help">Max 100 characters.</small>
+                    </div>
                 </div>
             </div>
             <button type="submit" class="submit-btn sticky-submit">Submit Request</button>
         </form>
     </div>
-    <script>
-    // Progress bar logic
-    const formSections = document.querySelectorAll('.card-section');
-    const progressBar = document.getElementById('progressBar');
-    if (formSections.length && progressBar) {
-        let filled = 0;
-        formSections.forEach((section, idx) => {
-            section.addEventListener('focusin', () => {
-                filled = ((idx+1)/formSections.length)*100;
-                progressBar.style.width = filled + '%';
-            });
-        });
-        // On page load, set to first section
-        progressBar.style.width = (1/formSections.length)*100 + '%';
-    }
-    </script>
+    <script src="/static/js/request_job.js"></script>
 </body>
 </html> 

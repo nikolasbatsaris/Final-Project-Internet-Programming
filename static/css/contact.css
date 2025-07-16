@@ -1,0 +1,209 @@
+body {
+    background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+    min-height: 100vh;
+    color: #222;
+    transition: background 0.5s;
+}
+.dark-mode body {
+    background: linear-gradient(135deg, #232946 0%, #1a1a2e 100%) !important;
+}
+
+.contact-container {
+    max-width: 500px;
+    margin: 24px auto 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(33,147,176,0.10);
+    padding: 48px 36px;
+}
+.dark-mode .contact-container {
+    background: #232946;
+    color: #ffe066;
+    box-shadow: 0 2px 16px rgba(255,224,102,0.08);
+}
+.contact-container h1 {
+    color: #2193b0;
+    font-size: 2.2rem;
+    margin-bottom: 18px;
+}
+.dark-mode .contact-container h1 {
+    color: #ffe066;
+}
+.desc {
+    font-size: 1.1rem;
+    color: #2563a6;
+    margin-bottom: 32px;
+}
+.dark-mode .desc {
+    color: #ffe066;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+input, textarea {
+    padding: 14px;
+    border-radius: 7px;
+    border: 1px solid #b2bec3;
+    font-size: 1rem;
+}
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+button {
+    background: #2193b0;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 14px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+button:hover {
+    background: #176b87;
+}
+.dark-mode button {
+    background: #ffe066;
+    color: #232946;
+}
+.dark-mode button:hover {
+    background: #e1b900;
+    color: #232946;
+}
+
+.floating-objects {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+}
+.float-circle, .float-square {
+    position: absolute;
+    opacity: 0.18;
+    animation: float-anim 8s ease-in-out infinite;
+}
+.float-circle {
+    border-radius: 50%;
+    background: #fff;
+    width: 80px; height: 80px;
+}
+.float-square {
+    background: #ffe066;
+    width: 60px; height: 60px;
+}
+.float1 { top: 10%; left: 8%; animation-delay: 0s; }
+.float2 { top: 60%; left: 80%; animation-delay: 2s; }
+.float3 { top: 30%; left: 60%; animation-delay: 4s; }
+.float4 { top: 70%; left: 20%; animation-delay: 1.5s; }
+
+@keyframes float-anim {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-30px) scale(1.08); }
+}
+
+.road-static-container {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 40px;
+    z-index: 1;
+    pointer-events: none;
+}
+.road-static-svg {
+    width: 100vw;
+    height: 40px;
+    display: block;
+}
+
+.truck-cta-container {
+    position: fixed;
+    left: 0;
+    bottom: 40px;
+    width: 100vw;
+    height: 160px;
+    pointer-events: none;
+    z-index: 2;
+}
+.truck-cta-svg {
+    position: absolute;
+    left: -900px;
+    top: 0;
+    width: 900px;
+    height: 160px;
+    animation: truck-drive 28s linear infinite;
+}
+@keyframes truck-drive {
+    0% { left: -900px; }
+    100% { left: 100vw; }
+}
+
+.car-anim {
+    transform-box: fill-box;
+    transform-origin: left center;
+}
+.car1 {
+    animation: car1-drive 18s linear infinite;
+    animation-delay: 6s;
+}
+.car2 {
+    animation: car2-drive 22s linear infinite;
+    animation-delay: 14s;
+}
+@keyframes car1-drive {
+    0% { transform: translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    80% { opacity: 1; }
+    90% { opacity: 0; }
+    100% { transform: translateX(1000px); opacity: 0; }
+}
+@keyframes car2-drive {
+    0% { transform: translateX(-200px); opacity: 0; }
+    15% { opacity: 1; }
+    75% { opacity: 1; }
+    85% { opacity: 0; }
+    100% { transform: translateX(1000px); opacity: 0; }
+}
+
+.float-obj {
+    opacity: 0.85;
+    animation: float-obj 4s ease-in-out infinite;
+}
+.float1 { animation-delay: 0s; }
+.float2 { animation-delay: 1.2s; }
+.float3 { animation-delay: 2.1s; }
+@keyframes float-obj {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-18px) scale(1.08); }
+}
+
+.truck-group, .car1, .car2, .cta-float {
+    pointer-events: all;
+    cursor: pointer;
+}
+
+@media (max-width:900px) {
+    .contact-container { padding: 24px 8vw; margin: 16px auto 0 auto; }
+}
+@media (max-width: 480px) {
+    .contact-container h1 { font-size: 2rem; }
+    .desc { font-size: 1rem; }
+    .contact-container { padding: 24px 16px; }
+    input[type="text"], input[type="email"], textarea { padding: 12px; font-size: 0.9rem; }
+    button { padding: 12px; font-size: 0.9rem; }
+}
+@media (max-width: 360px) {
+    .contact-container h1 { font-size: 1.5rem; }
+    .desc { font-size: 0.9rem; }
+    .contact-container { padding: 16px 12px; }
+    input[type="text"], input[type="email"], textarea { padding: 10px; font-size: 0.8rem; }
+    button { padding: 10px; font-size: 0.8rem; }
+}

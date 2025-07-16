@@ -41,4 +41,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('my-bookings/', views.my_bookings, name='my_bookings'),
     path('requests/<int:request_id>/json/', views.job_request_detail_json, name='job_request_detail_json'),
+    path('ajax/check-username/', views.ajax_check_username, name='ajax_check_username'),
+    path('ajax/check-email/', views.ajax_check_email, name='ajax_check_email'),
+    path('ajax/check-password/', views.ajax_check_password, name='ajax_check_password'),
 ] 

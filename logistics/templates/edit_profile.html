@@ -1,293 +1,90 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Edit Profile</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #232946 0%, #2193b0 100%);
-            margin: 0;
-            min-height: 100vh;
-            color: #fff;
-        }
-        .edit-profile-container {
-            max-width: 480px;
-            margin: 64px auto 0 auto;
-            background: rgba(35,41,70,0.97);
-            border-radius: 28px;
-            box-shadow: 0 8px 40px rgba(33,147,176,0.18);
-            padding: 40px 36px 32px 36px;
-            backdrop-filter: blur(10px);
-        }
-        h1 {
-            color: #ffe066;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 2rem;
-            font-weight: bold;
-        }
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: #4fc3f7;
-            font-weight: bold;
-        }
-        input[type="text"], input[type="email"], input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            border: 1.5px solid #4fc3f7;
-            border-radius: 8px;
-            font-size: 16px;
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-            margin-bottom: 8px;
-            box-sizing: border-box;
-            transition: border 0.18s;
-        }
-        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
-            border: 1.5px solid #ffe066;
-            outline: none;
-        }
-        .submit-btn {
-            width: 100%;
-            background: #232946;
-            color: #ffe066;
-            padding: 15px;
-            border: 2px solid #ffe066;
-            border-radius: 22px;
-            font-size: 1.13rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.18s, color 0.18s, border 0.18s;
-            margin-top: 18px;
-        }
-        .submit-btn:hover {
-            background: #ffe066;
-            color: #232946;
-        }
-        .back-link {
-            color: #4fc3f7;
-            text-decoration: none;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 20px;
-            border-radius: 18px;
-            padding: 8px 18px;
-            background: rgba(79,195,247,0.10);
-            transition: background 0.18s, color 0.18s;
-        }
-        .back-link:hover {
-            background: #4fc3f7;
-            color: #232946;
-        }
-        .errorlist {
-            color: #e74c3c;
-            margin-bottom: 10px;
-            list-style: none;
-            padding: 0;
-        }
-        .success-message {
-            background-color: #27ae60;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .cta-button {
-            background: none;
-            color: #4fc3f7;
-            border: 2px solid #4fc3f7;
-            padding: 10px 20px;
-            border-radius: 22px;
-            font-size: 1.13rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.18s, color 0.18s, border 0.18s;
-            margin-top: 18px;
-            display: inline-block;
-        }
-        .cta-button:hover {
-            background: #4fc3f7;
-            color: #232946;
-        }
-        /* Light mode overrides - match dashboard */
-        body.light-mode {
-            background: linear-gradient(135deg, #fafdff 0%, #d6f0fa 100%) !important;
-            color: #232946;
-        }
-        body.light-mode .edit-profile-container {
-            background: #fff !important;
-            color: #232946 !important;
-            box-shadow: 0 4px 24px rgba(33,147,176,0.08);
-        }
-        body.light-mode h1 {
-            color: #2193b0 !important;
-        }
-        body.light-mode label {
-            color: #2193b0 !important;
-        }
-        body.light-mode input[type="text"],
-        body.light-mode input[type="email"],
-        body.light-mode input[type="password"] {
-            background: #fafdff !important;
-            color: #232946 !important;
-            border: 1.5px solid #b0e0e6 !important;
-        }
-        body.light-mode input[type="text"]:focus,
-        body.light-mode input[type="email"]:focus,
-        body.light-mode input[type="password"]:focus {
-            border: 1.5px solid #2193b0 !important;
-        }
-        body.light-mode .submit-btn {
-            background: #fff !important;
-            color: #2193b0 !important;
-            border: 2px solid #2193b0 !important;
-        }
-        body.light-mode .submit-btn:hover {
-            background: #2193b0 !important;
-            color: #fff !important;
-        }
-        body.light-mode .back-link {
-            background: #e3f6fc !important;
-            color: #2193b0 !important;
-        }
-        body.light-mode .back-link:hover {
-            background: #2193b0 !important;
-            color: #fff !important;
-        }
-        body.light-mode .cta-button {
-            background: #fff !important;
-            color: #2193b0 !important;
-            border: 2px solid #2193b0 !important;
-        }
-        body.light-mode .cta-button:hover {
-            background: #2193b0 !important;
-            color: #fff !important;
-        }
-        /* Dark mode overrides - match dashboard */
-        body.dark-mode {
-            background: linear-gradient(135deg, #232946 0%, #2193b0 100%) !important;
-            color: #fff;
-        }
-        body.dark-mode .edit-profile-container {
-            background: rgba(35,41,70,0.97) !important;
-            color: #fff !important;
-            box-shadow: 0 8px 40px rgba(33,147,176,0.18);
-        }
-        body.dark-mode h1 {
-            color: #ffe066 !important;
-        }
-        body.dark-mode label {
-            color: #4fc3f7 !important;
-        }
-        body.dark-mode input[type="text"],
-        body.dark-mode input[type="email"],
-        body.dark-mode input[type="password"] {
-            background: rgba(255,255,255,0.08) !important;
-            color: #fff !important;
-            border: 1.5px solid #4fc3f7 !important;
-        }
-        body.dark-mode input[type="text"]:focus,
-        body.dark-mode input[type="email"]:focus,
-        body.dark-mode input[type="password"]:focus {
-            border: 1.5px solid #ffe066 !important;
-        }
-        body.dark-mode .submit-btn {
-            background: #232946 !important;
-            color: #ffe066 !important;
-            border: 2px solid #ffe066 !important;
-        }
-        body.dark-mode .submit-btn:hover {
-            background: #ffe066 !important;
-            color: #232946 !important;
-        }
-        body.dark-mode .back-link {
-            background: rgba(79,195,247,0.10) !important;
-            color: #4fc3f7 !important;
-        }
-        body.dark-mode .back-link:hover {
-            background: #4fc3f7 !important;
-            color: #232946 !important;
-        }
-        body.dark-mode .cta-button {
-            background: none !important;
-            color: #4fc3f7 !important;
-            border: 2px solid #4fc3f7 !important;
-        }
-        body.dark-mode .cta-button:hover {
-            background: #4fc3f7 !important;
-            color: #232946 !important;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/edit_profile.css' %}">
 </head>
 <body>
-    <div style="position:fixed; top:24px; right:32px; z-index:1000; display:flex; gap:16px; align-items:center;">
-        <button id="darkModeToggle" class="btn" style="background:#23272f; color:#f5f6fa; border:none; border-radius:6px; padding:8px 18px; font-weight:bold; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.10); cursor:pointer;">🌙 Dark Mode</button>
+    <a href="{% url 'logistics:dashboard' %}" class="back-link" style="position:fixed; top:24px; left:32px; z-index:1000; background:#2193b0; color:#fff; border-radius:18px; padding:10px 28px; font-weight:bold; font-size:1.08rem; box-shadow:0 2px 8px rgba(33,147,176,0.10); text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:background 0.18s, color 0.18s;">
+      <span style="font-size:1.2em;">&#8592;</span> Back to Dashboard
+    </a>
+    {% if messages %}
+      <div id="toast-container">
+        {% for message in messages %}
+          <div class="toast-message {{ message.tags|default:'info' }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      <script>
+        // Toast fade out after 3 seconds
+        setTimeout(function() {
+          var toast = document.getElementById('toast-container');
+          if (toast) {
+            toast.style.opacity = '0';
+            setTimeout(function() { toast.remove(); }, 600);
+          }
+        }, 3000);
+      </script>
+    {% endif %}
+    <div class="edit-profile-page-container">
+      <div class="edit-profile-card">
+        <div class="edit-profile-flex">
+          <div class="current-profile-info">
+            <h2>Current Info</h2>
+            <div><b>Username:</b> {{ user.username }}</div>
+            <div><b>First Name:</b> {{ user.first_name }}</div>
+            <div><b>Last Name:</b> {{ user.last_name }}</div>
+            <div><b>Email:</b> {{ user.email }}</div>
+            <div><b>Date Joined:</b> {{ date_joined|date:'F j, Y' }}</div>
+          </div>
+          <div class="edit-profile-form-container">
+            <h1>Edit Profile</h1>
+            <form method="post" id="editProfileForm">
+              {% csrf_token %}
+              {{ form.non_field_errors }}
+              <div class="profile-fields-grid">
+                {% for field in form.visible_fields %}
+                  <div class="form-group profile-field-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}<div class="helptext">{{ field.help_text }}</div>{% endif %}
+                    {{ field.errors }}
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="edit-profile-btn-row">
+                <button type="submit" class="submit-btn" name="save_profile" id="saveProfileBtn" disabled>Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="profile-section-divider"></div>
+        <div class="change-password-card">
+          <button type="button" class="toggle-password-section" id="togglePasswordSection">Change Password</button>
+          <div id="passwordSection" style="display:none;">
+            <h2 class="change-password-title">Change Password</h2>
+            <form method="post">
+              {% csrf_token %}
+              {{ password_form.non_field_errors }}
+              <div class="password-fields-grid">
+                {% for field in password_form.visible_fields %}
+                  <div class="form-group password-field-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}<div class="helptext">{{ field.help_text }}</div>{% endif %}
+                    {{ field.errors }}
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="edit-profile-btn-row">
+                <button type="submit" class="submit-btn" name="change_password">Change Password</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="edit-profile-container">
-        {% if user.is_authenticated %}
-        <a href="{% url 'logistics:dashboard' %}" class="back-link">← Back to Dashboard</a>
-        {% endif %}
-        <h1>Edit Profile</h1>
-        <p><strong>Date Joined:</strong> {{ date_joined|date:'F j, Y' }}</p>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            {% for field in form.visible_fields %}
-            <div class="form-group">
-                {{ field.label_tag }}
-                {{ field }}
-                {{ field.errors }}
-            </div>
-            {% endfor %}
-            <button type="submit" class="submit-btn">Save Changes</button>
-        </form>
-        <a href="{% url 'logistics:change_password' %}" class="cta-button">Change Password</a>
-    </div>
+    <script src="{% static 'js/edit_profile.js' %}"></script>
 </body>
-<script>
-// Persistent dark mode toggle for all pages, fallback to system preference on logout
-function setDarkMode(on) {
-    if(on) {
-        document.body.classList.add('dark-mode');
-        document.body.style.background = '#222';
-        document.querySelectorAll('.container').forEach(function(el){
-            el.style.background = '';
-            el.style.color = '';
-        });
-    } else {
-        document.body.classList.remove('dark-mode');
-        document.body.style.background = '#f5f5f5';
-        document.querySelectorAll('.container').forEach(function(el){
-            el.style.background = '';
-            el.style.color = '';
-        });
-    }
-}
-function getDarkMode() {
-    const pref = localStorage.getItem('darkMode');
-    if (pref === null) {
-        // No preference, use system
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return pref === 'on';
-}
-document.getElementById('darkModeToggle').onclick = function() {
-    const on = !getDarkMode();
-    localStorage.setItem('darkMode', on ? 'on' : 'off');
-    setDarkMode(on);
-};
-// On page load
-setDarkMode(getDarkMode());
-// On logout, clear darkMode preference
-if (document.querySelectorAll('.logout').length) {
-    document.querySelectorAll('.logout').forEach(function(logoutLink) {
-        logoutLink.addEventListener('click', function() {
-            localStorage.removeItem('darkMode');
-        });
-    });
-}
-</script>
 </html> 
