@@ -1,126 +1,99 @@
-// this javascript code adds password visibility toggles to password inputs and validates registration form fields before submission including required fields email format and password match
+document.addEventListener('DOMContentLoaded', function() { // wait until the page is fully loaded
 
-// wait for the page to load
-document.addEventListener('DOMContentLoaded', function() {
-    // find all password input fields
-    const passwordFields = document.querySelectorAll('input[type="password"]');
-    // for each password field
-    passwordFields.forEach(function(field) {
-        // create a wrapper div to hold the field and toggle button
-        const wrapper = document.createElement('div');
-        // set the wrapper to relative so the button can be positioned inside
-        wrapper.style.position = 'relative';
-        // put the wrapper before the field in the dom
-        field.parentNode.insertBefore(wrapper, field);
-        // move the field inside the wrapper
-        wrapper.appendChild(field);
+    // add show/hide password toggle to all password fields
+    document.querySelectorAll('input[type="password"]').forEach(function(input) { // for each password field
+        let wrapper = input.parentElement; // get the current parent of the input
+        if (!wrapper.classList.contains('password-wrapper')) { // if it's not already wrapped
+            wrapper = document.createElement('div'); // create a new wrapper div
+            wrapper.style.position = 'relative'; // set position so toggle button can be absolutely placed
+            wrapper.className = 'password-wrapper'; // assign a class for identification
+            input.parentNode.insertBefore(wrapper, input); // insert the wrapper before the input
+            wrapper.appendChild(input); // move the input into the wrapper
+        }
 
-        // create a button to show or hide the password
-        const toggle = document.createElement('button');
-        // set button type so it doesn't submit the form
-        toggle.type = 'button';
-        // set the button text to show
-        toggle.textContent = 'Show';
-        // position the button inside the wrapper, to the right
-        toggle.style.position = 'absolute';
-        toggle.style.right = '8px';
-        toggle.style.top = '50%';
-        // center the button vertically
-        toggle.style.transform = 'translateY(-50%)';
-        // add some padding to the button
-        toggle.style.padding = '2px 8px';
-        // make the button text a bit smaller
-        toggle.style.fontSize = '0.9em';
-        // make the cursor a pointer when hovering
-        toggle.style.cursor = 'pointer';
-        // add the button to the wrapper
-        wrapper.appendChild(toggle);
+        if (wrapper.querySelector('.show-password-btn')) return; // prevent duplicate toggle buttons
 
-        // when the button is clicked
-        toggle.addEventListener('click', function() {
-            // if the field is a password, show it
-            if (field.type === 'password') {
-                field.type = 'text';
-                // change button text to hide
-                toggle.textContent = 'Hide';
+        const btn = document.createElement('button'); // create a new button
+        btn.type = 'button'; // make sure it doesn't submit the form
+        btn.className = 'show-password-btn'; // assign a class for styling
+        btn.textContent = 'Show'; // default button text
+
+        btn.onclick = function(e) { // add click event to toggle visibility
+            e.preventDefault(); // prevent default form behavior
+            if (input.type === 'password') { // if field is hidden
+                input.type = 'text'; // show password
+                btn.textContent = 'Hide'; // update button text
             } else {
-                // if it's visible, hide it again
-                field.type = 'password';
-                // change button text to show
-                toggle.textContent = 'Show';
+                input.type = 'password'; // hide password
+                btn.textContent = 'Show'; // update button text
             }
-        });
+        };
+
+        wrapper.appendChild(btn); // add button to the wrapper
     });
 
-    // find the registration form
-    const form = document.querySelector('form');
-    // if the form exists
-    if (form) {
-        // when the form is submitted
-        form.addEventListener('submit', function(e) {
-            // start with valid as true
-            let valid = true;
-            // make an array to hold error messages
-            let messages = [];
-            // find all required fields in the form
-            const requiredFields = form.querySelectorAll('[required]');
-            // check each required field
-            requiredFields.forEach(function(field) {
-                // if the field is empty
-                if (!field.value.trim()) {
-                    valid = false;
-                    // add a message for this field
-                    messages.push(field.name + ' is required.');
-                }
-            });
-            // find the email field
-            const emailField = form.querySelector('input[type="email"]');
-            // if the email field exists and has a value
-            if (emailField && emailField.value) {
-                // regex to check email format
-                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                // if the email doesn't match the pattern
-                if (!emailPattern.test(emailField.value)) {
-                    valid = false;
-                    // add a message for invalid email
-                    messages.push('Invalid email format.');
-                }
+    // registration form validation
+    const form = document.querySelector('form'); // select the form
+    if (form) { // if form exists
+        form.addEventListener('submit', function(e) { // on form submit
+            let valid = true; // assume the form is valid
+            form.querySelectorAll('.error-message').forEach(el => el.textContent = ''); // clear previous error messages
+
+            const username = form.querySelector('input[name="username"]'); // get username input
+            if (!username.value.trim()) { // check if empty
+                showError(username, 'Username is required.'); // show error
+                valid = false; // mark as invalid
+            } else if (username.value.length > 25) { // check max length
+                showError(username, 'Max 25 characters.'); // show error
+                valid = false; // mark as invalid
             }
-            // find the two password fields
-            const password1 = form.querySelector('input[name="password1"]');
-            const password2 = form.querySelector('input[name="password2"]');
-            // if both password fields exist and don't match
-            if (password1 && password2 && password1.value !== password2.value) {
-                valid = false;
-                // add a message for password mismatch
-                messages.push('Passwords do not match.');
+
+            const email = form.querySelector('input[name="email"]'); // get email input
+            if (!email.value.trim()) { // check if empty
+                showError(email, 'Email is required.'); // show error
+                valid = false; // mark as invalid
+            } else if (!/^\S+@\S+\.\S+$/.test(email.value)) { // check email format
+                showError(email, 'Invalid email format.'); // show error
+                valid = false; // mark as invalid
+            } else if (email.value.length > 30) { // check max length
+                showError(email, 'Max 30 characters.'); // show error
+                valid = false; // mark as invalid
             }
-            // find or create a div to show errors
-            let errorDiv = document.querySelector('#register-errors');
-            if (!errorDiv) {
-                errorDiv = document.createElement('div');
-                errorDiv.id = 'register-errors';
-                errorDiv.style.color = 'red';
-                errorDiv.style.marginBottom = '1em';
-                // put the error div at the top of the form
-                form.prepend(errorDiv);
+
+            const password1 = form.querySelector('input[name="password1"]'); // get first password input
+            if (!password1.value) { // check if empty
+                showError(password1, 'Password is required.'); // show error
+                valid = false; // mark as invalid
+            } else if (password1.value.length < 8 || password1.value.length > 30) { // check length bounds
+                showError(password1, 'Password must be 8-30 characters.'); // show error
+                valid = false; // mark as invalid
             }
-            // clear any old errors
-            errorDiv.innerHTML = '';
-            // if the form is not valid
-            if (!valid) {
-                // stop the form from submitting
-                e.preventDefault();
-                // show each error message
-                messages.forEach(function(msg) {
-                    const p = document.createElement('p');
-                    p.textContent = msg;
-                    errorDiv.appendChild(p);
-                });
+
+            const password2 = form.querySelector('input[name="password2"]'); // get second password input
+            if (!password2.value) { // check if empty
+                showError(password2, 'Please confirm your password.'); // show error
+                valid = false; // mark as invalid
+            } else if (password1.value !== password2.value) { // check if passwords match
+                showError(password2, 'Passwords do not match.'); // show error
+                valid = false; // mark as invalid
+            }
+
+            if (!valid) { // if form is not valid
+                e.preventDefault(); // prevent submission
             }
         });
     }
 
-    // username/email availability check (ajax) - to be added later
-    // ...
+    function showError(input, message) { // function to show an error below an input
+        let group = input.closest('.form-group'); // find the nearest parent form-group
+        if (group) { // if it exists
+            let error = group.querySelector('.error-message'); // look for an existing error element
+            if (!error) { // if none exists
+                error = document.createElement('div'); // create a new div
+                error.className = 'error-message'; // assign error styling class
+                group.appendChild(error); // add error message container to the form group
+            }
+            error.textContent = message; // set the message
+        }
+    }
 });

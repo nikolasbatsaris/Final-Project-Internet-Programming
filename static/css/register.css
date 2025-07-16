@@ -9,7 +9,7 @@ body {
     background: linear-gradient(135deg, #232946 0%, #1a1a2e 100%) !important;
 }
 
-.register-container {
+.login-container {
     background: #fff;
     max-width: 420px;
     margin: 64px auto 0 auto;
@@ -18,29 +18,19 @@ body {
     padding: 48px 36px 36px 36px;
     position: relative;
 }
-.dark-mode .register-container, body.dark-mode .register-container {
+.dark-mode .login-container, body.dark-mode .login-container {
     background: #232946;
     color: #ffe066;
     box-shadow: 0 4px 24px rgba(255,224,102,0.10);
 }
-.register-container h1 {
+.login-container h1 {
     color: #3498db;
     margin-bottom: 30px;
     text-align: center;
     font-size: 2rem;
     font-weight: bold;
 }
-.dark-mode .register-container h1, body.dark-mode .register-container h1 {
-    color: #ffe066;
-}
-.register-container h2 {
-    color: #3498db;
-    margin-bottom: 30px;
-    text-align: center;
-    font-size: 2rem;
-    font-weight: bold;
-}
-.dark-mode .register-container h2, body.dark-mode .register-container h2 {
+.dark-mode .login-container h1, body.dark-mode .login-container h1 {
     color: #ffe066;
 }
 .form-group {
@@ -55,7 +45,7 @@ label {
 .dark-mode label, body.dark-mode label {
     color: #ffe066;
 }
-input[type="text"], input[type="password"], input[type="email"] {
+input[type="text"], input[type="email"], input[type="password"] {
     width: 100%;
     padding: 13px;
     border: 1.5px solid #ddd;
@@ -66,12 +56,12 @@ input[type="text"], input[type="password"], input[type="email"] {
     color: #232946;
     transition: border 0.2s;
 }
-input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus {
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
     outline: none;
     border-color: #3498db;
     box-shadow: 0 0 5px rgba(52, 152, 219, 0.2);
 }
-.dark-mode input[type="text"], .dark-mode input[type="password"], .dark-mode input[type="email"], body.dark-mode input[type="text"], body.dark-mode input[type="password"], body.dark-mode input[type="email"] {
+.dark-mode input[type="text"], .dark-mode input[type="email"], .dark-mode input[type="password"], body.dark-mode input[type="text"], body.dark-mode input[type="email"], body.dark-mode input[type="password"] {
     background: #181a2a;
     color: #ffe066;
     border: 1.5px solid #ffe066;
@@ -92,16 +82,16 @@ input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focu
 .submit-btn:hover {
     background: #1565c0;
 }
-.login-link {
+.register-link {
     text-align: center;
     margin-top: 20px;
 }
-.login-link a {
+.register-link a {
     color: #3498db;
     text-decoration: none;
     font-weight: bold;
 }
-.login-link a:hover {
+.register-link a:hover {
     text-decoration: underline;
 }
 .error-message {
@@ -117,16 +107,6 @@ input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focu
     padding: 10px;
     border-radius: 5px;
     margin-bottom: 20px;
-}
-.field-error {
-    color: #e74c3c;
-    font-size: 14px;
-    margin-top: 5px;
-}
-.help-text {
-    color: #7f8c8d;
-    font-size: 12px;
-    margin-top: 5px;
 }
 .floating-objects {
     position: fixed;
@@ -156,9 +136,30 @@ input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focu
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-30px) scale(1.08); }
 }
+.show-password-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #ffffff;
+    color: #232946;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.9em;
+    padding: 2px 10px;
+    cursor: pointer;
+    z-index: 2;
+}
+.show-password-btn:hover {
+    background: #e0e0e0;
+}
+.dark-mode .show-password-btn {
+    background: #ffe066;
+    color: #232946;
+}
 @media (max-width: 480px) {
-    .register-container h1 { font-size: 1.5rem; }
-    .register-container { padding: 24px 12px; }
-    input[type="text"], input[type="password"], input[type="email"] { padding: 10px; font-size: 0.9rem; }
+    .login-container h1 { font-size: 1.5rem; }
+    .login-container { padding: 24px 12px; }
+    input[type="text"], input[type="email"], input[type="password"] { padding: 10px; font-size: 0.9rem; }
     .submit-btn { padding: 10px; font-size: 0.9rem; }
-} 
+}
