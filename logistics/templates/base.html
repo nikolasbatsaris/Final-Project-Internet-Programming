@@ -13,7 +13,23 @@
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
+    {% if messages %}
+      <div id="toast-container">
+        {% for message in messages %}
+          <div class="toast-message {{ message.tags|default:'info' }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      <script>
+        setTimeout(function() {
+          var toast = document.querySelector('#toast-container');
+          if (toast) {
+            toast.style.opacity = '0';
+            setTimeout(function() { toast.remove(); }, 600);
+          }
+        }, 3000);
+      </script>
+    {% endif %}
     <header class="sticky-header">
         <div class="header-logo">ShipLink</div>
         <!-- Desktop Navigation -->
@@ -49,9 +65,9 @@
         {% endif %}
         <button class="dark-toggle" id="mobileDarkModeToggle" title="Toggle dark mode">🌙</button>
     </nav>
-    <div class="main-content">
+    <main class="flex-grow-1 main-content">
         {% block content %}{% endblock %}
-    </div>
+    </main>
     <footer class="footer mt-auto">
         <div class="container">
             <div class="row justify-content-center">

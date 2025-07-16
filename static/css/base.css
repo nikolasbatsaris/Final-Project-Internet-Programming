@@ -2,6 +2,9 @@
 
 html, body {
     height: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
@@ -9,6 +12,10 @@ html, body {
     color: #222;
     font-size: 16px;
     line-height: 1.6;
+}
+body.dark-mode, .dark-mode body, .dark-mode html, html.dark-mode, body.dark-mode {
+    background: #232946 !important;
+    color: #ffe066;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -239,20 +246,49 @@ body {
 
 /* Footer styles */
 .footer {
-    width: 100vw;
+    width: 100%;
     background: #2193b0;
     color: #fff;
     text-align: center;
     padding: 18px 0 12px 0;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    z-index: 1001;
+    position: relative;
+    margin-top: auto;
 }
 .dark-mode .footer {
     background: #232946;
     color: #ffe066;
 }
+
+/* Toast message styles for feedback (global) */
+#toast-container {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    min-width: 260px;
+    max-width: 90vw;
+    text-align: center;
+    pointer-events: none;
+    transition: opacity 0.6s;
+}
+.toast-message {
+    display: inline-block;
+    background: #3498db;
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 8px;
+    margin: 8px 0;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(52,152,219,0.10);
+    opacity: 0.97;
+    pointer-events: auto;
+    transition: background 0.2s, color 0.2s;
+}
+.toast-message.info { background: #3498db; }
+.toast-message.success { background: #27ae60; }
+.toast-message.error, .toast-message.danger { background: #e74c3c; }
+.toast-message.warning { background: #f1c40f; color: #222; }
 
 /* Responsive tweaks for navbar and footer */
 @media (max-width: 900px) {
@@ -273,4 +309,16 @@ body {
     .mobile-nav {
         display: none !important;
     }
+} 
+
+.main-content, main.main-content {
+    flex: 1 0 auto;
+    min-height: 0;
+    width: 100%;
+    display: block;
+    background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+}
+.dark-mode .main-content, .dark-mode main.main-content {
+    background: linear-gradient(135deg, #232946 0%, #1a1a2e 100%) !important;
+    color: #ffe066;
 } 

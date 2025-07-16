@@ -11,8 +11,8 @@ body {
 
 .login-container {
     background: #fff;
-    max-width: 420px;
-    margin: 64px auto 0 auto;
+    max-width: 900px;
+    margin: 8px auto 0 auto;
     border-radius: 18px;
     box-shadow: 0 4px 24px rgba(52,152,219,0.10);
     padding: 48px 36px 36px 36px;
@@ -156,6 +156,55 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
 .dark-mode .show-password-btn {
     background: #ffe066;
     color: #232946;
+}
+.register-flex {
+    display: flex;
+    gap: 32px;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.register-section {
+    flex: 1 1 240px;
+    min-width: 220px;
+    background: rgba(255,255,255,0.10);
+    border-radius: 12px;
+    padding: 24px 18px 18px 18px;
+    box-shadow: 0 2px 10px rgba(20,30,40,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.left-section {
+    margin-right: 8px;
+}
+.right-section {
+    margin-left: 8px;
+}
+.register-section h2 {
+    font-size: 1.18rem;
+    font-weight: bold;
+    color: #3498db;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+    text-align: left;
+}
+.dark-mode .register-section {
+    background: #232946;
+    color: #ffe066;
+    box-shadow: 0 2px 10px rgba(255,224,102,0.08);
+}
+.dark-mode .register-section h2 {
+    color: #ffe066;
+}
+@media (max-width: 700px) {
+    .register-flex {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .left-section, .right-section {
+        margin: 0;
+    }
 }
 @media (max-width: 480px) {
     .login-container h1 { font-size: 1.5rem; }

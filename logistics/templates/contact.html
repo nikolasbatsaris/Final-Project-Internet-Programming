@@ -50,6 +50,15 @@
             </svg>
         </div>
         {% if not user.is_authenticated %}
+        <!--
+            MOVING TRUCK ANIMATION
+            ---------------------
+            The truck below is an SVG that animates from left to right across the bottom of the page.
+            The movement is achieved using the .truck-cta-svg class and the @keyframes truck-drive CSS animation
+            defined in static/css/contact.css. The truck starts off-screen (left: -900px) and moves to the right (left: 100vw)
+            over 28 seconds, looping infinitely.
+            To reuse this effect, copy the <div class="truck-cta-container">...</div> and the relevant CSS.
+        -->
         <div class="truck-cta-container">
             <svg class="truck-cta-svg" viewBox="0 0 900 160" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g class="float-obj float1">
@@ -92,6 +101,7 @@
                 </a>
             </svg>
         </div>
+        <!-- End moving truck animation explanation -->
         {% endif %}
     </div>
 {% endblock %}

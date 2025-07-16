@@ -8,6 +8,12 @@
     <script src="/static/js/manager_edit_user.js" defer></script>
 </head>
 <body>
+
+
+
+
+
+    
     <div class="shiplink-logo">ShipLink</div>
     <div class="dashboard-flex">
         <nav class="sidebar">
@@ -29,6 +35,11 @@
                         <li class="{{ message.tags|default:'default' }}">{{ message }}</li>
                     {% endfor %}
                 </ul>
+
+
+
+
+
             {% endif %}
             {% if edit_user.is_superuser %}
                 <div style="color:#e74c3c; font-weight:bold; margin-bottom:24px;">You cannot edit or promote a manager (superuser).</div>
@@ -47,6 +58,11 @@
                             {% endfor %}
                         </div>
                     {% endfor %}
+
+
+
+
+
                     <div class="actions">
                         {% if not edit_user.is_staff and not edit_user.is_superuser %}
                             <label style="display:flex;align-items:center;gap:8px;">

@@ -133,6 +133,16 @@ button:hover {
     pointer-events: none;
     z-index: 2;
 }
+/*
+========================================
+MOVING TRUCK ANIMATION (Contact Page)
+----------------------------------------
+The truck SVG is animated from left to right across the bottom of the page using CSS only.
+- The .truck-cta-svg class sets the initial position off-screen to the left (left: -900px).
+- The animation property applies the truck-drive keyframes, which animate the 'left' property from -900px to 100vw (off-screen right) over 28 seconds, looping infinitely.
+- No JavaScript is needed; the browser handles the movement.
+========================================
+*/
 .truck-cta-svg {
     position: absolute;
     left: -900px;
@@ -141,6 +151,12 @@ button:hover {
     height: 160px;
     animation: truck-drive 28s linear infinite;
 }
+/*
+Keyframes for the truck movement:
+- 0%: Truck is off-screen left (left: -900px)
+- 100%: Truck is off-screen right (left: 100vw)
+- The animation loops forever
+*/
 @keyframes truck-drive {
     0% { left: -900px; }
     100% { left: 100vw; }

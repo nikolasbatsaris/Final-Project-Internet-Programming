@@ -9,42 +9,50 @@
 {% endblock %}
 {% block content %}
     <div class="main-content">
-        <div class="register-container">
+        <div class="login-container">
             <h1>Create Account</h1>
             {% if messages %}
                 <div class="success-message">{% for message in messages %}{{ message }}{% endfor %}</div>
             {% endif %}
             <form method="post" autocomplete="off">
                 {% csrf_token %}
-                <div class="form-group">
-                    {{ form.username.label_tag }} <input type="text" name="username" id="id_username" maxlength="25" class="form-control" required>
-                    <small class="form-help">Max 25 characters.</small>
-                    {% if form.username.errors %}<div class="field-error">{{ form.username.errors }}</div>{% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.first_name.label_tag }} <input type="text" name="first_name" id="id_first_name" maxlength="25" class="form-control" required>
-                    <small class="form-help">Max 25 characters.</small>
-                    {% if form.first_name.errors %}<div class="field-error">{{ form.first_name.errors }}</div>{% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.last_name.label_tag }} <input type="text" name="last_name" id="id_last_name" maxlength="25" class="form-control" required>
-                    <small class="form-help">Max 25 characters.</small>
-                    {% if form.last_name.errors %}<div class="field-error">{{ form.last_name.errors }}</div>{% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.email.label_tag }} <input type="email" name="email" id="id_email" maxlength="30" class="form-control" required>
-                    <small class="form-help">Max 30 characters.</small>
-                    {% if form.email.errors %}<div class="field-error">{{ form.email.errors }}</div>{% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.password1.label_tag }} <input type="password" name="password1" id="id_password1" maxlength="25" class="form-control" required>
-                    <small class="form-help">Password must be at least 8 characters, include an uppercase letter and a special character. Max 25 characters.</small>
-                    {% if form.password1.errors %}<div class="field-error">{{ form.password1.errors }}</div>{% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.password2.label_tag }} <input type="password" name="password2" id="id_password2" maxlength="25" class="form-control" required>
-                    <small class="form-help">Repeat your password exactly as above. Max 25 characters.</small>
-                    {% if form.password2.errors %}<div class="field-error">{{ form.password2.errors }}</div>{% endif %}
+                <div class="register-flex">
+                    <div class="register-section left-section">
+                        <h2>Personal Info</h2>
+                        <div class="form-group">
+                            {{ form.first_name.label_tag }} <input type="text" name="first_name" id="id_first_name" maxlength="25" required>
+                            <small class="form-help">Max 25 characters.</small>
+                            {% if form.first_name.errors %}<div class="field-error">{{ form.first_name.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.last_name.label_tag }} <input type="text" name="last_name" id="id_last_name" maxlength="25" required>
+                            <small class="form-help">Max 25 characters.</small>
+                            {% if form.last_name.errors %}<div class="field-error">{{ form.last_name.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.email.label_tag }} <input type="email" name="email" id="id_email" maxlength="30" required>
+                            <small class="form-help">Max 30 characters.</small>
+                            {% if form.email.errors %}<div class="field-error">{{ form.email.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="register-section right-section">
+                        <h2>Account Info</h2>
+                        <div class="form-group">
+                            {{ form.username.label_tag }} <input type="text" name="username" id="id_username" maxlength="25" required>
+                            <small class="form-help">Max 25 characters.</small>
+                            {% if form.username.errors %}<div class="field-error">{{ form.username.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.password1.label_tag }} <input type="password" name="password1" id="id_password1" maxlength="25" required>
+                            <small class="form-help">Password must be at least 8 characters, include an uppercase letter and a special character. Max 25 characters.</small>
+                            {% if form.password1.errors %}<div class="field-error">{{ form.password1.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.password2.label_tag }} <input type="password" name="password2" id="id_password2" maxlength="25" required>
+                            <small class="form-help">Repeat your password exactly as above. Max 25 characters.</small>
+                            {% if form.password2.errors %}<div class="field-error">{{ form.password2.errors }}</div>{% endif %}
+                        </div>
+                    </div>
                 </div>
                 <button type="submit" class="submit-btn">Register</button>
             </form>

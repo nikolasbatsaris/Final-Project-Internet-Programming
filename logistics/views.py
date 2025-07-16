@@ -211,9 +211,10 @@ def job_detail_json(request, job_id):
     return JsonResponse(data)
 
 class CustomUserCreationForm(UserCreationForm):
-    first_name = forms.CharField(max_length=30, required=True, label='First Name')
-    last_name = forms.CharField(max_length=30, required=True, label='Last Name')
-    email = forms.EmailField(max_length=254, required=True, label='Email Address')
+    username = forms.CharField(max_length=25, required=True, label='Username')
+    first_name = forms.CharField(max_length=25, required=True, label='First Name')
+    last_name = forms.CharField(max_length=25, required=True, label='Last Name')
+    email = forms.EmailField(max_length=30, required=True, label='Email Address')
 
     class Meta(UserCreationForm.Meta):
         model = User
@@ -1254,14 +1255,12 @@ def about_view(request):
 
 def contact_view(request):
     success = False
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        message = request.POST.get('message')
-        if name and email and message:
-            ContactMessage.objects.create(name=name, email=email, message=message)
-            success = True
-    return render(request, 'contact.html', {'success': success})
+    form = ContactMessageForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        success = True
+        form = ContactMessageForm()  # Reset form after success
+    return render(request, 'contact.html', {'form': form, 'success': success})
 
 @staff_member_required
 def staff_contact_messages(request):

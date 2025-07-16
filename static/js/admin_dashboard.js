@@ -60,8 +60,21 @@ function bulkApprove() {
 
 // submits bulk remove form
 function bulkRemove() {
-    document.querySelector('#liveJobBulkAction').value = 'remove'; // set action to remove
-    document.querySelector('#bulkLiveJobsForm').submit(); // submit form
+    // Try to remove job requests if the form exists
+    var jobRequestForm = document.querySelector('#bulkJobRequestForm');
+    var jobRequestAction = document.querySelector('#jobRequestBulkAction');
+    if (jobRequestForm && jobRequestAction) {
+        jobRequestAction.value = 'remove';
+        jobRequestForm.submit();
+        return;
+    }
+    // Otherwise, try to remove live jobs
+    var liveJobForm = document.querySelector('#bulkLiveJobsForm');
+    var liveJobAction = document.querySelector('#liveJobBulkAction');
+    if (liveJobForm && liveJobAction) {
+        liveJobAction.value = 'remove';
+        liveJobForm.submit();
+    }
 }
 
 // triggers csv export with current filter and type
